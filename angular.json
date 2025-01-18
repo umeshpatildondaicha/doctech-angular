@@ -27,8 +27,10 @@
               }
             ],
             "styles": [
+              "node_modules/@fortawesome/fontawesome-free/css/all.min.css",
               "src/styles.css"
             ],
+
             "scripts": [],
             "server": "src/main.server.ts",
             "prerender": true,
@@ -97,5 +99,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "e1d2cc41-9ccc-4e33-a086-98f4131c82b3"
   }
 }

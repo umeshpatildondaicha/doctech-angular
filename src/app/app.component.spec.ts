@@ -1,10 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { HeaderComponent } from './layout/header/header.component';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      declarations: [
+        AppComponent, // Declare the AppComponent
+        HeaderComponent, // Include HeaderComponent
+        SidebarComponent, // Include SidebarComponent
+      ],
     }).compileComponents();
   });
 
@@ -14,7 +20,7 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'doctech-angular' title`, () => {
+  it(`should have the title 'doctech-angular'`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('doctech-angular');

@@ -1,0 +1,95 @@
+/* Overall Header Style */
+.header {
+    background-color: #686868;
+    color: white;
+    height: 60px;
+    width: -webkit-fill-available !important;;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+    transition: left 0.3s ease, width 0.3s ease;
+  }
+  
+  /* Logo Styling */
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+  
+  .logo-img {
+    width: 40px; 
+    height: auto;
+  }
+  
+  /* Right-side Icons Section */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+  }
+  
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+  }
+  
+  .icon img {
+    width: 100%;
+    height: auto;
+  }
+  
+  /* When sidebar is expanded, shift the header */
+  .expanded ~ .header {
+    left: 200px;
+    width: calc(100% - 200px);
+  }
+  
+  /* Overall Header Style */
+.header {
+    background-color: #686868;
+    color: white;
+    height: 60px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+    transition: left 0.3s ease, width 0.3s ease;
+  }
+  
+  /* Right-side Icons Section */
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+  }
+  
+  .icon i {
+    font-size: 18px;
+  }
+  
+  /* Icon specific for fullscreen */
+  .icon i.fa-expand, .icon i.fa-compress {
+    cursor: pointer;
+  }
+  

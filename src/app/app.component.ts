@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { HeaderComponent } from './layout/header/header.component';
+import { SidebarComponent } from './layout/sidebar/sidebar.component';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
+  standalone: true, // Mark as standalone
+  imports: [HeaderComponent, SidebarComponent], // Import other standalone components
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  title = 'doctech-angular';
+  title = 'doctech-angular'; // Define the title property
 }

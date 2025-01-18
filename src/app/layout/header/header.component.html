@@ -1,0 +1,27 @@
+<header class="header">
+    <!-- Logo Section -->
+    <div class="logo">
+      <i class="fas fa-user"></i>
+    </div>
+  
+    <!-- Right-side Icons Section -->
+    <div class="header-right">
+      <div class="icon">
+        <i class="fas" [class.fa-expand]="!isFullscreen" [class.fa-compress]="isFullscreen" (click)="toggleFullscreen()"></i> <!-- Fullscreen Icon -->
+      </div>
+      <div class="icon">
+        <i class="fas fa-globe"></i> <!-- Language Icon -->
+      </div>
+      <div class="icon">
+        <i class="fas fa-comment-alt"></i> <!-- Message Icon -->
+      </div>
+      <div class="icon">
+        <i class="fas fa-bell"></i> <!-- Notification Icon -->
+      </div>
+      <div class="icon">
+        <i class="fas fa-user"></i> <!-- Profile Icon -->
+      </div>
+
+    </div>
+  </header>
+  

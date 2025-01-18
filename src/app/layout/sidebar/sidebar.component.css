@@ -1,0 +1,148 @@
+/* Sidebar Container */
+.sidebar {
+    background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
+    color: white;
+    height: calc(100vh - 60px);
+    width: 60px;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    transition: width 0.3s ease;
+    white-space: nowrap;
+  }
+
+  
+  .sidebar:hover,
+  .sidebar.pinned {
+    width: 250px; 
+  }
+  
+  /* Disable hover effect when pinned */
+  .sidebar.pinned:hover {
+    width: 250px;
+  }
+  
+  .sidebar-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    background-color: #222;
+  }
+  
+  .pin-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+  
+  .pin-button:hover {
+    transform: scale(1.2);
+  }
+  
+  .sidebar:hover {
+    width: 250px;
+  }
+  
+  /* Remove list dots */
+  .nk-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Sidebar Item */
+  .nk-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    position: relative;
+  }
+  
+  .nk-menu-item a {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .nk-menu-item:hover {
+    background-color: #444;
+    transform: scale(1.02);
+  }
+  
+  .nk-menu-item.active {
+    background-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+  }
+  
+  /* Icon Styling */
+  .sidebar-icon {
+    font-size: 18px;
+    margin-right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    text-align: center;
+    color: white; 
+  }
+  
+  /* Text Styling */
+  .sidebar-text {
+    opacity: 0; 
+    overflow: hidden;
+    white-space: nowrap;
+    transition: opacity 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  /* Show text on hover */
+  .sidebar:hover .sidebar-text {
+    opacity: 1;
+  }
+  
+  /* Submenu Styling */
+  .sidebar-submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    max-height: 0; 
+    transition: max-height 0.3s ease;
+    padding-left: 20px;
+    border-left: 2px solid #555;
+  }
+  
+  .nk-menu-item.has-sub:hover .sidebar-submenu {
+    max-height: 300px; 
+  }
+  
+  .sidebar-submenu .nk-menu-item {
+    padding: 8px 15px;
+    font-size: 14px;
+  }
+  
+  .sidebar-submenu .nk-menu-item:hover {
+    background-color: #555;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100px;
+    }
+    .sidebar:hover {
+      width: 200px;
+    }
+  }
+  

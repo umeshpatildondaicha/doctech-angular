@@ -1,0 +1,78 @@
+<div class="sidebar" [class.pinned]="isPinned">
+    <div class="sidebar-header">
+        <button class="pin-button" (click)="togglePinSidebar()">
+          <i [class]="isPinned ? 'fas fa-thumbtack' : 'far fa-thumbtack'"></i>
+        </button>
+      </div>
+    
+    <ul class="nk-menu">
+    <!-- Sidebar items (as before) -->
+    <li class="nk-menu-item">
+        <a href="/demo7/hospital/index.html" class="nk-menu-link">
+        <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
+        <span class="sidebar-text">Dashboard</span>
+        </a>
+    </li>
+      <!-- Dashboard -->
+      <li class="nk-menu-item">
+        <a href="/demo7/hospital/index.html" class="nk-menu-link">
+          <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
+          <span class="sidebar-text">Dashboard</span>
+        </a>
+      </li>
+  
+      <!-- Appointments -->
+      <li class="nk-menu-item">
+        <a href="/demo7/hospital/appointment.html" class="nk-menu-link">
+          <span class="sidebar-icon"><i class="fas fa-calendar-alt"></i></span>
+          <span class="sidebar-text">Appointment List</span>
+        </a>
+      </li>
+  
+      <!-- Patient Section -->
+      <li class="nk-menu-item has-sub">
+        <a href="#" class="nk-menu-link nk-menu-toggle">
+          <span class="sidebar-icon"><i class="fas fa-user-injured"></i></span>
+          <span class="sidebar-text">Patient</span>
+        </a>
+        <ul class="nk-menu-sub sidebar-submenu">
+          <li class="nk-menu-item">
+            <a href="/demo7/hospital/patient-add.html" class="nk-menu-link">
+              <span class="sidebar-text">Add Patient</span>
+            </a>
+          </li>
+          <li class="nk-menu-item">
+            <a href="/demo7/hospital/patient-list.html" class="nk-menu-link">
+              <span class="sidebar-text">IPD / OPD Patients</span>
+            </a>
+          </li>
+          <li class="nk-menu-item">
+            <a href="/demo7/hospital/patient-profile.html" class="nk-menu-link">
+              <span class="sidebar-text">Patient Profile</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+  
+      <!-- Doctors / Nurses -->
+      <li class="nk-menu-item has-sub">
+        <a href="#" class="nk-menu-link nk-menu-toggle">
+          <span class="sidebar-icon"><i class="fas fa-user-md"></i></span>
+          <span class="sidebar-text">Doctors / Nurses</span>
+        </a>
+        <ul class="nk-menu-sub sidebar-submenu">
+          <li class="nk-menu-item">
+            <a href="/demo7/hospital/doctor-nurse-add.html" class="nk-menu-link">
+              <span class="sidebar-text">Add Doctor / Nurses</span>
+            </a>
+          </li>
+          <li class="nk-menu-item">
+            <a href="/demo7/hospital/doctor-nurse-list.html" class="nk-menu-link">
+              <span class="sidebar-text">Doctors / Nurses</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  

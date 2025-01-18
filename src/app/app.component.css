@@ -1,0 +1,44 @@
+/* Main container for the whole layout */
+.app-container {
+    display: flex;
+    flex-direction: column;  
+  }
+  
+  /* Full-width header */
+  app-header {
+    width: 100%;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  
+  /* Main content area with sidebar */
+  .main-container {
+    display: flex;
+    min-height: 100vh; 
+  }
+  
+  /* Sidebar width and hover functionality */
+  app-sidebar {
+    width: 60px; 
+    transition: width 0.3s ease-in-out;
+  }
+  
+  app-sidebar.expanded {
+    width: 250px; 
+  }
+  
+  /* Content area that adjusts according to sidebar state */
+  .content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f4f4f4;
+    transition: margin-left 0.3s ease-in-out;
+  }
+  
+  /* When sidebar is expanded, shift content accordingly */
+  app-sidebar.expanded + .content {
+    margin-left: 250px;
+  }
+  
