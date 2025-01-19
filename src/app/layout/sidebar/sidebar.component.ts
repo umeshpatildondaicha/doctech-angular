@@ -23,12 +23,5 @@ export class SidebarComponent {
     this.isSubmenuOpen = !this.isSubmenuOpen;
   }
 
-  // toggleSubmenu(event: Event, submenuId: string) {
-  //   event.preventDefault();
-  //   const submenu = document.getElementById(submenuId);
-  //   if (submenu) {
-  //     submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
-  //   }
-  // }
 }
 

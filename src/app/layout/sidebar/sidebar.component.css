@@ -2,10 +2,10 @@
 .sidebar {
     background: linear-gradient(135deg, #3a3a3a, #1f1f1f);
     color: white;
-    height: calc(100vh - 60px);
-    width: 60px;
+    height: calc(100vh - 40px);
+    width: 40px;
     position: fixed;
-    top: 60px;
+    top: 40px;
     left: 0;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
@@ -26,7 +26,7 @@
   
   .sidebar-header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     padding: 10px;
     background-color: #222;
   }
@@ -110,6 +110,9 @@
   .sidebar:hover .sidebar-text {
     opacity: 1;
   }
+  .sidebar.pinned .sidebar-text {
+    opacity: 1; 
+  }
   
   /* Submenu Styling */
   /* Submenu Styling */
@@ -143,11 +146,12 @@
 .nk-menu-item.has-sub.open .sidebar-submenu {
   max-height: 300px; /* Submenu becomes visible */
 }
+
   
   /* Responsive Design */
   @media (max-width: 768px) {
     .sidebar {
-      width: 100px;
+      /* width: 100px; */
     }
     .sidebar:hover {
       width: 200px;
