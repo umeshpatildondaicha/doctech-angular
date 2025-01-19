@@ -15,12 +15,20 @@ export class SidebarComponent {
   togglePinSidebar() {
     this.isPinned = !this.isPinned;
   }
-  toggleSubmenu(event: Event, submenuId: string) {
+
+  isSubmenuOpen = false;
+
+  toggleSubmenu(event: Event): void {
     event.preventDefault();
-    const submenu = document.getElementById(submenuId);
-    if (submenu) {
-      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
-    }
+    this.isSubmenuOpen = !this.isSubmenuOpen;
   }
+
+  // toggleSubmenu(event: Event, submenuId: string) {
+  //   event.preventDefault();
+  //   const submenu = document.getElementById(submenuId);
+  //   if (submenu) {
+  //     submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+  //   }
+  // }
 }
 

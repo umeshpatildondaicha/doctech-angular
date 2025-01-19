@@ -57,7 +57,7 @@
   
   /* Sidebar Item */
   .nk-menu-item {
-    display: flex;
+    display: block;
     align-items: center;
     padding: 12px 10px;
     cursor: pointer;
@@ -112,29 +112,37 @@
   }
   
   /* Submenu Styling */
-  .sidebar-submenu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    max-height: 0; 
-    transition: max-height 0.3s ease;
-    padding-left: 20px;
-    border-left: 2px solid #555;
-  }
-  
-  .nk-menu-item.has-sub:hover .sidebar-submenu {
-    max-height: 300px; 
-  }
-  
-  .sidebar-submenu .nk-menu-item {
-    padding: 8px 15px;
-    font-size: 14px;
-  }
-  
-  .sidebar-submenu .nk-menu-item:hover {
-    background-color: #555;
-  }
+  /* Submenu Styling */
+.sidebar-submenu {
+  list-style: none;
+  overflow: hidden;
+  max-height: 0; /* Initially hidden */
+  transition: max-height 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding-top: inherit;
+  padding-left: initial;
+  margin-left: 18px;
+}
+
+/* Adjust parent styling for submenu visibility */
+.nk-menu-item.has-sub:hover .sidebar-submenu {
+  border-left: 2px solid #555;
+  max-height: 300px; /* Enough to display all child items */
+}
+
+/* Optional: Adjust submenu item styles */
+.sidebar-submenu .nk-menu-item {
+  padding: 8px 15px;
+  font-size: 14px;
+}
+
+.sidebar-submenu .nk-menu-item:hover {
+  background-color: #555;
+}
+.nk-menu-item.has-sub.open .sidebar-submenu {
+  max-height: 300px; /* Submenu becomes visible */
+}
   
   /* Responsive Design */
   @media (max-width: 768px) {
