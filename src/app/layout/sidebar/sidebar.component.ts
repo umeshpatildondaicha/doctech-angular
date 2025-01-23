@@ -1,19 +1,36 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';  
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { SidebarService } from '../services/sidebar.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule],  
+  imports: [CommonModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.css'],
 })
+export class SidebarComponent implements OnInit {
+  isPinned = false;
 
-export class SidebarComponent {
-  // Toggle Submenu Visibility
-  isPinned = false; 
+  constructor(private sidebarService: SidebarService) {}
+
+  ngOnInit(): void {
+    // Subscribe to the pinned state from the service
+    this.sidebarService.isPinned$.subscribe((isPinned) => {
+      this.isPinned = isPinned;
+    });
+  }
+
+  onHoverStart() {
+    this.sidebarService.setHoverState(true);
+  }
+
+  onHoverEnd() {
+    this.sidebarService.setHoverState(false);
+  }
+
   togglePinSidebar() {
-    this.isPinned = !this.isPinned;
+    this.sidebarService.setPinnedState(!this.isPinned);
   }
 
   isSubmenuOpen = false;
@@ -22,6 +39,4 @@ export class SidebarComponent {
     event.preventDefault();
     this.isSubmenuOpen = !this.isSubmenuOpen;
   }
-
 }
-

@@ -1,4 +1,8 @@
-<div class="sidebar" [class.pinned]="isPinned">
+<div
+  class="sidebar"
+  [class.pinned]="isPinned"
+  (mouseenter)="onHoverStart()"
+  (mouseleave)="onHoverEnd()">
   <div class="sidebar-header">
     <button class="pin-button" (click)="togglePinSidebar()">
       <i [class]="isPinned ? 'fas fa-thumbtack' : 'fa-solid fa-thumbtack-slash'"></i>

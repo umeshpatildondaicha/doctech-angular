@@ -1,12 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, NgModule } from '@angular/core';
+import { SidebarService } from '../services/sidebar.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,  
+  imports: [CommonModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent {
+  isPinned$ = this.sidebarService.isPinned$;
+  isHovered$ = this.sidebarService.isHovered$;
+  constructor(private sidebarService: SidebarService) {}
+
   isFullscreen = false; // Track fullscreen state
 
   toggleFullscreen() {
