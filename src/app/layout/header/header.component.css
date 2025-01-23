@@ -1,6 +1,6 @@
 /* Overall Header Style */
 .header {
-    height: 60px;
+    height: 3rem;
     margin-left: 3rem;
     width: -webkit-fill-available !important;;
     display: flex;
@@ -14,100 +14,37 @@
     background-color: white;
     color: #b9bdbc;
     height: 3rem;
-    justify-content: space-evenly;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: white;
+  justify-content: space-between;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
 }
 
-  
-  .header.sidebar-pinned {
-    margin-left: 250px; /* Pinned sidebar width */
-    width: calc(100% - 250px);
-  }
-  
-  .header.sidebar-hovered:not(.sidebar-pinned) {
-    margin-left: 3rem; /* Do not expand header on hover */
-    width: calc(100% - 3rem);
-  }
-  /* Logo Styling */
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-  
-  .logo-img {
-    width: 40px; 
-    height: auto;
-  }
-  
-  /* Right-side Icons Section */
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px; 
-  }
-  
-  .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-  }
-  
-  .icon img {
-    width: 100%;
-    height: auto;
-  }
-  
-  /* When sidebar is expanded, shift the header */
-  .expanded ~ .header {
-    left: 200px;
-    width: calc(100% - 200px);
-  }
-  
+.logo h4 {
+  margin: 0;
+  color: #333;
+  font-size: 1.2rem;
+}
 
-  /* Right-side Icons Section */
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-  }
-  
-  .icon i {
-    font-size: 18px;
-  }
-  
-  /* Icon specific for fullscreen */
-  .icon i.fa-expand, .icon i.fa-compress {
-    cursor: pointer;
-  }
-
-  
-  /* Search Bar Section */
+/* Search Bar Styling */
 .search-bar {
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: white; /* Light background for the search bar */
+  background-color: white;
   padding: 5px 15px;
-  border: 1px solid #d1d9de; /* Subtle border */
-  border-radius: 10px; /* Curve the edges */
-  flex: 1; /* Adjust the width of the search bar */
-  max-width: 250px; /* Limit the width */
-  margin: 0 auto; /* Center the search bar */
-}
-
-.search-bar i {
-  font-size: 16px;
-  color: #01A69D; /* Icon color */
+  border: 1px solid #d1d9de;
+  border-radius: 10px;
+  max-width: 250px;
 }
 
 .search-bar input {
@@ -115,15 +52,102 @@
   border: none;
   outline: none;
   background: transparent;
-  font-size: 14px;
-  color: #333; /* Text color */
+  font-size: 1rem;
+  color: #333;
 }
 
 .search-bar input::placeholder {
-  color: #8e9297; /* Placeholder text color */
+  color: #8e9297;
 }
 
-.search-bar:focus-within {
-  border-color: #007bff; /* Highlight border on focus */
-  box-shadow: 0 0 4px rgba(0, 123, 255, 0.2); /* Add subtle glow */
+/* Buttons */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  background-color: #f8f9fa;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn i {
+  font-size: 1rem;
+  color: #4a4a4a;
+}
+
+.btn:hover {
+  background-color: #e6e6e6;
+}
+
+.btn:hover i {
+  color: #000;
+}
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-profile .profile-info {
+  text-align: right;
+}
+
+.user-profile .name {
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.user-profile .specialization {
+  font-size: 0.8rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Dropdown */
+.dropdown-menu {
+  min-width: 150px;
+}
+
+.dropdown-menu .dropdown-item {
+  font-size: 0.9rem;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .logo h4 {
+    font-size: 1rem;
+  }
+
+  .search-bar {
+    max-width: 200px;
+  }
+
+  .header-right {
+    gap: 15px;
+  }
+
+  .user-profile .profile-info {
+    display: none;
+  }
+}
+/* Initial State: Hidden */
+#hospital-name {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 1s ease-in-out, visibility 0s linear 1s; /* Delay visibility change */
+}
+
+.show-message {
+  opacity: 1;
+  visibility: visible;
 }
