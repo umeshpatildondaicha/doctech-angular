@@ -27,20 +27,24 @@
   }
   
   app-sidebar.expanded {
-    width: 250px; 
+    width: 15rem; 
   }
   
   /* Content area that adjusts according to sidebar state */
   .content {
     flex: 1;
-    margin-left: 40px;
-    padding: 20px;
+    margin-top: 1rem;
+    margin-left: 3rem;
+    padding: 1rem;
     background-color: #f8fafb;
     transition: margin-left 0.3s ease-in-out;
   }
   
   /* When sidebar is expanded, shift content accordingly */
   app-sidebar.expanded + .content {
-    margin-left: 250px;
+    margin-left: 15rem;
+  }
+  .content.shifted {
+    margin-left: 15rem;
   }
   

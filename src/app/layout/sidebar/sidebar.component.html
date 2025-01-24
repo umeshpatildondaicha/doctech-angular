@@ -5,17 +5,17 @@
   (mouseleave)="onHoverEnd()">
   <div class="sidebar-header">
     <button class="pin-button" (click)="togglePinSidebar()">
-      <i [class]="isPinned ? 'fas fa-thumbtack' : 'fa-solid fa-thumbtack-slash'"></i>
+      <i [class]="isPinned ? 'fa-solid fa-bars' : 'fa-solid fa-thumbtack-slash'"></i>
     </button>
   </div>
     
     <ul class="nk-menu">
     <!-- Sidebar items (as before) -->
     <li class="nk-menu-item">
-        <a href="/demo7/hospital/index.html" class="nk-menu-link">
+      <a routerLink="/dashboard" class="nk-menu-link">
         <span class="sidebar-icon"><i class="fas fa-tachometer-alt"></i></span>
         <span class="sidebar-text">Dashboard</span>
-        </a>
+      </a>
     </li>
       <!-- Dashboard -->
       <li class="nk-menu-item">

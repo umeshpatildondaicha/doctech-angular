@@ -15,12 +15,12 @@
   
   .sidebar:hover,
   .sidebar.pinned {
-    width: 250px; 
+    width: 15rem; 
   }
   
   /* Disable hover effect when pinned */
   .sidebar.pinned:hover {
-    width: 250px;
+    width: 15rem;
   }
   
   .sidebar-header {
@@ -44,7 +44,7 @@
   }
   
   .sidebar:hover {
-    width: 250px;
+    width: 15rem;
   }
   
   /* Remove list dots */

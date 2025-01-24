@@ -1,6 +1,10 @@
 <div class="app">
   <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+  <app-sidebar
+      [class.expanded]="isSidebarPinned"
+      (mouseenter)="onSidebarHoverStart()"
+      (mouseleave)="onSidebarHoverEnd()">
+  </app-sidebar>
 
   <!-- Main Content Area -->
   <div class="main">
@@ -8,9 +12,9 @@
     <app-header></app-header>
 
     <!-- Content -->
-    <div class="content">
-      <h2>Welcome to the Dashboard</h2>
-      <p>Here is your content area.</p>
+    <div class="content" [class.shifted]="isSidebarPinned">
+      <!-- Routed content goes here -->
+      <router-outlet></router-outlet>
     </div>
   </div>
 </div>

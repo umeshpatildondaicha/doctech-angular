@@ -13,20 +13,8 @@
     transition: left 0.3s ease, width 0.3s ease;
     background-color: white;
     color: #b9bdbc;
-    height: 3rem;
     justify-content: space-between;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 1000;
-  background-color: white;
-  justify-content: space-between;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s ease;
 }
 
 .logo h4 {
@@ -44,7 +32,11 @@
   padding: 5px 15px;
   border: 1px solid #d1d9de;
   border-radius: 10px;
-  max-width: 250px;
+  max-width: 15rem;
+}
+
+.search-bar i{
+  color: #01A69D !important;
 }
 
 .search-bar input {
@@ -54,6 +46,7 @@
   background: transparent;
   font-size: 1rem;
   color: #333;
+  border: none !important;
 }
 
 .search-bar input::placeholder {
@@ -110,18 +103,36 @@
 }
 
 /* Dropdown */
-.dropdown-menu {
-  min-width: 150px;
+ /* Dropdown Menu Styling */
+ .dropdown-menu {
+  min-width: 200px; /* Slightly larger for more readability */
+  border-radius: 8px; /* Rounded corners for a modern look */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  border: none; /* Remove default border */
+  padding: 0.5rem 0; /* Space inside the dropdown */
+  background-color: #ffffff; /* Clean white background */
+  transform: translate(0px, 2.5rem) !important; /* Adjust positioning */
 }
 
+/* Dropdown Items */
 .dropdown-menu .dropdown-item {
-  font-size: 0.9rem;
+  font-size: 1rem; /* Slightly larger text */
+  padding: 0.5rem 1rem; /* Comfortable padding */
+  color: #333; /* Neutral text color */
+  transition: background-color 0.2s ease, color 0.2s ease; /* Smooth hover effect */
 }
 
+/* Hover Effects */
 .dropdown-menu .dropdown-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f8f9fa; /* Light grey hover background */
+  color: #007bff; /* Brand color on hover */
 }
 
+/* Divider Styling */
+.dropdown-menu .dropdown-divider {
+  margin: 0.5rem 0; /* Space around divider */
+  border-color: #e9ecef; /* Lighter border color */
+}
 /* Responsive Design */
 @media (max-width: 768px) {
   .logo h4 {
@@ -140,14 +151,10 @@
     display: none;
   }
 }
-/* Initial State: Hidden */
-#hospital-name {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 1s ease-in-out, visibility 0s linear 1s; /* Delay visibility change */
+/* logo */
+.logo a {
+  text-decoration: none;
+  color: #333;
+  font-size: 1.2rem;
 }
 
-.show-message {
-  opacity: 1;
-  visibility: visible;
-}

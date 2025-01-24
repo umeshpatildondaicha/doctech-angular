@@ -11,15 +11,14 @@ import { CommonModule } from '@angular/common';
 export class HeaderComponent implements OnInit {
   isPinned$ = this.sidebarService.isPinned$;
   isHovered$ = this.sidebarService.isHovered$;
-  isMessageVisible = false; // Track "Good Morning" visibility
-  isHospitalVisible = false; // Track Hospital Name visibility
+  currentMessage = ''; // Current visible message
+  isFullscreen = false; // Track fullscreen state
+
   constructor(private sidebarService: SidebarService) {}
 
   ngOnInit(): void {
-    this.showGoodMorningMessage();
+    this.showMessages();
   }
-
-  isFullscreen = false; // Track fullscreen state
 
   toggleFullscreen() {
     if (this.isFullscreen) {
@@ -43,20 +42,10 @@ export class HeaderComponent implements OnInit {
     this.isFullscreen = !this.isFullscreen;
   }
 
-  showGoodMorningMessage() {
-    // Show "Good Morning" message for 10 seconds
-    this.isMessageVisible = true; // Show immediately
-
-    // Hide "Good Morning" and show hospital name after 10 seconds
+  showMessages() {
+    this.currentMessage = 'Good Morning, Dr. Swapnil!👋🏻'; 
     setTimeout(() => {
-        this.isMessageVisible = false; // Hide Good Morning
-        this.isHospitalVisible = true;  // Show Hospital Name
-
-        // Optional: Hide hospital name after another duration
-        setTimeout(() => {
-            this.isHospitalVisible = false; // Hide Hospital Name after some time
-        }, 10000); // Adjust duration as needed
-
-    }, 10000); // Hide Good Morning after 10 seconds
+      this.currentMessage = 'Shree Physio Clinic'; 
+    }, 10000);
   }
 }
