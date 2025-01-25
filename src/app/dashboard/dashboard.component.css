@@ -1,62 +1,112 @@
 .dashboard-container {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  .metrics {
-    grid-column: span 4;
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .card {
-    flex: 1;
-    padding: 1rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    text-align: center;
-  }
-  
-  .chart-container,
-  .appointments,
-  .doctor-schedule {
-    grid-column: span 2;
-    padding: 1rem;
-    background-color: #fff;
-    border-radius: 8px;
-  }
-  
-  .appointments table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .appointments th,
-  .appointments td {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    text-align: left;
-  }
-  
-  .appointments .Confirmed {
-    color: green;
-  }
-  
-  .appointments .Pending {
-    color: orange;
-  }
-  
-  .appointments .Cancelled {
-    color: red;
-  }
-  
-  .doctor-schedule ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .doctor-schedule li {
-    padding: 0.5rem 0;
-  }
-  
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.metrics {
+  grid-column: span 4;
+  display: flex;
+  gap: 1rem;
+  margin-top: 1em;
+}
+
+.card {
+  flex: 1;
+  padding: 1em;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 2px 4px 11px 0px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-middle-content {
+  font-weight: 700;
+  font-size: 1.7em;
+}
+
+.card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.card-bottom-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.button-class {
+  font-weight: 500;
+  border-radius: 1em;
+  border: 0.1em solid #009479;
+  padding: 0.5em 1em;
+  height: 3em;
+  width: max-content;
+  background-color: #009479;
+  color: white;
+}
+
+.button-class:hover {
+  border: 0.1em solid #009479;
+  background-color: white;
+  color: #009479;
+  cursor: pointer;
+}
+
+.duration {
+  font-weight: 500;
+  font-size: 1.1em;
+  font-style: italic;
+  color: #514e4e;
+}
+
+.card-heading {
+  font-size: 1.34em;
+  font-weight: 600;
+  margin-bottom: 0.8em;
+  color: #514e4e;
+}
+
+.chart-container,
+.appointments,
+.doctor-schedule {
+  grid-column: span 2;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 2px 4px 11px 0px rgba(0, 0, 0, 0.1);
+}
+
+.appointments table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.appointments th,
+.appointments td {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.appointments .Confirmed {
+  color: green;
+}
+
+.appointments .Pending {
+  color: orange;
+}
+
+.appointments .Cancelled {
+  color: red;
+}
+
+.doctor-schedule ul {
+  list-style: none;
+  padding: 0;
+}
+
+.doctor-schedule li {
+  padding: 0.5rem 0;
+}

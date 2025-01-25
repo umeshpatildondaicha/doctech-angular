@@ -7,16 +7,16 @@ import { HighchartsChartModule } from 'highcharts-angular'; // Import Highcharts
 import { RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'app-root',
-    imports: [
-      RouterModule, // Import RouterModule
-        CommonModule, // For ngIf, ngFor, async pipe, etc.
-        HighchartsChartModule, // Add Highcharts module
-        HeaderComponent, // Standalone HeaderComponent
-        SidebarComponent // Standalone SidebarComponent
-    ],
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.css']
+  selector: 'app-root',
+  imports: [
+    RouterModule, // Import RouterModule
+    CommonModule, // For ngIf, ngFor, async pipe, etc.
+    HighchartsChartModule, // Add Highcharts module
+    HeaderComponent, // Standalone HeaderComponent
+    SidebarComponent, // Standalone SidebarComponent
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
   title = 'doctech-angular';
