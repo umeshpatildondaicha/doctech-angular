@@ -36,7 +36,7 @@
 
   <!-- Patient Visits Chart -->
   <div class="chart-container">
-    <h3>Patient Visit</h3>
+    <h4>Patient Visit</h4>
     <div>
       <highcharts-chart
         [Highcharts]="Highcharts"
@@ -46,40 +46,95 @@
       </highcharts-chart>
     </div>
   </div>
-
-  <!-- Patient Appointments -->
+  
+  <!-- Appointments -->
+  <!-- Appointments -->
   <div class="appointments">
-    <h3>Patient Appointment</h3>
-    <ag-grid-angular
-      style="width: 100%; height: 80%; display: block"
-      [rowData]="appointments"
-      [columnDefs]="colDefs"
-      [defaultColDef]="defaultColDef"
-    />
+    <div class="d-flex justify-content-between" >
+    <h4>Upcoming Appointments</h4>
+    <!-- Filters Section -->
+    <div class="filters mb-4">
+      <input
+        type="text"
+        placeholder="Search by name or symptoms..."
+        class="filter-input"
+        [(ngModel)]="searchQuery"
+      />
+    </div>
   </div>
-
-  <!-- Doctor's Schedule -->
-  <div class="doctor-schedule">
-    <h3>Doctor's Schedule</h3>
-    <div class="schedule">
-      <div class="schedule-sub-div">
-        <p>Available</p>
-        <p>{{ schedule.available }}</p>
+    <!-- Grid Section -->
+    <div class="custom-grid">
+      <!-- Header Row -->
+      <div class="grid-header">
+        <div class="grid-cell">Patient Name</div>
+        <div class="grid-cell">Visit Type</div>
+        <div class="grid-cell">Symptoms</div>
+        <div class="grid-cell">Status</div>
       </div>
-      <div class="schedule-sub-div">
-        <p>Unavailable</p>
-        <p>{{ schedule.unavailable }}</p>
-      </div>
-      <div class="schedule-sub-div">
-        <p>Leave</p>
-        <p>{{ schedule.leave }}</p>
+      <!-- Filtered Rows -->
+      <div
+        *ngFor="let appointment of filteredAppointments()"
+        class="grid-row"
+      >
+        <div class="grid-cell">{{ appointment.name }}</div>
+        <div class="grid-cell">{{ appointment.visitType }}</div>
+        <div class="grid-cell">{{ appointment.symptoms }}</div>
+        <div class="grid-cell">
+          <span
+            class="status-badge"
+            [ngClass]="{
+              'status-confirmed': appointment.status === 'Confirmed',
+              'status-pending': appointment.status === 'Pending',
+              'status-cancelled': appointment.status === 'Cancelled'
+            }"
+          >
+            {{ appointment.status }}
+          </span>
+        </div>
       </div>
     </div>
-    <ul>
-      <li *ngFor="let doctor of doctors">
-        {{ doctor.name }} - {{ doctor.specialization }}
-        <span [ngClass]="doctor.status">{{ doctor.status }}</span>
-      </li>
-    </ul>
   </div>
+
+  <!-- Income Card Section -->
+  <div class="chart-container">
+    <div class="card-body">
+      <!-- Card Heading -->
+      <div class="card-title text-center mb-3">
+        <h4>Income</h4>
+      </div>
+  
+      <!-- Card Middle Content -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <!-- Filter Dropdown -->
+        <div class="income-dropdown d-flex align-items-center">
+          <label for="income-filter" class="me-2 fw-bold">Filter by:</label>
+          <select
+            id="income-filter"
+            [(ngModel)]="incomeFilter"
+            class="form-select form-select-sm w-auto"
+          >
+            <option value="7days">Last 7 Days</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+  
+        <!-- Total Income -->
+        <div class="total-income text-success fw-bold">
+          <strong>Total Income:</strong> {{ totalIncome | currency }}
+        </div>
+      </div>
+  
+      <!-- Chart Section -->
+      <div>
+        <highcharts-chart
+          [Highcharts]="Highcharts"
+          [options]="incomeChartOptions"
+          class="w-100"
+          style="height: 300px"
+        >
+        </highcharts-chart>
+      </div>
+    </div>
+  </div>
+
 </div>

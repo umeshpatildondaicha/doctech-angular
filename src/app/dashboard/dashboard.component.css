@@ -24,7 +24,7 @@
 .card-middle-content {
   align-items: center;
   font-weight: 700;
-  font-size: 1.7em;
+  font-size: 1em;
 }
 
 .card:hover {
@@ -41,6 +41,7 @@
 .button-class {
   font-weight: 500;
   border-radius: 0.5em;
+  font-size: 0.8em;
   border: 0.1em solid #009479;
   padding: 0.2em 1em;
   width: max-content;
@@ -165,4 +166,148 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+
+/* Appointment */
+.appointments {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5em;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Filters Section */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-input,
+.filter-dropdown,
+.filter-date {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.3s ease;
+}
+
+.filter-input:focus,
+.filter-dropdown:focus,
+.filter-date:focus {
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Grid Styling */
+.custom-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+}
+
+/* Header Row Styling */
+.grid-header {
+  display: flex;
+  background-color: #009479;
+  color: #ffffff;
+  font-weight: bold;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* Row Styling */
+.grid-row {
+  display: flex;
+  padding: 0.1rem;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.grid-row:last-child {
+  border-bottom: none;
+}
+
+.grid-row:hover {
+  background-color: rgba(0, 148, 121, 0.1); /* Light green highlight */
+  transform: scale(1.01);
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Cell Styling */
+.grid-cell {
+  flex: 1;
+  padding: 0.5rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Status Badge Styling */
+.status-badge {
+  font-size: 0.8rem;
+  padding: 0.1rem 0.8rem;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-confirmed {
+  background-color: #28a745; /* Green */
+  color: white;
+}
+
+.status-pending {
+  background-color: #ffc107; /* Yellow */
+  color: black;
+}
+
+.status-cancelled {
+  background-color: #dc3545; /* Red */
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .grid-cell {
+    font-size: 0.875rem;
+    padding: 0.25rem;
+  }
+
+  .grid-header {
+    font-size: 0.9rem;
+  }
+}
+
+
+.dashboard-container {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(4, 1fr); /* Three columns for layout */
+  grid-template-rows: auto; /* Rows adjust based on content */
+}
+
+/* Upcoming Appointments: Left-side, spans full height */
+.appointments {
+  grid-column: span 2; /* Occupy one column */
+  grid-row: span 2; /* Span two rows to match the height of the right cards */
+}
+
+/* Patient Visit: Right-side, top */
+.chart-container:first-of-type {
+  grid-column: span 2; /* Occupy two columns */
+  grid-row: span 1; /* Occupy one row */
+}
+
+/* Income: Right-side, bottom */
+.chart-container:last-of-type {
+  grid-column: span 2; /* Occupy two columns */
+  grid-row: span 1; /* Occupy one row */
 }

@@ -13,7 +13,7 @@ import { RouterModule } from '@angular/router';
     CommonModule, 
     HighchartsChartModule,
     HeaderComponent, 
-    SidebarComponent, 
+    SidebarComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
