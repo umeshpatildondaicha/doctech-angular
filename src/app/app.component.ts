@@ -2,18 +2,18 @@ import { Component, OnInit } from '@angular/core';
 import { HeaderComponent } from './layout/header/header.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { SidebarService } from './layout/services/sidebar.service';
-import { CommonModule } from '@angular/common'; // For Angular common directives/pipes
-import { HighchartsChartModule } from 'highcharts-angular'; // Import HighchartsChartModule
+import { CommonModule } from '@angular/common'; 
+import { HighchartsChartModule } from 'highcharts-angular'; 
 import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-root',
   imports: [
-    RouterModule, // Import RouterModule
-    CommonModule, // For ngIf, ngFor, async pipe, etc.
-    HighchartsChartModule, // Add Highcharts module
-    HeaderComponent, // Standalone HeaderComponent
-    SidebarComponent, // Standalone SidebarComponent
+    RouterModule, 
+    CommonModule, 
+    HighchartsChartModule,
+    HeaderComponent, 
+    SidebarComponent, 
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],

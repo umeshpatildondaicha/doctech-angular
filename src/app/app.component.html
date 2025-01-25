@@ -1,15 +1,16 @@
 <div class="app">
   <!-- Sidebar -->
-  <app-sidebar
-      [class.expanded]="isSidebarPinned"
-      (mouseenter)="onSidebarHoverStart()"
-      (mouseleave)="onSidebarHoverEnd()">
-  </app-sidebar>
+
+  <app-header></app-header>
 
   <!-- Main Content Area -->
   <div class="main">
     <!-- Header -->
-    <app-header></app-header>
+    <app-sidebar
+        [class.expanded]="isSidebarPinned"
+        (mouseenter)="onSidebarHoverStart()"
+        (mouseleave)="onSidebarHoverEnd()">
+    </app-sidebar>
 
     <!-- Content -->
     <div class="content" [class.shifted]="isSidebarPinned">

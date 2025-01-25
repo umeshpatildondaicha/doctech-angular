@@ -2,8 +2,10 @@
 .sidebar {
     background: white;
     color: #01A69D;
+    top: 0;
     height: 100%;
     width: 3rem;
+    z-index: 10;
     position: fixed;
     left: 0;
     overflow-y: auto;
