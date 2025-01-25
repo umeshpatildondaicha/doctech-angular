@@ -3,13 +3,38 @@
   <div class="metrics">
     <div class="card" *ngFor="let metric of metrics">
       <div class="card-heading">{{ metric.title }}</div>
-      <div class="card-middle-content">{{ metric.value }}</div>
+      <div class="card-middle-content d-flex">
+        {{ metric.value }}
+        <div
+        *ngIf="metric.increment"
+        [ngClass]="{
+          'increment-positive': metric.increment.startsWith('+'),
+          'increment-negative': metric.increment.startsWith('-')
+        }"
+        class="increment"
+      >
+        <span class="icon-container">
+          <i
+            class="fa-solid"
+            [ngClass]="{
+              'fa-arrow-trend-up': metric.increment.startsWith('+'),
+              'fa-arrow-trend-down': metric.increment.startsWith('-')
+            }"
+          ></i>
+        </span>
+        <span class="increment-text">
+          {{ metric.increment }}
+        </span>
+      </div>
+      
+      </div>
       <div class="card-bottom-content">
         <p class="duration">{{ metric.subtext }}</p>
         <button class="button-class">See details</button>
       </div>
     </div>
   </div>
+  
 
   <!-- Patient Visits Chart -->
   <div class="chart-container">

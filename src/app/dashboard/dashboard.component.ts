@@ -16,14 +16,10 @@ export class DashboardComponent {
   Highcharts: typeof Highcharts = Highcharts;
 
   metrics = [
-    { title: 'Overall Visitors', value: '1,210', subtext: 'Data for 1 month' },
-    { title: 'Total Patients', value: '871', subtext: 'As of Jan 20, 2025' },
-    { title: 'Book Appointments', value: '291', subtext: 'As of Jan 20, 2025' },
-    {
-      title: 'Room Availability',
-      value: '50/100',
-      subtext: 'As of Jan 20, 2025',
-    },
+    { title: 'Overall Visitors', value: '1,210', subtext: 'Data for 1 month', increment: '+5%' },
+    { title: 'Total Patients', value: '871', subtext: 'As of Jan 20, 2025', increment: '+3%' },
+    { title: 'Book Appointments', value: '291', subtext: 'As of Jan 20, 2025' }, // No increment
+    { title: 'Room Availability', value: '50/100', subtext: 'As of Jan 20, 2025', increment: '-2%' },
   ];
 
   visitChartOptions: Highcharts.Options = {
