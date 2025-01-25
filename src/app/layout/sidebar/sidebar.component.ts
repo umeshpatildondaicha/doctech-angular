@@ -38,4 +38,7 @@ export class SidebarComponent implements OnInit {
     event.preventDefault();
     this.isSubmenuOpen = !this.isSubmenuOpen;
   }
+  logout(): void {
+    console.log("User logged out");
+  }
 }

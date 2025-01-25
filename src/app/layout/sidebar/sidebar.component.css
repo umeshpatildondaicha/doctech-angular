@@ -78,7 +78,7 @@
   }
   .nk-menu-item:hover {
     background-color: #01A69D;
-    transform: scale(1.02);
+    /* transform: scale(1.02); */
     color: white;
   }
   
@@ -123,40 +123,7 @@
   .sidebar.pinned .sidebar-text {
     opacity: 1; 
   }
-  
-/* Submenu Styling */
-.sidebar-submenu {
-  list-style: none;
-  overflow: hidden;
-  max-height: 0; /* Initially hidden */
-  transition: max-height 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  padding-top: inherit;
-  padding-left: initial;
-  margin-left: 18px;
-}
-
-/* Adjust parent styling for submenu visibility */
-.nk-menu-item.has-sub:hover .sidebar-submenu {
-  border-left: 2px solid #555;
-  max-height: 300px; /* Enough to display all child items */
-}
-
-/* Optional: Adjust submenu item styles */
-.sidebar-submenu .nk-menu-item {
-  padding: 8px 15px;
-  font-size: 14px;
-}
-
-.sidebar-submenu .nk-menu-item:hover {
-  background-color: #555;
-}
-.nk-menu-item.has-sub.open .sidebar-submenu {
-  max-height: 300px; /* Submenu becomes visible */
-}
-
-  
+ 
   /* Responsive Design */
   @media (max-width: 768px) {
     .sidebar {
@@ -167,3 +134,36 @@
     }
   }
   
+  /* Sidebar Footer Styling */
+.sidebar-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: white;
+  padding: 1rem 0;
+}
+
+.sidebar-footer .nk-menu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sidebar-footer .nk-menu-item {
+  display: block;
+  padding: 0.6rem 1rem;
+}
+
+.sidebar-footer .nk-menu-item a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #b9bdbc;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.sidebar-footer .nk-menu-item:hover {
+  background-color: #01a69d;
+  color: white;
+}
