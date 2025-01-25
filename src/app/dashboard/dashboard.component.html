@@ -6,27 +6,26 @@
       <div class="card-middle-content d-flex">
         {{ metric.value }}
         <div
-        *ngIf="metric.increment"
-        [ngClass]="{
-          'increment-positive': metric.increment.startsWith('+'),
-          'increment-negative': metric.increment.startsWith('-')
-        }"
-        class="increment"
-      >
-        <span class="icon-container">
-          <i
-            class="fa-solid"
-            [ngClass]="{
-              'fa-arrow-trend-up': metric.increment.startsWith('+'),
-              'fa-arrow-trend-down': metric.increment.startsWith('-')
-            }"
-          ></i>
-        </span>
-        <span class="increment-text">
-          {{ metric.increment }}
-        </span>
-      </div>
-      
+          *ngIf="metric.increment"
+          [ngClass]="{
+            'increment-positive': metric.increment.startsWith('+'),
+            'increment-negative': metric.increment.startsWith('-')
+          }"
+          class="increment"
+        >
+          <span class="icon-container">
+            <i
+              class="fa-solid"
+              [ngClass]="{
+                'fa-arrow-trend-up': metric.increment.startsWith('+'),
+                'fa-arrow-trend-down': metric.increment.startsWith('-')
+              }"
+            ></i>
+          </span>
+          <span class="increment-text">
+            {{ metric.increment }}
+          </span>
+        </div>
       </div>
       <div class="card-bottom-content">
         <p class="duration">{{ metric.subtext }}</p>
@@ -34,7 +33,6 @@
       </div>
     </div>
   </div>
-  
 
   <!-- Patient Visits Chart -->
   <div class="chart-container">
@@ -52,33 +50,30 @@
   <!-- Patient Appointments -->
   <div class="appointments">
     <h3>Patient Appointment</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Patient Name</th>
-          <th>Date In</th>
-          <th>Symptoms</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let appointment of appointments">
-          <td>{{ appointment.name }}</td>
-          <td>{{ appointment.date }}</td>
-          <td>{{ appointment.symptoms }}</td>
-          <td [ngClass]="appointment.status">{{ appointment.status }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <ag-grid-angular
+      style="width: 100%; height: 80%; display: block"
+      [rowData]="appointments"
+      [columnDefs]="colDefs"
+      [defaultColDef]="defaultColDef"
+    />
   </div>
 
   <!-- Doctor's Schedule -->
   <div class="doctor-schedule">
     <h3>Doctor's Schedule</h3>
-    <div>
-      <p>Available: {{ schedule.available }}</p>
-      <p>Unavailable: {{ schedule.unavailable }}</p>
-      <p>Leave: {{ schedule.leave }}</p>
+    <div class="schedule">
+      <div class="schedule-sub-div">
+        <p>Available</p>
+        <p>{{ schedule.available }}</p>
+      </div>
+      <div class="schedule-sub-div">
+        <p>Unavailable</p>
+        <p>{{ schedule.unavailable }}</p>
+      </div>
+      <div class="schedule-sub-div">
+        <p>Leave</p>
+        <p>{{ schedule.leave }}</p>
+      </div>
     </div>
     <ul>
       <li *ngFor="let doctor of doctors">

@@ -78,16 +78,8 @@
   box-shadow: 2px 4px 11px 0px rgba(0, 0, 0, 0.1);
 }
 
-.appointments table {
+.appointments {
   width: 100%;
-  border-collapse: collapse;
-}
-
-.appointments th,
-.appointments td {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  text-align: left;
 }
 
 .appointments .Confirmed {
@@ -153,11 +145,24 @@
   font-weight: bold;
 }
 
-
 .increment-positive {
   color: rgb(64, 201, 64);
 }
 
 .increment-negative {
-  color: rgb(201, 64, 64); 
+  color: rgb(201, 64, 64);
+}
+
+.schedule {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: #3d3a3a25 1px solid;
+}
+
+.schedule-sub-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 }
