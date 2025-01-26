@@ -1,0 +1,33 @@
+<div class="calendar-container">
+  <!-- Header -->
+  <h2 class="title">Appointment Calendar</h2>
+
+  <!-- Date Picker -->
+  <mat-form-field appearance="outline" class="date-picker">
+    <mat-label>Select Date</mat-label>
+    <input
+      matInput
+      [matDatepicker]="picker"
+      [(ngModel)]="selectedDate"
+      (dateChange)="fetchAppointments()"
+    />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+
+  <!-- Time Slots -->
+  <div class="slots-container">
+    <h3 class="subtitle">Available Time Slots</h3>
+    <div *ngIf="timeSlots.length === 0" class="no-slots">
+      No slots available for the selected date.
+    </div>
+    <div *ngFor="let slot of timeSlots" class="slot" [ngClass]="{'booked': slot.booked}" (click)="bookSlot(slot)">
+      <div class="slot-info">
+        <span class="time">{{ slot.time }}</span>
+        <span class="status" [ngClass]="{'available': !slot.booked, 'booked-status': slot.booked}">
+          {{ slot.booked ? 'Booked' : 'Available' }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
