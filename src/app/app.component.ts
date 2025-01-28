@@ -6,6 +6,7 @@ import { HeaderComponent } from './layout/header/header.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { AppointmentCalendarComponent } from './appointment-calendar/appointment-calendar.component';
 import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card'; 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
-
+import { PatientProfileComponent } from './patient-profile/patient-profile.component';
 @Component({
   selector: 'app-root',
   imports: [
@@ -24,6 +25,7 @@ import { SidebarService } from './layout/services/sidebar.service';
     HeaderComponent, 
     FormsModule,
     SidebarComponent,
+    MatCardModule,
     AppointmentCalendarComponent,
     MatFormFieldModule,
     MatInputModule,
@@ -33,7 +35,8 @@ import { SidebarService } from './layout/services/sidebar.service';
     MatIconModule,
     MatDatepickerModule,        
     MatNativeDateModule,       
-    MatMomentDateModule 
+    MatMomentDateModule,
+    PatientProfileComponent
   ],
   providers: [
     MatDatepickerModule, // Add this provider for datepicker functionality
