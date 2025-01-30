@@ -36,9 +36,30 @@ export class PatientProfileComponent implements OnInit {
   ];
   displayedColumns: string[] = ['reportType', 'date', 'description', 'status', 'actions'];
 
+  medicalHistory = [
+    { condition: 'Hypertension', date: new Date(2020, 1, 10), status: 'Resolved' },
+    { condition: 'Diabetes', date: new Date(2021, 5, 15), status: 'Ongoing' },
+    { condition: 'Appendectomy', date: new Date(2019, 3, 20), status: 'Resolved' },
+  ];
+
+  appointments = [
+    { date: new Date(2024, 3, 10), doctor: 'Dr. Smith', purpose: 'Routine Checkup' },
+    { date: new Date(2024, 3, 15), doctor: 'Dr. Johnson', purpose: 'Follow-up' },
+  ];
+
+  medications = [
+    { medicine: 'Metformin', dosage: '500mg', status: 'Active' },
+    { medicine: 'Lisinopril', dosage: '10mg', status: 'Active' },
+  ];
+
+  vitals = [
+    { date: new Date(2024, 2, 1), bloodPressure: '120/80', heartRate: '72', temperature: '98.6°F' },
+    { date: new Date(2024, 2, 15), bloodPressure: '118/78', heartRate: '70', temperature: '98.4°F' },
+  ];
+
   patient = {
     id: '#P7085',
-    name: 'Abu Bin Ishtiyak',
+    name: 'Umesh Patil',
     gender: 'Male',
     age: '41 years 0 months 3 days',
     mobile: '+811 847-4958',
