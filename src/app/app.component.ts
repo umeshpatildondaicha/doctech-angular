@@ -19,6 +19,8 @@ import { PatientProfileComponent } from './patient-profile/patient-profile.compo
 @Component({
   selector: 'app-root',
   imports: [
+    AppointmentCalendarComponent,
+    PatientProfileComponent,
     RouterModule, 
     CommonModule, 
     HighchartsChartModule,

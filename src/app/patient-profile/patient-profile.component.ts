@@ -28,6 +28,8 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./patient-profile.component.css'],
 })
 export class PatientProfileComponent implements OnInit {
+  activeTab: string = 'profile';
+
   quickLinks = [
     { title: 'Prescriptions', icon: 'medication' },
     { title: 'Lab Reports', icon: 'science' },
@@ -37,9 +39,8 @@ export class PatientProfileComponent implements OnInit {
   displayedColumns: string[] = ['reportType', 'date', 'description', 'status', 'actions'];
 
   medicalHistory = [
-    { condition: 'Hypertension', date: new Date(2020, 1, 10), status: 'Resolved' },
-    { condition: 'Diabetes', date: new Date(2021, 5, 15), status: 'Ongoing' },
-    { condition: 'Appendectomy', date: new Date(2019, 3, 20), status: 'Resolved' },
+    { condition: 'Hypertension', date: new Date(2020, 0, 10), status: 'Resolved' }, 
+    { condition: 'Diabetes', date: new Date(2021, 4, 15), status: 'Ongoing' }, 
   ];
 
   appointments = [
@@ -57,6 +58,33 @@ export class PatientProfileComponent implements OnInit {
     { date: new Date(2024, 2, 15), bloodPressure: '118/78', heartRate: '70', temperature: '98.4°F' },
   ];
 
+  patientStats = [
+    {
+      label: 'BMI',
+      value: '25.5',
+      unit: '',
+      change: '0.5'
+    },
+    {
+      label: 'Height',
+      value: '175',
+      unit: 'cm',
+      change: '0.5'
+    },
+    {
+      label: 'Weight',
+      value: '70',
+      unit: 'kg',
+      change: '0.5'
+    },
+    {
+      label: 'BP',
+      value: '120/80',
+      unit: 'mmHg',
+      change: '0.5'
+    }
+  ];
+
   patient = {
     id: '#P7085',
     name: 'Umesh Patil',
@@ -70,7 +98,8 @@ export class PatientProfileComponent implements OnInit {
     patientType: 'In Patient',
     country: 'United State',
     nationality: 'United State',
-    photo: '',
+    photo: './assets/default-avatar.jpg',
+    phone: '+811 847-4958',
     doctorsNote:
       'Aproin at metus et dolor tincidunt feugiat eu id quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean sollicitudin non nunc vel pharetra.',
     noteAddedOn: new Date(2019, 10, 18, 17, 34),
@@ -168,6 +197,10 @@ export class PatientProfileComponent implements OnInit {
     },
   ];
 
+  parseNumber(value: any): number {
+    return parseFloat(value);
+  }
+  
   constructor() {}
 
   ngOnInit(): void {}
