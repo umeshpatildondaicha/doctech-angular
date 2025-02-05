@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
 @Component({
   selector: 'app-patient-profile',
@@ -23,8 +24,10 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule,
     MatMenuModule,
     MatFormFieldModule,
-    MatInputModule
-  ],  templateUrl: './patient-profile.component.html',
+    MatInputModule,
+    FlexLayoutModule,
+  ],
+  templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.css'],
 })
 export class PatientProfileComponent implements OnInit {
@@ -34,18 +37,36 @@ export class PatientProfileComponent implements OnInit {
     { title: 'Prescriptions', icon: 'medication' },
     { title: 'Lab Reports', icon: 'science' },
     { title: 'Billing', icon: 'receipt' },
-    { title: 'Appointments', icon: 'calendar_today' }
+    { title: 'Appointments', icon: 'calendar_today' },
   ];
-  displayedColumns: string[] = ['reportType', 'date', 'description', 'status', 'actions'];
+  displayedColumns: string[] = [
+    'reportType',
+    'date',
+    'description',
+    'status',
+    'actions',
+  ];
 
   medicalHistory = [
-    { condition: 'Hypertension', date: new Date(2020, 0, 10), status: 'Resolved' }, 
-    { condition: 'Diabetes', date: new Date(2021, 4, 15), status: 'Ongoing' }, 
+    {
+      condition: 'Hypertension',
+      date: new Date(2020, 0, 10),
+      status: 'Resolved',
+    },
+    { condition: 'Diabetes', date: new Date(2021, 4, 15), status: 'Ongoing' },
   ];
 
   appointments = [
-    { date: new Date(2024, 3, 10), doctor: 'Dr. Smith', purpose: 'Routine Checkup' },
-    { date: new Date(2024, 3, 15), doctor: 'Dr. Johnson', purpose: 'Follow-up' },
+    {
+      date: new Date(2024, 3, 10),
+      doctor: 'Dr. Smith',
+      purpose: 'Routine Checkup',
+    },
+    {
+      date: new Date(2024, 3, 15),
+      doctor: 'Dr. Johnson',
+      purpose: 'Follow-up',
+    },
   ];
 
   medications = [
@@ -54,8 +75,18 @@ export class PatientProfileComponent implements OnInit {
   ];
 
   vitals = [
-    { date: new Date(2024, 2, 1), bloodPressure: '120/80', heartRate: '72', temperature: '98.6°F' },
-    { date: new Date(2024, 2, 15), bloodPressure: '118/78', heartRate: '70', temperature: '98.4°F' },
+    {
+      date: new Date(2024, 2, 1),
+      bloodPressure: '120/80',
+      heartRate: '72',
+      temperature: '98.6°F',
+    },
+    {
+      date: new Date(2024, 2, 15),
+      bloodPressure: '118/78',
+      heartRate: '70',
+      temperature: '98.4°F',
+    },
   ];
 
   patientStats = [
@@ -63,26 +94,26 @@ export class PatientProfileComponent implements OnInit {
       label: 'BMI',
       value: '25.5',
       unit: '',
-      change: '0.5'
+      change: '0.5',
     },
     {
       label: 'Height',
       value: '175',
       unit: 'cm',
-      change: '0.5'
+      change: '0.5',
     },
     {
       label: 'Weight',
       value: '70',
       unit: 'kg',
-      change: '0.5'
+      change: '0.5',
     },
     {
       label: 'BP',
       value: '120/80',
       unit: 'mmHg',
-      change: '0.5'
-    }
+      change: '0.5',
+    },
   ];
 
   patient = {
@@ -200,7 +231,7 @@ export class PatientProfileComponent implements OnInit {
   parseNumber(value: any): number {
     return parseFloat(value);
   }
-  
+
   constructor() {}
 
   ngOnInit(): void {}
