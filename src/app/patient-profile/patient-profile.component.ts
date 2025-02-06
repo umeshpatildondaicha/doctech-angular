@@ -12,11 +12,13 @@ import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { HighchartsChartModule } from 'highcharts-angular';
 import Highcharts from 'highcharts';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
   imports: [
+    MatListModule,
     CommonModule,
     MatTabsModule,
     MatCardModule,
@@ -170,6 +172,12 @@ export class PatientProfileComponent implements OnInit {
       status: 'Done',
     },
   ];
+  timelineData = [
+    { date: 'Jan 23', title: 'Pre-visit awareness', description: 'A patient’s journey starts when they arrive at your digital front door.' },
+    { date: 'Jan 07', title: 'Initial contact', description: 'The patient makes initial contact via call center, chat, or email.' },
+    { date: 'Jan 05', title: 'Care', description: 'The patient is assessed at a medical facility.' },
+    { date: 'Jan 01', title: 'Treatment', description: 'The health system provides the patient with both on-site and follow-up care.' }
+  ];
 
   prescriptions = [
     {
@@ -240,36 +248,16 @@ export class PatientProfileComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  //profile pie chart
   profilePieChartOption: Highcharts.Options = {
     chart: {
       plotShadow: false,
-      // events: {
-      //   render: function() {
-      //     const chart = this;
-      //     const textX = chart.plotLeft + (chart.series[0].center[0]);
-      //     const textY = chart.plotTop + (chart.series[0].center[1]);
-
-      //     center = chart.renderer.text('Sample Text', textX, textY)
-      //       .css({
-      //         color: 'teal',
-      //         fontSize: 20,
-      //         fontWeight: 'bold',
-
-      //       })
-      //       .add()
-
-      //     chart.centerText.attr({
-      //       x: textX - chart.centerText.getBBox().width / 2,
-      //     })
-      //   }
-      // }
+      type: 'pie'
     },
     title: {
-      text: 'Browser market shares at a specific website, 2014',
+      text: 'Types of Medicines Prescribed'
     },
     tooltip: {
-      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
     },
     plotOptions: {
       pie: {
@@ -277,29 +265,72 @@ export class PatientProfileComponent implements OnInit {
         cursor: 'pointer',
         dataLabels: {
           enabled: true,
-          format: '<b>{point.name}%</b>: {point.percentage:.1f} %',
-        },
-      },
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+        }
+      }
     },
     series: [
       {
         type: 'pie',
-        name: 'Browser share',
+        name: 'Medicine Types',
         innerSize: '65%',
         data: [
-          ['Firefox', 45.0],
-          ['IE', 26.8],
-          {
-            name: 'Chrome',
-            y: 12.8,
-            sliced: true,
-            selected: true,
-          },
-          ['Safari', 8.5],
-          ['Opera', 6.2],
-          ['Others', 0.7],
-        ],
-      },
-    ],
+          ['Antibiotics', 30],  
+          ['Pain Relievers', 20],  
+          ['Antipyretics', 15],  
+          ['Anti-inflammatory', 10],  
+          ['Antihypertensives', 10],  
+          ['Antidiabetics', 5],  
+          ['Vitamins & Supplements', 5],  
+          ['Other Medications', 5]  
+        ]
+      }
+    ]
   };
+
+  dietPlan = [
+    { day: 'Monday', breakfast: 'Oatmeal', lunch: 'Grilled Chicken & Rice', dinner: 'Salad & Soup' },
+    { day: 'Tuesday', breakfast: 'Boiled Eggs & Toast', lunch: 'Fish & Vegetables', dinner: 'Pasta & Salad' },
+    { day: 'Wednesday', breakfast: 'Smoothie & Nuts', lunch: 'Steak & Potatoes', dinner: 'Vegetable Stir Fry' },
+    { day: 'Thursday', breakfast: 'Pancakes & Berries', lunch: 'Chicken Salad', dinner: 'Soup & Bread' },
+    { day: 'Friday', breakfast: 'Yogurt & Granola', lunch: 'Salmon & Rice', dinner: 'Quinoa & Vegetables' },
+    { day: 'Saturday', breakfast: 'Omelet & Toast', lunch: 'Pasta & Chicken', dinner: 'Grilled Fish & Vegetables' },
+    { day: 'Sunday', breakfast: 'Fruits & Nuts', lunch: 'Veggie Wraps', dinner: 'Lentil Soup & Rice' }
+  ];
+  
+  dietChartOptions: Highcharts.Options = {
+    chart: {
+      type: 'column' // Change to column
+    },
+    title: {
+      text: 'Weekly Diet Plan'
+    },
+    xAxis: {
+      categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    },
+    yAxis: {
+      min: 0,
+      title: {
+        text: 'Calories'
+      }
+    },
+    series: [
+      {
+        type: 'column',
+        name: 'Breakfast',
+        data: [300, 350, 320, 310, 330, 340, 360]
+      },
+      {
+        type: 'column',
+        name: 'Lunch',
+        data: [500, 520, 510, 530, 550, 540, 560]
+      },
+      {
+        type: 'column',
+        name: 'Dinner',
+        data: [450, 460, 440, 470, 480, 490, 500]
+      }
+    ]
+  };
+  
 }

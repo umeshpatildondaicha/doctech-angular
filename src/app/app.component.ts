@@ -6,6 +6,7 @@ import { HeaderComponent } from './layout/header/header.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { AppointmentCalendarComponent } from './appointment-calendar/appointment-calendar.component';
 import { FormsModule } from '@angular/forms';
+import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card'; 
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -38,7 +39,8 @@ import { PatientProfileComponent } from './patient-profile/patient-profile.compo
     MatDatepickerModule,        
     MatNativeDateModule,       
     MatMomentDateModule,
-    PatientProfileComponent
+    PatientProfileComponent,
+    MatListModule  
   ],
   providers: [
     MatDatepickerModule, // Add this provider for datepicker functionality

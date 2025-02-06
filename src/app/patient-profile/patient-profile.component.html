@@ -17,7 +17,7 @@
         class="nav-link"
         [ngClass]="{ active: activeTab === tab }"
         (click)="activeTab = tab"
-      >
+      > 
         {{ tab | titlecase }}
       </button>
     </li>
@@ -140,7 +140,7 @@
           <div
             fxLayout="row"
             fxLayoutAlign="space-between"
-            fxFlex="30"
+            fxFlex="70"
             class="card-body"
             fxLayoutGap="1em"
           >
@@ -184,8 +184,21 @@
           fxLayoutAlign="space-between"
           fxLayoutGap="1em"
         >
-          <div class="div-heading" fxFlex="10">TimeLine</div>
-          <div class="div-body" fxFlex="90"></div>
+          <div class="div-heading mb-0" fxFlex="10">Timeline</div>
+          <div class="div-body p-1" fxFlex="90" style="overflow-y: auto; scrollbar-width: thin;">
+            <div class="timeline-card shadow-none">
+              <div class="timeline-item" *ngFor="let event of timelineData">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="d-flex justify-content-between">
+                    <div class="timeline-title">{{event.title}}</div>
+                    <div class="timeline-date">{{event.date}}</div>
+                  </div>
+                  <div class="timeline-description">{{event.description}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div
           fxFlex="65"
@@ -218,14 +231,22 @@
           <div class="div-body" fxFlex="90"></div>
         </div>
         <div
-          fxFlex="35"
+          fxFlex="40"
           class="card"
           fxLayout="column"
           fxLayoutAlign="space-between"
           fxLayoutGap="1em"
         >
           <div class="div-heading" fxFlex="10">Diet</div>
-          <div class="div-body" fxFlex="90"></div>
+          <div class="div-body" fxFlex="90" style="overflow: auto;">
+            <div style="height: 100%; padding: 20px;">
+              <highcharts-chart 
+                [Highcharts]="Highcharts" 
+                [options]="dietChartOptions"
+                style="width: 100%; height: 100%; display: block;">
+              </highcharts-chart>
+            </div>
+          </div>
         </div>
       </div>
     </div>
