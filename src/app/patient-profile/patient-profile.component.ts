@@ -10,6 +10,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { HighchartsChartModule } from 'highcharts-angular';
+import Highcharts from 'highcharts';
 
 @Component({
   selector: 'app-patient-profile',
@@ -26,12 +28,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
     MatFormFieldModule,
     MatInputModule,
     FlexLayoutModule,
+    HighchartsChartModule,
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.css'],
 })
 export class PatientProfileComponent implements OnInit {
   activeTab: string = 'profile';
+  Highcharts: typeof Highcharts = Highcharts;
 
   quickLinks = [
     { title: 'Prescriptions', icon: 'medication' },
@@ -235,4 +239,67 @@ export class PatientProfileComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
+
+  //profile pie chart
+  profilePieChartOption: Highcharts.Options = {
+    chart: {
+      plotShadow: false,
+      // events: {
+      //   render: function() {
+      //     const chart = this;
+      //     const textX = chart.plotLeft + (chart.series[0].center[0]);
+      //     const textY = chart.plotTop + (chart.series[0].center[1]);
+
+      //     center = chart.renderer.text('Sample Text', textX, textY)
+      //       .css({
+      //         color: 'teal',
+      //         fontSize: 20,
+      //         fontWeight: 'bold',
+
+      //       })
+      //       .add()
+
+      //     chart.centerText.attr({
+      //       x: textX - chart.centerText.getBBox().width / 2,
+      //     })
+      //   }
+      // }
+    },
+    title: {
+      text: 'Browser market shares at a specific website, 2014',
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+    },
+    plotOptions: {
+      pie: {
+        allowPointSelect: true,
+        cursor: 'pointer',
+        dataLabels: {
+          enabled: true,
+          format: '<b>{point.name}%</b>: {point.percentage:.1f} %',
+        },
+      },
+    },
+    series: [
+      {
+        type: 'pie',
+        name: 'Browser share',
+        innerSize: '65%',
+        data: [
+          ['Firefox', 45.0],
+          ['IE', 26.8],
+          {
+            name: 'Chrome',
+            y: 12.8,
+            sliced: true,
+            selected: true,
+          },
+          ['Safari', 8.5],
+          ['Opera', 6.2],
+          ['Others', 0.7],
+        ],
+      },
+    ],
+  };
 }

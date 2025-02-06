@@ -148,9 +148,85 @@
             <div fxFlex="33" class="card"></div>
             <div fxFlex="33" class="card"></div>
           </div>
-          <div fxFlex="70" class="card"></div>
+          <div fxFlex="70" class="card pie-chart-card">
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="profilePieChartOption"
+            >
+            </highcharts-chart>
+          </div>
         </div>
-        <div fxFlex="50" class="card"></div>
+
+        <div
+          fxFlex="50"
+          class="card"
+          fxLayout="column"
+          fxLayoutAlign="space-between"
+          fxLayoutGap="1em"
+        >
+          <div class="div-heading" fxFlex="10">Actions</div>
+          <div class="div-body" fxFlex="90"></div>
+        </div>
+      </div>
+
+      <br />
+
+      <div
+        fxLayout="row"
+        fxLayoutAlign="space-between"
+        style="height: 30em"
+        fxLayoutGap="1em"
+      >
+        <div
+          fxFlex="35"
+          class="card"
+          fxLayout="column"
+          fxLayoutAlign="space-between"
+          fxLayoutGap="1em"
+        >
+          <div class="div-heading" fxFlex="10">TimeLine</div>
+          <div class="div-body" fxFlex="90"></div>
+        </div>
+        <div
+          fxFlex="65"
+          class="card"
+          fxLayout="column"
+          fxLayoutAlign="space-between"
+          fxLayoutGap="1em"
+        >
+          <div class="div-heading" fxFlex="10">Medical History</div>
+          <div class="div-body" fxFlex="90"></div>
+        </div>
+      </div>
+
+      <br />
+
+      <div
+        fxLayout="row"
+        fxLayoutAlign="space-between"
+        style="height: 30em"
+        fxLayoutGap="1em"
+      >
+        <div
+          fxFlex="65"
+          class="card"
+          fxLayout="column"
+          fxLayoutAlign="space-between"
+          fxLayoutGap="1em"
+        >
+          <div class="div-heading" fxFlex="10">Medications</div>
+          <div class="div-body" fxFlex="90"></div>
+        </div>
+        <div
+          fxFlex="35"
+          class="card"
+          fxLayout="column"
+          fxLayoutAlign="space-between"
+          fxLayoutGap="1em"
+        >
+          <div class="div-heading" fxFlex="10">Diet</div>
+          <div class="div-body" fxFlex="90"></div>
+        </div>
       </div>
     </div>
 
