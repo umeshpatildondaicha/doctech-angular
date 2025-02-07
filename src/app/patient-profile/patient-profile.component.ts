@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
@@ -13,6 +12,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { HighchartsChartModule } from 'highcharts-angular';
 import Highcharts from 'highcharts';
 import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips'; 
 
 @Component({
   selector: 'app-patient-profile',
@@ -30,7 +30,7 @@ import { MatListModule } from '@angular/material/list';
     MatFormFieldModule,
     MatInputModule,
     FlexLayoutModule,
-    HighchartsChartModule,
+    HighchartsChartModule
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.css'],
@@ -43,10 +43,10 @@ export class PatientProfileComponent implements OnInit {
   
   medication: Array<{name: string, dosage: string, frequency: string, appointmentDate: Date, doctor: string}> = [
     { name: 'Paracetamol', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. John Doe' },
-    { name: 'Amoxicillin', dosage: '250mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-06'), doctor: 'Dr. Sarah Smith' },
-    { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours', appointmentDate: new Date('2025-02-05'), doctor: 'Dr. Emily White' },
-    { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-10'), doctor: 'Dr. Michael Brown' },
-    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-09'), doctor: 'Dr. Laura Green' },
+    { name: 'Amoxicillin', dosage: '250mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. Sarah Smith' },
+    { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. Emily White' },
+    { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. Michael Brown' },
+    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. Laura Green' },
     { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. David Wilson' }
   ];
   // Sorting medications by appointmentDate (descending)

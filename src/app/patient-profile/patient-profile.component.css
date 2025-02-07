@@ -224,6 +224,7 @@
 
 .div-heading {
   padding: 0.4em 0.5em;
+  margin-bottom: 0em !important;
   font-size: 1.4em;
   border-bottom: 1px solid rgba(0, 0, 0, 0.175);
 }
@@ -312,6 +313,7 @@
 .medication-card {
   width: 100%;
   padding: 16px;
+  background-color: #f8f9fc;
 }
 
 .table-container {
