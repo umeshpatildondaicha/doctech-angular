@@ -39,6 +39,31 @@ export class PatientProfileComponent implements OnInit {
   activeTab: string = 'profile';
   Highcharts: typeof Highcharts = Highcharts;
 
+  displayedMedicationColumns: string[] = ['name', 'dosage', 'frequency', 'appointmentDate', 'doctor'];
+  
+  medication: Array<{name: string, dosage: string, frequency: string, appointmentDate: Date, doctor: string}> = [
+    { name: 'Paracetamol', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. John Doe' },
+    { name: 'Amoxicillin', dosage: '250mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-06'), doctor: 'Dr. Sarah Smith' },
+    { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours', appointmentDate: new Date('2025-02-05'), doctor: 'Dr. Emily White' },
+    { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-10'), doctor: 'Dr. Michael Brown' },
+    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-09'), doctor: 'Dr. Laura Green' },
+    { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. David Wilson' }
+  ];
+  // Sorting medications by appointmentDate (descending)
+  get sortedMedications() {
+    return this.medication.sort((a, b) => b.appointmentDate.getTime() - a.appointmentDate.getTime());
+  }
+
+  // Grouping medications by date
+  getUniqueAppointmentDates(): Date[] {
+    return [...new Set(this.medication.map(med => med.appointmentDate).map(date => date.toISOString()))]
+      .map(dateStr => new Date(dateStr))
+      .sort((a, b) => b.getTime() - a.getTime());
+  }
+
+  getMedicationsForDate(date: Date) {
+    return this.medication.filter(med => med.appointmentDate.toISOString() === date.toISOString());
+  }
   quickLinks = [
     { title: 'Prescriptions', icon: 'medication' },
     { title: 'Lab Reports', icon: 'science' },
@@ -178,6 +203,8 @@ export class PatientProfileComponent implements OnInit {
     { date: 'Jan 05', title: 'Care', description: 'The patient is assessed at a medical facility.' },
     { date: 'Jan 01', title: 'Treatment', description: 'The health system provides the patient with both on-site and follow-up care.' }
   ];
+
+
 
   prescriptions = [
     {

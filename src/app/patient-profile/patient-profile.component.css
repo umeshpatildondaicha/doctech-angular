@@ -308,4 +308,22 @@
 
 /* End Timeline */
 
+/* Medication */
+.medication-card {
+  width: 100%;
+  padding: 16px;
+}
 
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+}
+
+mat-card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+/* End Medication */
