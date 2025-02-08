@@ -1,30 +1,129 @@
 .right-sidebar {
+  margin-top: 3em;
+  width: 300px;
   position: fixed;
-  right: 0;
+  right: -300px;
   top: 0;
-  height: 100%;
-  width: 20%; /* Open by default */
-  background-color: #f4f4f4;
-  transition: width 0.3s ease-in-out;
+  height: 100vh;
+  z-index: 1000;
+  background: white;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  transition: right 0.3s ease;
+}
+
+.right-sidebar.open {
+  right: 0;
+}
+
+/* Patient Cards */
+.patient-cards {
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: calc(100vh - 4em);
+}
+
+.patient-card {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid #eaeaea;
+}
+
+.patient-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.patient-card mat-card-header {
+  padding: 1rem;
+  position: relative;
+  background: linear-gradient(to right, #f8f9fa, #ffffff);
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.queue-badge {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9em;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  margin: 0.75rem 0;
+  padding: 0.5rem;
+  border-radius: 6px;
+  background: #f8f9fa;
+  border: 1px solid #eaeaea;
+}
+
+.info-icon {
+  margin-right: 0.75rem;
+  color: #4a5568;
+  font-size: 1.1em;
+}
+
+.info-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: start;
-  z-index: 1000;
+  flex: 1;
 }
 
-.right-sidebar:not(.expanded) {
-  width: 60px; /* Collapsed width */
+.info-label {
+  font-size: 0.8em;
+  color: #6c757d;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
-.toggle-btn {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
+.info-value {
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 1em;
+}
+
+.wait-time {
+  background: linear-gradient(to right, #e8f5e9, #f8fff9);
+  border: 1px solid #c8e6c9;
+}
+
+.wait-time .info-icon {
+  color: #2e7d32;
+}
+
+mat-card-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #eaeaea;
+  background: #fafafa;
+  border-radius: 0 0 8px 8px;
+}
+
+mat-card-actions button {
+  flex: 1;
+  margin: 0 0.5rem;
+  border-radius: 6px;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+mat-card-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+mat-card-actions button mat-icon {
+  margin-right: 0.5rem;
+  font-size: 1.2em;
 }

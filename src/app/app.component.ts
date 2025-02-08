@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { HeaderComponent } from './layout/header/header.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
+import { RightSidebarComponent } from './layout/right-sidebar/right-sidebar.component';
 import { AppointmentCalendarComponent } from './appointment-calendar/appointment-calendar.component';
 import { FormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
@@ -17,6 +18,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
 import { PatientProfileComponent } from './patient-profile/patient-profile.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 @Component({
   selector: 'app-root',
   imports: [
@@ -28,6 +31,7 @@ import { PatientProfileComponent } from './patient-profile/patient-profile.compo
     HeaderComponent, 
     FormsModule,
     SidebarComponent,
+    RightSidebarComponent,
     MatCardModule,
     AppointmentCalendarComponent,
     MatFormFieldModule,
@@ -40,17 +44,22 @@ import { PatientProfileComponent } from './patient-profile/patient-profile.compo
     MatNativeDateModule,       
     MatMomentDateModule,
     PatientProfileComponent,
-    MatListModule  
+    MatListModule,
+    DragDropModule
   ],
   providers: [
-    MatDatepickerModule, // Add this provider for datepicker functionality
+    MatDatepickerModule,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
+
+  @ViewChild(RightSidebarComponent) rightSidebar!: RightSidebarComponent;
+
   title = 'doctech-angular';
   isSidebarPinned = false;
+  isRightSidebarOpen = false;
 
   constructor(private sidebarService: SidebarService) {}
 
@@ -66,5 +75,10 @@ export class AppComponent implements OnInit {
 
   onSidebarHoverEnd() {
     this.sidebarService.setHoverState(false);
+  }
+  toggleRightSidebar() {
+    if (this.rightSidebar) {
+      this.rightSidebar.toggleSidebar();
+    }
   }
 }

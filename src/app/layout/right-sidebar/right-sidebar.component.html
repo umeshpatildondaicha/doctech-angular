@@ -1,4 +1,36 @@
-<div class="right-sidebar" [class.expanded]="isExpanded">
-  <button class="toggle-btn" (click)="toggleSidebar()">☰</button>
-  <p>Right Sidebar Works!</p>
+<div class="right-sidebar" [class.open]="isOpen">
+  <div class="patient-cards">
+    <mat-card *ngFor="let patient of waitingPatients" class="patient-card">
+      <mat-card-header>
+        <div class="queue-number">#{{patient.queueNumber}}</div>
+        <mat-card-title class="patient-name">{{patient.name}}</mat-card-title>
+      </mat-card-header>
+      
+      <mat-card-content class="compact-content">
+        <div class="info-item">
+          <mat-icon class="mini-icon">local_hospital</mat-icon>
+          {{patient.problem}}
+        </div>
+
+        <div class="info-item">
+          <mat-icon class="mini-icon">phone</mat-icon>
+          {{patient.contactNumber}}
+        </div>
+
+        <div class="info-item wait-time">
+          <mat-icon class="mini-icon">access_time</mat-icon>
+          {{patient.waitTime}}
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions class="compact-actions">
+        <button mat-icon-button color="primary">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="accent">
+          <mat-icon>notifications</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
 </div>

@@ -17,5 +17,22 @@
       <!-- Routed content goes here -->
       <router-outlet></router-outlet>
     </div>
+
+    <!-- Right Sidebar -->
+    <app-right-sidebar #rightSidebar></app-right-sidebar>
+
+    <button 
+  class="draggable-button"
+  cdkDrag
+  [cdkDragBoundary]="'.main'"
+  [style.position]="'fixed'"
+  [style.right]="'20px'"
+  [style.top]="'50%'"
+  (click)="toggleRightSidebar()">
+  <mat-icon>menu</mat-icon>
+</button>
+
+  
+
   </div>
 </div>
