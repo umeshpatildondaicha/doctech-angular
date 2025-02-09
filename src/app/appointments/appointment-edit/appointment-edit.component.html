@@ -1,26 +1,40 @@
 <div class="container mt-4">
     <h2 class="text-center">Doctor's Appointment Settings</h2>
   
-    <!-- Select Working Days -->
+    <!-- Toggle Between Days & Dates -->
     <div class="form-group mt-3">
+      <label>Select Mode:</label>
+      <div class="d-flex">
+        <button class="btn btn-outline-primary me-2" (click)="toggleMode()">
+          {{ selectDateMode ? 'Switch to Days' : 'Switch to Dates' }}
+        </button>
+      </div>
+    </div>
+  
+    <!-- Select Working Days -->
+    <div *ngIf="!selectDateMode" class="form-group mt-3">
       <label>Select Working Days:</label>
       <div class="d-flex flex-wrap">
         <div class="form-check me-3">
-          <input 
-            type="checkbox"
-            class="form-check-input"
-            [(ngModel)]="selectAll"
-            (change)="toggleAllDays()">
+          <input type="checkbox" class="form-check-input" [(ngModel)]="selectAll" (change)="toggleAllDays()">
           <label class="form-check-label">Select All</label>
         </div>
         <div *ngFor="let day of weekDays" class="form-check me-3">
-          <input 
-            type="checkbox"
-            class="form-check-input"
-            [checked]="selectedDays.includes(day)"
-            (change)="toggleDay(day)">
+          <input type="checkbox" class="form-check-input" [checked]="selectedDays.includes(day)" (change)="toggleDay(day)">
           <label class="form-check-label">{{ day }}</label>
         </div>
+      </div>
+    </div>
+  
+    <!-- Select Specific Dates -->
+    <div *ngIf="selectDateMode" class="form-group mt-3">
+      <label>Select Specific Dates:</label>
+      <input type="date" class="form-control" (change)="toggleDate($event)">
+
+      <!-- <input type="date" class="form-control" (change)="toggleDate($event.target.value)"> -->
+      <div class="mt-2">
+        <strong>Selected Dates:</strong>
+        <span *ngFor="let date of selectedDates" class="badge bg-primary me-1">{{ date }}</span>
       </div>
     </div>
   
@@ -44,10 +58,10 @@
           <input type="text" class="form-control" placeholder="Break Name" [(ngModel)]="break.name">
         </div>
         <div class="col-md-3">
-          <input type="time" class="form-control" placeholder="Start Time" [(ngModel)]="break.start">
+          <input type="time" class="form-control" [(ngModel)]="break.start">
         </div>
         <div class="col-md-3">
-          <input type="time" class="form-control" placeholder="End Time" [(ngModel)]="break.end">
+          <input type="time" class="form-control" [(ngModel)]="break.end">
         </div>
         <div class="col-md-2 text-center">
           <button class="btn btn-danger" (click)="removeBreak(i)">Remove</button>
@@ -68,18 +82,15 @@
     </div>
       
     <!-- Display Available Slots and Breaks -->
-    <div class="slots-container">
-        <h3 class="subtitle">Available Time Slots</h3>
-        <div *ngIf="availableSlots.length === 0" class="no-slots">
-            No slots available.
+    <div class="slots-container mt-4">
+      <h3 class="subtitle">Available Time Slots for {{ selectedToShow }}</h3>
+      <div *ngIf="availableSlots.length === 0" class="no-slots">
+        No slots available.
+      </div>
+      <div *ngFor="let slot of availableSlots" class="slot">
+        <div class="slot-info">
+          <span class="time">{{ slot }}</span>
         </div>
-        <div *ngFor="let slot of availableSlots" class="slot">
-            <div class="slot-info">
-                <span class="time">{{ slot }}</span>
-            </div>
-        </div>
+      </div>
     </div>
-    
-  
   </div>
-  

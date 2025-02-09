@@ -17,7 +17,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { AppointmentsRoutingModule } from './appointments/appointments-routing.module';
 
 @Component({
   selector: 'app-root',
@@ -32,7 +31,6 @@ import { AppointmentsRoutingModule } from './appointments/appointments-routing.m
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    AppointmentsRoutingModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
@@ -54,8 +52,7 @@ export class AppComponent implements OnInit {
   isSidebarPinned = false;
   isRightSidebarOpen = false;
 
-  constructor(private sidebarService: SidebarService, private router: Router) {
-    console.log("Available Routes:", this.router.config);
+  constructor(private sidebarService: SidebarService) {
   }
 
   ngOnInit(): void {
