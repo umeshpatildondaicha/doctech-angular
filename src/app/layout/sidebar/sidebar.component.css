@@ -1,140 +1,140 @@
 /* Sidebar Container */
 .sidebar {
-    background: white;
-    color: #01A69D;
-    top: 0;
-    height: 100%;
-    width: 3rem;
-    z-index: 10;
-    position: fixed;
-    left: 0;
-    overflow-y: auto;
-    box-shadow: 1px 0 10px rgba(0, 0, 0, 0.1);
-    transition: width 0.3s ease;
-    white-space: nowrap;
-  }
+  background: white;
+  color: #01a69d;
+  top: 0;
+  height: 100%;
+  width: 3rem;
+  z-index: 10;
+  position: fixed;
+  left: 0;
+  overflow-y: auto;
+  box-shadow: 1px 0 10px rgba(0, 0, 0, 0.1);
+  transition: width 0.3s ease;
+  white-space: nowrap;
+}
 
-  
-  .sidebar:hover,
-  .sidebar.pinned {
-    width: 15rem; 
+.sidebar:hover,
+.sidebar.pinned {
+  width: 15rem;
+}
+
+/* Disable hover effect when pinned */
+.sidebar.pinned:hover {
+  width: 15rem;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: start;
+  height: 3rem;
+  padding-left: 0.5rem;
+}
+
+.pin-button {
+  background: none;
+  border: none;
+  color: #01a69d;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.pin-button:hover {
+  transform: scale(1.2);
+}
+
+.sidebar:hover {
+  width: 15rem;
+}
+
+/* Remove list dots */
+.nk-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Sidebar Item */
+.nk-menu-item {
+  display: block;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.nk-menu-item a {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  text-decoration: none;
+  color: #b9bdbc;
+}
+.nk-menu-item:hover a {
+  color: white;
+}
+.nk-menu-item:hover {
+  background-color: #01a69d;
+  /* transform: scale(1.02); */
+  color: white;
+}
+
+.nk-menu-item.active {
+  background-color: #007bff;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Icon Styling */
+.sidebar-icon {
+  font-size: 18px;
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  text-align: center;
+  color: #01a69d;
+}
+.sidebar:hover {
+  color: #b9bdbc;
+}
+.nk-menu-item:hover .sidebar-icon {
+  color: white;
+}
+
+/* Text Styling */
+.sidebar-text {
+  opacity: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  color: black;
+}
+
+/* Show text on hover */
+.sidebar:hover .sidebar-text {
+  opacity: 1;
+}
+.sidebar.pinned .sidebar-text {
+  opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    /* width: 100px; */
   }
-  
-  /* Disable hover effect when pinned */
-  .sidebar.pinned:hover {
-    width: 15rem;
-  }
-  
-  .sidebar-header {
-    display: flex;
-    justify-content: start;
-    height: 3rem;
-    padding-left: 0.5rem;
-  }
-  
-  .pin-button {
-    background: none;
-    border: none;
-    color: #01A69D;
-    font-size: 16px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-  }
-  
-  .pin-button:hover {
-    transform: scale(1.2);
-  }
-  
   .sidebar:hover {
-    width: 15rem;
+    width: 200px;
   }
-  
-  /* Remove list dots */
-  .nk-menu {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Sidebar Item */
-  .nk-menu-item {
-    display: block;
-    align-items: center;
-    padding: 0.6rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    position: relative;
-  }
-  
-  .nk-menu-item a {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    text-decoration: none;
-    color: #b9bdbc;
-  }
-  .nk-menu-item:hover a{
-    color: white;
-  }
-  .nk-menu-item:hover {
-    background-color: #01A69D;
-    /* transform: scale(1.02); */
-    color: white;
-  }
-  
-  .nk-menu-item.active {
-    background-color: #007bff;
-    color: white;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
-  }
-  
-  /* Icon Styling */
-  .sidebar-icon {
-    font-size: 18px;
-    margin-right: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    text-align: center;
-    color: #b9bdbc;
-  }
-  .sidebar:hover {
-    color: #b9bdbc;
-  }
-  .nk-menu-item:hover .sidebar-icon {
-    color: white;
-  }
-  
-  /* Text Styling */
-  .sidebar-text {
-    opacity: 0; 
-    overflow: hidden;
-    white-space: nowrap;
-    transition: opacity 0.3s ease;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  /* Show text on hover */
-  .sidebar:hover .sidebar-text {
-    opacity: 1;
-  }
-  .sidebar.pinned .sidebar-text {
-    opacity: 1; 
-  }
- 
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .sidebar {
-      /* width: 100px; */
-    }
-    .sidebar:hover {
-      width: 200px;
-    }
-  }
-  
-  /* Sidebar Footer Styling */
+}
+
+/* Sidebar Footer Styling */
 .sidebar-footer {
   position: absolute;
   bottom: 0;
