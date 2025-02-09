@@ -9,6 +9,7 @@ export const routes: Routes = [
   { path: 'calendar', component: AppointmentCalendarComponent },
   { path: 'dashboard', component: DashboardComponent },
   { path: 'profile', component: PatientProfileComponent },
+  { path: 'appointments', loadChildren: () => import('./appointments/appointments.module').then(m => m.AppointmentsModule) },
   { path: '**', redirectTo: '/dashboard' },
 
 

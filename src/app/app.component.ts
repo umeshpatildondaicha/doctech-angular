@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HighchartsChartModule } from 'highcharts-angular';
 import { HeaderComponent } from './layout/header/header.component';
@@ -19,6 +19,7 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
 import { PatientProfileComponent } from './patient-profile/patient-profile.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+import { AppointmentsRoutingModule } from './appointments/appointments-routing.module';
 
 @Component({
   selector: 'app-root',
@@ -36,6 +37,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     AppointmentCalendarComponent,
     MatFormFieldModule,
     MatInputModule,
+    AppointmentsRoutingModule,
     MatDatepickerModule,
     MatNativeDateModule,
     MatButtonModule,
@@ -61,7 +63,9 @@ export class AppComponent implements OnInit {
   isSidebarPinned = false;
   isRightSidebarOpen = false;
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(private sidebarService: SidebarService, private router: Router) {
+    console.log("Available Routes:", this.router.config);
+  }
 
   ngOnInit(): void {
     this.sidebarService.isPinned$.subscribe((isPinned) => {
