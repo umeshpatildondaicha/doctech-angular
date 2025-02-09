@@ -12,7 +12,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { HighchartsChartModule } from 'highcharts-angular';
 import Highcharts from 'highcharts';
 import { MatListModule } from '@angular/material/list';
-import { MatChipsModule } from '@angular/material/chips'; 
+import { MatChipsModule } from '@angular/material/chips';
+import { FlexLayoutServerModule } from '@angular/flex-layout/server';
 
 @Component({
   selector: 'app-patient-profile',
@@ -30,7 +31,8 @@ import { MatChipsModule } from '@angular/material/chips';
     MatFormFieldModule,
     MatInputModule,
     FlexLayoutModule,
-    HighchartsChartModule
+    HighchartsChartModule,
+    FlexLayoutServerModule,
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.css'],
@@ -39,30 +41,88 @@ export class PatientProfileComponent implements OnInit {
   activeTab: string = 'profile';
   Highcharts: typeof Highcharts = Highcharts;
 
-  displayedMedicationColumns: string[] = ['name', 'dosage', 'frequency', 'appointmentDate', 'doctor'];
-  
-  medication: Array<{name: string, dosage: string, frequency: string, appointmentDate: Date, doctor: string}> = [
-    { name: 'Paracetamol', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. John Doe' },
-    { name: 'Amoxicillin', dosage: '250mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. Sarah Smith' },
-    { name: 'Ibuprofen', dosage: '200mg', frequency: 'Every 8 hours', appointmentDate: new Date('2025-02-07'), doctor: 'Dr. Emily White' },
-    { name: 'Metformin', dosage: '500mg', frequency: 'Twice a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. Michael Brown' },
-    { name: 'Lisinopril', dosage: '10mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. Laura Green' },
-    { name: 'Atorvastatin', dosage: '20mg', frequency: 'Once a day', appointmentDate: new Date('2025-02-08'), doctor: 'Dr. David Wilson' }
+  displayedMedicationColumns: string[] = [
+    'name',
+    'dosage',
+    'frequency',
+    'appointmentDate',
+    'doctor',
+  ];
+
+  medication: Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    appointmentDate: Date;
+    doctor: string;
+  }> = [
+    {
+      name: 'Paracetamol',
+      dosage: '500mg',
+      frequency: 'Twice a day',
+      appointmentDate: new Date('2025-02-07'),
+      doctor: 'Dr. John Doe',
+    },
+    {
+      name: 'Amoxicillin',
+      dosage: '250mg',
+      frequency: 'Once a day',
+      appointmentDate: new Date('2025-02-07'),
+      doctor: 'Dr. Sarah Smith',
+    },
+    {
+      name: 'Ibuprofen',
+      dosage: '200mg',
+      frequency: 'Every 8 hours',
+      appointmentDate: new Date('2025-02-07'),
+      doctor: 'Dr. Emily White',
+    },
+    {
+      name: 'Metformin',
+      dosage: '500mg',
+      frequency: 'Twice a day',
+      appointmentDate: new Date('2025-02-08'),
+      doctor: 'Dr. Michael Brown',
+    },
+    {
+      name: 'Lisinopril',
+      dosage: '10mg',
+      frequency: 'Once a day',
+      appointmentDate: new Date('2025-02-08'),
+      doctor: 'Dr. Laura Green',
+    },
+    {
+      name: 'Atorvastatin',
+      dosage: '20mg',
+      frequency: 'Once a day',
+      appointmentDate: new Date('2025-02-08'),
+      doctor: 'Dr. David Wilson',
+    },
   ];
   // Sorting medications by appointmentDate (descending)
   get sortedMedications() {
-    return this.medication.sort((a, b) => b.appointmentDate.getTime() - a.appointmentDate.getTime());
+    return this.medication.sort(
+      (a, b) => b.appointmentDate.getTime() - a.appointmentDate.getTime()
+    );
   }
 
   // Grouping medications by date
   getUniqueAppointmentDates(): Date[] {
-    return [...new Set(this.medication.map(med => med.appointmentDate).map(date => date.toISOString()))]
-      .map(dateStr => new Date(dateStr))
+    return [
+      ...new Set(
+        this.medication
+          .map((med) => med.appointmentDate)
+          .map((date) => date.toISOString())
+      ),
+    ]
+      .map((dateStr) => new Date(dateStr))
       .sort((a, b) => b.getTime() - a.getTime());
   }
 
   getMedicationsForDate(date: Date) {
-    return this.medication.filter(med => med.appointmentDate.toISOString() === date.toISOString());
+    return this.medication.filter(
+      (med) => med.appointmentDate.toISOString() === date.toISOString()
+    );
   }
   quickLinks = [
     { title: 'Prescriptions', icon: 'medication' },
@@ -198,13 +258,30 @@ export class PatientProfileComponent implements OnInit {
     },
   ];
   timelineData = [
-    { date: 'Jan 23', title: 'Pre-visit awareness', description: 'A patient’s journey starts when they arrive at your digital front door.' },
-    { date: 'Jan 07', title: 'Initial contact', description: 'The patient makes initial contact via call center, chat, or email.' },
-    { date: 'Jan 05', title: 'Care', description: 'The patient is assessed at a medical facility.' },
-    { date: 'Jan 01', title: 'Treatment', description: 'The health system provides the patient with both on-site and follow-up care.' }
+    {
+      date: 'Jan 23',
+      title: 'Pre-visit awareness',
+      description:
+        'A patient’s journey starts when they arrive at your digital front door.',
+    },
+    {
+      date: 'Jan 07',
+      title: 'Initial contact',
+      description:
+        'The patient makes initial contact via call center, chat, or email.',
+    },
+    {
+      date: 'Jan 05',
+      title: 'Care',
+      description: 'The patient is assessed at a medical facility.',
+    },
+    {
+      date: 'Jan 01',
+      title: 'Treatment',
+      description:
+        'The health system provides the patient with both on-site and follow-up care.',
+    },
   ];
-
-
 
   prescriptions = [
     {
@@ -278,13 +355,13 @@ export class PatientProfileComponent implements OnInit {
   profilePieChartOption: Highcharts.Options = {
     chart: {
       plotShadow: false,
-      type: 'pie'
+      type: 'pie',
     },
     title: {
-      text: 'Types of Medicines Prescribed'
+      text: 'Types of Medicines Prescribed',
     },
     tooltip: {
-      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
     },
     plotOptions: {
       pie: {
@@ -292,9 +369,9 @@ export class PatientProfileComponent implements OnInit {
         cursor: 'pointer',
         dataLabels: {
           enabled: true,
-          format: '<b>{point.name}</b>: {point.percentage:.1f} %'
-        }
-      }
+          format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+        },
+      },
     },
     series: [
       {
@@ -302,62 +379,104 @@ export class PatientProfileComponent implements OnInit {
         name: 'Medicine Types',
         innerSize: '65%',
         data: [
-          ['Antibiotics', 30],  
-          ['Pain Relievers', 20],  
-          ['Antipyretics', 15],  
-          ['Anti-inflammatory', 10],  
-          ['Antihypertensives', 10],  
-          ['Antidiabetics', 5],  
-          ['Vitamins & Supplements', 5],  
-          ['Other Medications', 5]  
-        ]
-      }
-    ]
+          ['Antibiotics', 30],
+          ['Pain Relievers', 20],
+          ['Antipyretics', 15],
+          ['Anti-inflammatory', 10],
+          ['Antihypertensives', 10],
+          ['Antidiabetics', 5],
+          ['Vitamins & Supplements', 5],
+          ['Other Medications', 5],
+        ],
+      },
+    ],
   };
 
   dietPlan = [
-    { day: 'Monday', breakfast: 'Oatmeal', lunch: 'Grilled Chicken & Rice', dinner: 'Salad & Soup' },
-    { day: 'Tuesday', breakfast: 'Boiled Eggs & Toast', lunch: 'Fish & Vegetables', dinner: 'Pasta & Salad' },
-    { day: 'Wednesday', breakfast: 'Smoothie & Nuts', lunch: 'Steak & Potatoes', dinner: 'Vegetable Stir Fry' },
-    { day: 'Thursday', breakfast: 'Pancakes & Berries', lunch: 'Chicken Salad', dinner: 'Soup & Bread' },
-    { day: 'Friday', breakfast: 'Yogurt & Granola', lunch: 'Salmon & Rice', dinner: 'Quinoa & Vegetables' },
-    { day: 'Saturday', breakfast: 'Omelet & Toast', lunch: 'Pasta & Chicken', dinner: 'Grilled Fish & Vegetables' },
-    { day: 'Sunday', breakfast: 'Fruits & Nuts', lunch: 'Veggie Wraps', dinner: 'Lentil Soup & Rice' }
+    {
+      day: 'Monday',
+      breakfast: 'Oatmeal',
+      lunch: 'Grilled Chicken & Rice',
+      dinner: 'Salad & Soup',
+    },
+    {
+      day: 'Tuesday',
+      breakfast: 'Boiled Eggs & Toast',
+      lunch: 'Fish & Vegetables',
+      dinner: 'Pasta & Salad',
+    },
+    {
+      day: 'Wednesday',
+      breakfast: 'Smoothie & Nuts',
+      lunch: 'Steak & Potatoes',
+      dinner: 'Vegetable Stir Fry',
+    },
+    {
+      day: 'Thursday',
+      breakfast: 'Pancakes & Berries',
+      lunch: 'Chicken Salad',
+      dinner: 'Soup & Bread',
+    },
+    {
+      day: 'Friday',
+      breakfast: 'Yogurt & Granola',
+      lunch: 'Salmon & Rice',
+      dinner: 'Quinoa & Vegetables',
+    },
+    {
+      day: 'Saturday',
+      breakfast: 'Omelet & Toast',
+      lunch: 'Pasta & Chicken',
+      dinner: 'Grilled Fish & Vegetables',
+    },
+    {
+      day: 'Sunday',
+      breakfast: 'Fruits & Nuts',
+      lunch: 'Veggie Wraps',
+      dinner: 'Lentil Soup & Rice',
+    },
   ];
-  
+
   dietChartOptions: Highcharts.Options = {
     chart: {
-      type: 'column' // Change to column
+      type: 'column', // Change to column
     },
     title: {
-      text: 'Weekly Diet Plan'
+      text: 'Weekly Diet Plan',
     },
     xAxis: {
-      categories: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+      categories: [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ],
     },
     yAxis: {
       min: 0,
       title: {
-        text: 'Calories'
-      }
+        text: 'Calories',
+      },
     },
     series: [
       {
         type: 'column',
         name: 'Breakfast',
-        data: [300, 350, 320, 310, 330, 340, 360]
+        data: [300, 350, 320, 310, 330, 340, 360],
       },
       {
         type: 'column',
         name: 'Lunch',
-        data: [500, 520, 510, 530, 550, 540, 560]
+        data: [500, 520, 510, 530, 550, 540, 560],
       },
       {
         type: 'column',
         name: 'Dinner',
-        data: [450, 460, 440, 470, 480, 490, 500]
-      }
-    ]
+        data: [450, 460, 440, 470, 480, 490, 500],
+      },
+    ],
   };
-  
 }

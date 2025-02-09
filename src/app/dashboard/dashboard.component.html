@@ -27,8 +27,16 @@
           </span>
         </div>
       </div>
-      <div class="card-bottom-content d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
-        <p class="duration mb-0 text-nowrap text-truncate" style="max-width: 150px;" [title]="metric.subtext">{{ metric.subtext }}</p>
+      <div
+        class="card-bottom-content d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2"
+      >
+        <p
+          class="duration mb-0 text-nowrap text-truncate"
+          style="max-width: 150px"
+          [title]="metric.subtext"
+        >
+          {{ metric.subtext }}
+        </p>
         <button class="button-class text-nowrap mt-1">See details</button>
       </div>
     </div>
@@ -39,6 +47,7 @@
     <h4>Patient Visit</h4>
     <div>
       <highcharts-chart
+        *ngIf="isBrowser"
         [Highcharts]="Highcharts"
         [options]="visitChartOptions"
         style="width: 100%; height: 300px; display: block"
@@ -46,68 +55,75 @@
       </highcharts-chart>
     </div>
   </div>
-  
+
   <!-- Appointments -->
   <!-- Appointments -->
   <div class="appointments">
-    <div class="d-flex justify-content-between" >
-    <h4>Upcoming Appointments</h4>
-    <!-- Filters Section -->
-    <div class="filters mb-4">
-      <input
-        type="text"
-        placeholder="Search by name or symptoms..."
-        class="filter-input"
-        [(ngModel)]="searchQuery"
-      />
+    <div class="d-flex justify-content-between">
+      <h4>Upcoming Appointments</h4>
+      <!-- Filters Section -->
+      <div class="filters mb-4">
+        <input
+          type="text"
+          placeholder="Search by name or symptoms..."
+          class="filter-input"
+          [(ngModel)]="searchQuery"
+        />
+      </div>
+    </div>
+    <!-- Grid Section -->
+    <div class="table-responsive">
+      <table class="table table-hover">
+        <!-- Header Row -->
+        <thead>
+          <tr class="bg-light">
+            <th scope="col" class="fw-bold">Patient Name</th>
+            <th scope="col" class="fw-bold">Visit Type</th>
+            <th scope="col" class="fw-bold">Symptoms</th>
+            <th scope="col" class="fw-bold">Status</th>
+          </tr>
+        </thead>
+        <!-- Filtered Rows -->
+        <tbody>
+          <tr
+            *ngFor="let appointment of filteredAppointments()"
+            class="align-middle"
+          >
+            <td>
+              <div class="d-flex align-items-center">
+                <img
+                  src="assets/default-avatar.jpg"
+                  class="rounded-circle me-2"
+                  width="32"
+                  height="32"
+                />
+                <span>{{ appointment.name }}</span>
+              </div>
+            </td>
+            <td>
+              <i class="bi bi-clipboard-pulse me-2"></i>
+              {{ appointment.visitType }}
+            </td>
+            <td>
+              <span class="text-muted">{{ appointment.symptoms }}</span>
+            </td>
+            <td>
+              <span
+                class="badge rounded-pill px-3 py-2"
+                [ngClass]="{
+                  'bg-success': appointment.status === 'Confirmed',
+                  'bg-warning text-dark': appointment.status === 'Pending',
+                  'bg-danger': appointment.status === 'Cancelled'
+                }"
+              >
+                {{ appointment.status }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
-  <!-- Grid Section -->
-  <div class="table-responsive">
-    <table class="table table-hover">
-      <!-- Header Row -->
-      <thead>
-        <tr class="bg-light">
-          <th scope="col" class="fw-bold">Patient Name</th>
-          <th scope="col" class="fw-bold">Visit Type</th>
-          <th scope="col" class="fw-bold">Symptoms</th>
-          <th scope="col" class="fw-bold">Status</th>
-        </tr>
-      </thead>
-      <!-- Filtered Rows -->
-      <tbody>
-        <tr *ngFor="let appointment of filteredAppointments()" 
-            class="align-middle">
-          <td>
-            <div class="d-flex align-items-center">
-              <img src="assets/default-avatar.jpg" 
-                   class="rounded-circle me-2" 
-                   width="32" height="32">
-              <span>{{ appointment.name }}</span>
-            </div>
-          </td>
-          <td>
-            <i class="bi bi-clipboard-pulse me-2"></i>
-            {{ appointment.visitType }}
-          </td>
-          <td>
-            <span class="text-muted">{{ appointment.symptoms }}</span>
-          </td>
-          <td>
-            <span class="badge rounded-pill px-3 py-2"
-                  [ngClass]="{
-                    'bg-success': appointment.status === 'Confirmed',
-                    'bg-warning text-dark': appointment.status === 'Pending', 
-                    'bg-danger': appointment.status === 'Cancelled'
-                  }">
-              {{ appointment.status }}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
 
   <!-- Income Card Section -->
   <div class="chart-container card">
@@ -116,7 +132,7 @@
       <div class="card-title text-center mb-3">
         <h4>Income</h4>
       </div>
-  
+
       <!-- Card Middle Content -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <!-- Filter Dropdown -->
@@ -131,23 +147,26 @@
             <option value="monthly">Monthly</option>
           </select>
         </div>
-  
+
         <!-- Total Income -->
         <div class="total-income text-success fw-bold">
           <strong>Total Income:</strong> {{ totalIncome | currency }}
         </div>
       </div>
-  
+
       <!-- Chart Section -->
-      <div class="chart-wrapper" style="position: relative; height: 300px; width: 100%;">
+      <div
+        class="chart-wrapper"
+        style="position: relative; height: 300px; width: 100%"
+      >
         <highcharts-chart
+          *ngIf="isBrowser"
           [Highcharts]="Highcharts"
           [options]="incomeChartOptions"
-          style="display: block; width: 100%; height: 100%;"
+          style="display: block; width: 100%; height: 100%"
         >
         </highcharts-chart>
       </div>
     </div>
   </div>
-
 </div>
