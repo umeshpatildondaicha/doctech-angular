@@ -1,0 +1,89 @@
+<div class="container py-5">
+  <!-- Header -->
+  <h2 class="text-center mb-5 text-primary">Appointment Calendar</h2>
+
+  <div class="row">
+    <!-- Horizontal Tabs for Last 7 Days -->
+    <div class="col-md-12 mb-4">
+      <div class="list-group d-flex flex-row justify-content-center">
+        <div *ngFor="let day of lastSevenDays" 
+             class="list-group-item list-group-item-action text-center rounded-pill mx-1" 
+             [ngClass]="{'active bg-primary text-white': selectedDate.toDateString() === day.date.toDateString()}" 
+             (click)="selectDay(day)">
+          {{ day.label }}
+        </div>
+        
+        <!-- Date Picker Icon -->
+        <div class="list-group-item text-center rounded-pill mx-1">
+          <input type="date" class="form-control" [(ngModel)]="selectedDate" (change)="fetchAppointments()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Slots Section -->
+    <div class="col-md-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="text-secondary">Available Time Slots</h3>
+        <div>
+          <label for="filter" class="me-2">Filter by:</label>
+          <select id="filter" class="form-select d-inline-block w-auto" [(ngModel)]="slotFilter">
+            <option value="all">All</option>
+            <option value="morning">Morning</option>
+            <option value="afternoon">Afternoon</option>
+            <option value="evening">Evening</option>
+          </select>
+        </div>
+      </div>
+      
+      <div *ngIf="timeSlots.length === 0" class="alert alert-warning text-center">
+        No slots available for the selected date.
+      </div>
+      
+      <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div *ngFor="let slot of filteredSlots()" class="col">
+          <div class="card p-2 shadow-sm border-0 d-block"
+               [ngClass]="{'bg-danger text-white': slot.booked, 'bg-light': !slot.booked}" 
+               (click)="confirmBooking(slot)">
+            <div class="d-flex justify-content-between">
+              <span *ngIf="!slot.booked">{{ slot.time }}</span>
+              <span class="badge" [ngClass]="{'bg-success': !slot.booked, 'bg-danger': slot.booked}">
+                {{ slot.booked ? 'Booked' : 'Available' }}
+              </span>
+              <span *ngIf="slot.booked">{{ slot.time }}</span>
+            </div>
+            <div *ngIf="slot.booked" class="d-flex mt-1">
+              <img src="{{ slot.patientProfile }}" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px;">
+              <div>
+                <small>{{ slot.patientName }}</small>
+                <small>{{ slot.patientContact }}</small>
+                <small>{{ slot.patientNotes }}</small>
+              </div>
+          </div>
+          </div>
+          <div *ngIf="slot.hasBreak" class="text-center mt-1">
+            <span class="badge bg-warning text-dark">Break</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking Confirmation Modal -->
+  <div *ngIf="selectedSlot" class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Confirm Booking</h5>
+          <button type="button" class="btn-close" (click)="cancelBooking()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Do you want to book the slot at <strong>{{ selectedSlot.time }}</strong>?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelBooking()">Cancel</button>
+          <button type="button" class="btn btn-primary" (click)="bookSlot(selectedSlot)">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

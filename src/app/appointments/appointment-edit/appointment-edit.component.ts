@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./appointment-edit.component.css']
 })
 export class AppointmentEditComponent {
+
   weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   selectedDays: string[] = [];
   selectedDates: string[] = [];

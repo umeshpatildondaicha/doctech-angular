@@ -1,7 +1,7 @@
 // app.routes.ts
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component'; // Import your DashboardComponent
-import { AppointmentCalendarComponent } from './appointment-calendar/appointment-calendar.component'; 
+import { AppointmentCalendarComponent } from './appointments/appointment-calendar/appointment-calendar.component'; 
 import { PatientProfileComponent } from './patient-profile/patient-profile.component';
 export const routes: Routes = [
   // { path: 'dashboard', component: DashboardComponent },

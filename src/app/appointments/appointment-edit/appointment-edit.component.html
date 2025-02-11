@@ -1,15 +1,13 @@
 <div class="container mt-4">
-    <h2 class="text-center">Doctor's Appointment Settings</h2>
   
-    <!-- Toggle Between Days & Dates -->
-    <div class="form-group mt-3">
-      <label>Select Mode:</label>
-      <div class="d-flex">
-        <button class="btn btn-outline-primary me-2" (click)="toggleMode()">
-          {{ selectDateMode ? 'Switch to Days' : 'Switch to Dates' }}
-        </button>
-      </div>
-    </div>
+  <!-- Toggle Between Days & Dates -->
+  <div class="form-group mt-3 d-flex align-items-center">
+    <label class="me-3">Select Mode:</label>
+    <select class="form-select" [(ngModel)]="selectDateMode">
+      <option [ngValue]="false">Days</option>
+      <option [ngValue]="true">Dates</option>
+    </select>
+  </div>
   
     <!-- Select Working Days -->
     <div *ngIf="!selectDateMode" class="form-group mt-3">

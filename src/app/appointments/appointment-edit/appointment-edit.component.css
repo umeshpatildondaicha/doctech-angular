@@ -114,3 +114,79 @@
   font-size: 1.3rem;
 }
 
+/* Enhanced Toggle Switch */
+.button-outer-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.active {
+  background-color: #000;
+}
+
+body.active .primary--button {
+  border: 2px solid #fff;
+  background-color: #fff;
+}
+
+.primary--button {
+  width: 150px;
+  min-height: 50px;
+  border: none;
+  background-color: transparent;
+  border-radius: 50px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px inset,
+    rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
+  position: relative;
+  cursor: pointer;
+}
+
+.primary--button::after {
+  content: "";
+  min-height: 40px;
+  width: 45px;
+  display: block;
+  border-radius: 50px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+  transition: transform 1s;
+}
+
+.primary--button:before {
+  content: "Off";
+  font-size: 20px;
+  position: absolute;
+  top: 50%;
+  left: 90px;
+  right: unset;
+  transform: translateY(-50%);
+  color: #ccc;
+  text-transform: uppercase;
+  transition: content 1s;
+}
+
+.turn-on .primary--button:before {
+  content: "ON";
+  right: 100px;
+  left: unset;
+  transition: content 1s;
+}
+
+.turn-on .primary--button::after {
+  content: "";
+  min-height: 40px;
+  width: 45px;
+  display: block;
+  border-radius: 50px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  background-color: #fff;
+  position: absolute;
+  top: 50%;
+  transform: translate(90px, -50%);
+  transition: transform 1s;
+}
