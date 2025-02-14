@@ -1,7 +1,28 @@
 body {
-    background:  #f8fafb;
-    height: 100vh;
-    margin: auto;
+  background: #f8fafb;
+  height: 100vh;
+  margin: auto;
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Add shadow and centering for the dialog */
+.mat-dialog-container {
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); /* Shadow effect */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Background blur effect */
+.mat-dialog-backdrop {
+  background-color: rgba(0, 0, 0, 0.5); /* Slightly dark overlay */
+  backdrop-filter: blur(6px); /* Background blur effect */
+}

@@ -1,0 +1,48 @@
+<div class="dialog-content">
+  <h1>Details</h1>
+  <p>Date: {{ data?.date }}</p>
+  <p>Vendor: {{ data?.vendor }}</p>
+  <p>Domain: {{ data?.domain }}</p>
+  <p>Technology: {{ data?.technology }}</p>
+  <p>Work Order No: {{ data?.workOrderNo }}</p>
+  <button mat-button (click)="close()">Close</button>
+</div>
+
+<!-- import { Component } from '@angular/core';
+import { GenericModalService } from './generic-modal.service';
+import { ExpandChartCellComponent } from './expand-chart-cell.component';
+
+@Component({
+  selector: 'app-main',
+  template: `
+    <button (click)="onCellClicked()">Open Dialog</button>
+  `,
+})
+export class MainComponent {
+  constructor(private genericModalService: GenericModalService) {}
+
+  onCellClicked(): void {
+    this.genericModalService
+      .openDialog(ExpandChartCellComponent, {
+        minHeight: '80%',
+        height: '45em',
+        minWidth: '85%',
+        data: {
+          date: '2025-02-14',
+          vendor: 'Vendor A',
+          domain: 'Telecom',
+          technology: '5G',
+          workOrderNo: 'WO123456',
+        },
+      })
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          console.log('Dialog closed with result:', result);
+        } else {
+          console.log('Dialog closed without result');
+        }
+      });
+  }
+}
+ -->

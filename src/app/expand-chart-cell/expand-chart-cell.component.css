@@ -1,0 +1,16 @@
+.dialog-content {
+  padding: 1em;
+  font-family: Arial, sans-serif;
+}
+h1 {
+  margin-bottom: 1em;
+  font-size: 1.5em;
+}
+p {
+  margin: 0.5em 0;
+}
+button {
+  margin-top: 1em;
+  background-color: #1976d2;
+  color: white;
+}
