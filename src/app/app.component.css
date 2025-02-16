@@ -1,84 +1,82 @@
 /* Main container for the whole layout */
 .app-container {
-    display: flex;
-    flex-direction: column;  
-  }
+  display: flex;
+  flex-direction: column;
+}
 
-  
-  /* Full-width header */
-  app-header {
-    width: 100%;
-    background-color: #333;
-    color: white;
-      text-align: center;
-  }
-  
-  /* Main content area with sidebar */
-  .main-container {
-    display: flex;
-    min-height: 100vh; 
-  }
-  
-  /* Sidebar width and hover functionality */
-  app-sidebar {
-    width: 60px; 
-    transition: width 0.3s ease-in-out;
-  }
-  
-  app-sidebar.expanded {
-    width: 15rem; 
-  }
-  
-  /* Content area that adjusts according to sidebar state */
-  .content {
-    flex: 1;
-    margin-top: 3rem;
-    margin-left: 3rem;
-    padding: 0 1rem 1rem 1rem;
-    background-color: #f8fafb;
-    transition: margin-left 0.3s ease-in-out;
-  }
-  
-  /* When sidebar is expanded, shift content accordingly */
-  app-sidebar.expanded + .content {
-    margin-left: 15rem;
-  }
-  .content.shifted {
-    margin-left: 15rem;
-  }
-  
+/* Full-width header */
+app-header {
+  width: 100%;
+  background-color: #333;
+  color: white;
+  text-align: center;
+}
 
-  /* Draggable button styling */
-  .draggable-button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: #1976d2;
-    border: none;
-    color: white;
-    cursor: move;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    z-index: 1000;
-    transition: background-color 0.3s ease;
-  }
+/* Main content area with sidebar */
+.main-container {
+  display: flex;
+  min-height: 100vh;
+}
 
-  .draggable-button:hover {
-    background-color: #1565c0;
-  }
+/* Sidebar width and hover functionality */
+app-sidebar {
+  width: 60px;
+  transition: width 0.3s ease-in-out;
+}
 
-  .draggable-button mat-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-    line-height: 24px;
-  }
+app-sidebar.expanded {
+  width: 15rem;
+}
 
-  /* Ensure the main container allows for absolute positioning */
-  .main {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-  }
+/* Content area that adjusts according to sidebar state */
+.content {
+  flex: 1;
+  margin-top: 3rem;
+  margin-left: 3rem;
+  padding: 0 1rem 1rem 1rem;
+  background-color: #f8fafb;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* When sidebar is expanded, shift content accordingly */
+app-sidebar.expanded + .content {
+  margin-left: 15rem;
+}
+.content.shifted {
+  margin-left: 15rem;
+}
+
+/* Draggable button styling */
+.draggable-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #1976d2;
+  border: none;
+  color: white;
+  cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+.draggable-button:hover {
+  background-color: #1565c0;
+}
+
+.draggable-button {
+  font-size: 24px;
+  width: 35px;
+  height: 35px;
+  line-height: 24px;
+}
+
+/* Ensure the main container allows for absolute positioning */
+.main {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+}

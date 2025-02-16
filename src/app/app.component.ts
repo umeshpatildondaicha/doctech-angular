@@ -55,14 +55,19 @@ export class AppComponent implements OnInit {
   title = 'doctech-angular';
   isSidebarPinned = false;
   isRightSidebarOpen = false;
+  waitingPatientsCount: number = 0;
 
-  constructor(private sidebarService: SidebarService) {
-  }
+  constructor(private sidebarService: SidebarService) {}
 
   ngOnInit(): void {
     this.sidebarService.isPinned$.subscribe((isPinned) => {
       this.isSidebarPinned = isPinned;
     });
+  }
+
+  ngAfterViewInit() {
+    // Get the patient count directly after the component is initialized
+    this.waitingPatientsCount = this.rightSidebar.waitingPatients.length;
   }
 
   onSidebarHoverStart() {

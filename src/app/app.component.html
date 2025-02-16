@@ -7,9 +7,10 @@
   <div class="main">
     <!-- Header -->
     <app-sidebar
-        [class.expanded]="isSidebarPinned"
-        (mouseenter)="onSidebarHoverStart()"
-        (mouseleave)="onSidebarHoverEnd()">
+      [class.expanded]="isSidebarPinned"
+      (mouseenter)="onSidebarHoverStart()"
+      (mouseleave)="onSidebarHoverEnd()"
+    >
     </app-sidebar>
 
     <!-- Content -->
@@ -21,18 +22,17 @@
     <!-- Right Sidebar -->
     <app-right-sidebar #rightSidebar></app-right-sidebar>
 
-    <button 
-  class="draggable-button"
-  cdkDrag
-  [cdkDragBoundary]="'.main'"
-  [style.position]="'fixed'"
-  [style.right]="'20px'"
-  [style.top]="'50%'"
-  (click)="toggleRightSidebar()">
-  <mat-icon>menu</mat-icon>
-</button>
-
-  
-
+    <button
+      class="draggable-button"
+      cdkDrag
+      [cdkDragBoundary]="'.main'"
+      [style.position]="'fixed'"
+      [style.right]="'20px'"
+      [style.top]="'50%'"
+      [style.fontWeight]="'500'"
+      (click)="toggleRightSidebar()"
+    >
+      {{ waitingPatientsCount }}
+    </button>
   </div>
 </div>
