@@ -15,8 +15,15 @@
 
     <!-- Content -->
     <div class="content" [class.shifted]="isSidebarPinned">
-      <!-- Routed content goes here -->
-      <router-outlet></router-outlet>
+      <mat-card class="mt-2">
+        <mat-card-header>
+          <mat-card-title>Welcome</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <!-- Routed content goes here -->
+          <router-outlet></router-outlet>
+        </mat-card-content>
+      </mat-card>
     </div>
 
     <!-- Right Sidebar -->

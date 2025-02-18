@@ -1,58 +1,36 @@
 <div class="right-sidebar" [class.open]="isOpen">
   <div class="patient-cards">
-    <div
-      fxLayout="column"
-      fxLayoutAlign="space-between"
+    <mat-card 
       *ngFor="let patient of waitingPatients"
-      class="card patient-card"
+      class="patient-card mat-elevation-z4 compact-card"
     >
-      <div
-        fxFlex="10"
-        fxLayout="row"
-        fxLayoutAlign="start"
-        fxLayoutGap="0.5em"
-        class="card-header"
-      >
-        <div>{{ patient.queueNumber }}.</div>
-        <div>{{ patient.name }}</div>
-      </div>
-      <div class="patient-details" fxFlex="80" fxLayout="column">
-        <div fxFlexAlign="start" fxLayout="row" fxLayoutGap="0.8em">
-          <div><mat-icon>local_hospital</mat-icon></div>
-          <div>{{ patient.problem }}</div>
+      <mat-card-header>
+        <img mat-card-avatar [src]="patient.photoUrl" alt="Patient photo" class="patient-avatar">
+        <div class="queue-number">{{ patient.queueNumber }}</div>
+        <mat-card-title class="small-title">{{ patient.name }}</mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content class="compact-content">
+        <div class="patient-info">
+          <div class="info-row small-text">
+            <mat-icon class="info-icon small-icon">local_hospital</mat-icon>
+            <span class="info-text">{{ patient.problem }}</span>
+          </div>
+          <div class="info-row small-text">
+            <mat-icon class="info-icon small-icon">access_time</mat-icon>
+            <span class="info-text">{{ patient.waitTime }}</span>
+          </div>
         </div>
-        <div fxFlexAlign="start" fxLayout="row" fxLayoutGap="0.8em">
-          <div><mat-icon>access_time</mat-icon></div>
-          <div>{{ patient.waitTime }}</div>
-        </div>
-      </div>
-      <div
-        fxLayout="row"
-        fxLayoutAlign="space-evenly"
-        fxFlex="10"
-        fxLayoutGap="1em"
-        class="patient-contact"
-      >
-        <div>
-          <button mat-fab aria-label="Example icon button with a delete icon">
-            <mat-icon>visibility</mat-icon>
-          </button>
-        </div>
-        <!-- <div>
-          <button
-            mat-fab
-            aria-label="Example icon button with a heart icon"
-            [matBadge]="patient.notification"
-          >
-            <mat-icon>notifications</mat-icon>
-          </button>
-        </div> -->
-        <div>
-          <button mat-fab aria-label="Example icon button with a heart icon">
-            <mat-icon>phone</mat-icon>
-          </button>
-        </div>
-      </div>
-    </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end" class="compact-actions">
+        <button mat-icon-button color="primary" aria-label="View patient details">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button color="accent" aria-label="Call patient">
+          <mat-icon>phone</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
   </div>
 </div>

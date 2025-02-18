@@ -30,11 +30,12 @@ app-sidebar.expanded {
 
 /* Content area that adjusts according to sidebar state */
 .content {
+  background: linear-gradient(to right, #95b1fd, #04e4ea);
+
   flex: 1;
-  margin-top: 3rem;
+  margin-top: 2.7rem;
   margin-left: 3rem;
-  padding: 0 1rem 1rem 1rem;
-  background-color: #f8fafb;
+  padding: 1rem;
   transition: margin-left 0.3s ease-in-out;
 }
 
@@ -51,20 +52,42 @@ app-sidebar.expanded + .content {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #1976d2;
+  background-color: white;
   border: none;
-  color: white;
+  color: cadetblue;
   cursor: move;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   transition: background-color 0.3s ease;
+  position: relative;
+}
+
+.draggable-button::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid cadetblue;
+  animation: pulse 1.5s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .draggable-button:hover {
-  background-color: #1565c0;
+  border: #1565c0;
 }
 
 .draggable-button {

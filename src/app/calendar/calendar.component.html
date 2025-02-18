@@ -33,12 +33,13 @@
           >Day</mat-button-toggle
         >
       </mat-button-toggle-group>
-      <div class="calendar-controls">
+      <div class="calendar-controls" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--secondary-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
         <button
           mat-icon-button
           (click)="previous()"
           (keydown.enter)="previous()"
           (keydown.space)="previous()"
+          style="color: var(--primary-color);"
         >
           <mat-icon>chevron_left</mat-icon>
         </button>
@@ -47,6 +48,7 @@
           (click)="viewToday()"
           (keydown.enter)="viewToday()"
           (keydown.space)="viewToday()"
+          style="color: var(--primary-color); border-color: var(--primary-color);"
         >
           Today
         </button>
@@ -55,6 +57,7 @@
           (click)="next()"
           (keydown.enter)="next()"
           (keydown.space)="next()"
+          style="color: var(--primary-color);"
         >
           <mat-icon>chevron_right</mat-icon>
         </button>
@@ -63,6 +66,7 @@
           (click)="selectDate()"
           (keydown.enter)="selectDate()"
           (keydown.space)="selectDate()"
+          style="background-color: var(--primary-color); color: white; margin-left: 10px;"
         >
           Add Appointment
         </button>

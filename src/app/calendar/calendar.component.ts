@@ -5,6 +5,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { AppointmentDialogComponent } from '../appointment-dialog/appointment-dialog.component';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+// import { provideDateFnsAdapter } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
+// import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
+import { NgModule } from '@angular/core';
+
+import { MatMomentDateModule } from '@angular/material-moment-adapter';
+
 
 @Component({
   selector: 'app-calendar',
@@ -14,6 +24,17 @@ import { AppointmentDialogComponent } from '../appointment-dialog/appointment-di
     MatButtonToggleModule,
     MatIconModule,
     DragDropModule,
+    MatNativeDateModule, 
+    MatDatepickerModule,
+    MatNativeDateModule ,
+    MatMomentDateModule
+
+  ],
+  providers: [
+    provideNativeDateAdapter(),
+    provideMomentDateAdapter(),
+    // provideLuxonDateAdapter(),
+    // provideDateFnsAdapter()
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css']
@@ -101,6 +122,8 @@ export class CalendarComponent {
       if (result) {
         this.appointments.push(result);
       }
+    }, (error) => {
+      console.error('Dialog closed with error:', error);
     });
   }
 
@@ -119,6 +142,8 @@ export class CalendarComponent {
           this.appointments[index] = result;
         }
       }
+    }, (error) => {
+      console.error('Dialog closed with error:', error);
     });
   }
 

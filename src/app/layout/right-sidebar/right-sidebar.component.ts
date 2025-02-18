@@ -35,6 +35,7 @@ export class RightSidebarComponent {
       contactNumber: '123-456-7890',
       waitTime: '15 mins',
       notification: 2,
+      photoUrl: 'src/assets/default-avatar.jpg'
     },
     {
       queueNumber: 2,
@@ -43,6 +44,7 @@ export class RightSidebarComponent {
       contactNumber: '234-567-8901',
       waitTime: '25 mins',
       notification: 3,
+      photoUrl: 'src/assets/default-avatar.jpg'
     },
     {
       queueNumber: 3,
@@ -51,6 +53,7 @@ export class RightSidebarComponent {
       contactNumber: '345-678-9012',
       waitTime: '35 mins',
       notification: 5,
+      photoUrl: 'src/assets/default-avatar.jpg'
     },
     {
       queueNumber: 4,
@@ -59,6 +62,7 @@ export class RightSidebarComponent {
       contactNumber: '123-456-7890',
       waitTime: '15 mins',
       notification: 2,
+      photoUrl: 'src/assets/default-avatar.jpg'
     },
   ];
 
