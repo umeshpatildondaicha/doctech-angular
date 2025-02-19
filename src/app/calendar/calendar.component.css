@@ -42,7 +42,7 @@
   justify-content: space-between;
   align-items: center;
   background: var(--primary-color);
-  color: white;
+  color: rgb(0, 0, 0);
   margin-left: 5px;
   margin-right: 5px;
   border-radius: var(--border-radius);
@@ -103,6 +103,52 @@
   font-weight: 600;
   padding: 5px 10px 0;
   color: var(--text-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.date-actions {
+  display: flex;
+  gap: 5px;
+  position: relative;
+  align-items: center;
+}
+
+.date-actions button {
+  padding: 4px;
+  min-width: 0;
+  line-height: normal;
+  height: auto;
+  border: none;
+  position: relative;
+  z-index: 1;
+}
+
+.date-actions .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  display: flex;
+  color:  #95b1fd;;
+  align-items: center;
+  justify-content: center;
+}
+
+.appointment-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  color: #95b1fd;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  min-width: 20px;
+  height: 20px;
+  text-align: center;
+  margin-left: 5px;
 }
 
 .calendar-view-week {
@@ -116,6 +162,7 @@
   border-bottom: 2px solid var(--primary-color);
   padding: 10px 0;
   color: var(--text-color);
+  position: relative;
 }
 
 .calendar-view-week tbody tr td {
@@ -223,7 +270,7 @@
   height: var(--header-height);
   padding: 15px 20px;
   background-color: var(--primary-color);
-  color: white;
+  color: rgb(0, 0, 0);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 

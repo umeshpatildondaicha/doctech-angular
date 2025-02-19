@@ -42,17 +42,17 @@
   font-weight: 500;
   border-radius: 0.5em;
   font-size: 0.8em;
-  border: 0.1em solid #009479;
+  border: 0.1em solid #95b1fd;
   padding: 0.2em 1em;
   width: max-content;
-  background-color: #009479;
+  background-color: #95b1fd;
   color: white;
 }
 
 .button-class:hover {
-  border: 0.1em solid #009479;
+  border: 0.1em solid #95b1fd;
   background-color: white;
-  color: #009479;
+  color: #95b1fd;
   cursor: pointer;
 }
 
@@ -215,7 +215,7 @@
 /* Header Row Styling */
 .grid-header {
   display: flex;
-  background-color: #009479;
+  background-color: #95b1fd;
   color: #ffffff;
   font-weight: bold;
   padding: 0.5rem;

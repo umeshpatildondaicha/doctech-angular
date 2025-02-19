@@ -24,7 +24,7 @@
   height: 130px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid #01a69d;
+  border: 4px solid #95b1fd;
   transition: transform 0.3s;
 }
 
@@ -99,7 +99,7 @@
 }
 
 .nav-link {
-  color: #01a69d;
+  color: #95b1fd;
   font-weight: 500;
   border: none;
   border-bottom: 3px solid transparent;
@@ -107,8 +107,8 @@
 }
 
 .nav-link.active {
-  color: #01a69d;
-  border-bottom: 3px solid #01a69d;
+  color: #95b1fd;
+  border-bottom: 3px solid #95b1fd;
 }
 
 .nav-link:hover {

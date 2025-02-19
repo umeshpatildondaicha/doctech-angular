@@ -66,7 +66,7 @@
           (click)="selectDate()"
           (keydown.enter)="selectDate()"
           (keydown.space)="selectDate()"
-          style="background-color: var(--primary-color); color: white; margin-left: 10px;"
+          style="background-color: var(--primary-color); color: rgb(0, 0, 0); margin-left: 10px;"
         >
           Add Appointment
         </button>
@@ -107,6 +107,12 @@
             ></div>
             <div class="date">
               {{ date.getDate() }}
+              <div class="date-actions">
+                <button mat-icon-button (click)="changeAppointmentTiming(date)" title="Change Appointment Timing">
+                  <mat-icon>schedule</mat-icon>
+                </button>
+                <span class="appointment-count">{{ getAppointmentCount(date) || 0 }}</span>
+              </div>
             </div>
             <div class="appointments">
               <ng-container *ngFor="let appointment of appointments">
@@ -145,6 +151,12 @@
           <th></th>
           <th *ngFor="let day of weekDays; index as i">
             {{ day }} {{ monthDays[i].getDate() }}
+            <div class="date-actions">
+              <button mat-icon-button (click)="changeAppointmentTiming(monthDays[i])" title="Change Appointment Timing">
+                <mat-icon>schedule</mat-icon>
+              </button>
+              <span class="appointment-count">{{ getAppointmentCount(monthDays[i]) || 0 }}</span>
+            </div>
           </th>
         </tr>
       </thead>
@@ -199,6 +211,16 @@
       *ngIf="currentView === 'day'"
     >
       <tbody cdkDropListGroup>
+        <tr>
+          <th colspan="2">
+            <div class="date-actions">
+              <button mat-icon-button (click)="changeAppointmentTiming(monthDays[0])" title="Change Appointment Timing">
+                <mat-icon>schedule</mat-icon>
+              </button>
+              <span class="appointment-count">{{ getAppointmentCount(monthDays[0]) || 0 }}</span>
+            </div>
+          </th>
+        </tr>
         <tr *ngFor="let slot of timeSlots">
           <td [width]="10" class="calendar-slot-cell">
             <span>{{ slot }}</span>

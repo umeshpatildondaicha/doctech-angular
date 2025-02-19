@@ -147,6 +147,39 @@ export class CalendarComponent {
     });
   }
 
+  changeAppointmentTiming(date: Date) {
+    const dialogRef = this.dialog.open(AppointmentDialogComponent, {
+      data: {
+        date: date,
+        isTimingChange: true
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Update appointments for this date with new timing
+        const appointmentsForDate = this.appointments.filter(
+          appt => this.isSameDate(appt.date, date)
+        );
+        appointmentsForDate.forEach(appt => {
+          appt.timeSlot = result.timeSlot;
+        });
+      }
+    });
+  }
+
+  viewAppointmentCount(date: Date) {
+    const count = this.getAppointmentCount(date);
+    // You could show this in a dialog or tooltip
+    console.log(`Appointments for ${date.toDateString()}: ${count}`);
+  }
+
+  getAppointmentCount(date: Date): number {
+    return this.appointments.filter(
+      appointment => this.isSameDate(appointment.date, date)
+    ).length;
+  }
+
   private generateCalendar() {
     this.weeks = [];
     this.monthDays = [];

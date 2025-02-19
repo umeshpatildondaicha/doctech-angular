@@ -213,18 +213,18 @@ export class DashboardComponent {
     },
     plotOptions: {
       areaspline: {
-        color: '#009479',
+        color: '#95b1fd',
         fillColor: {
           linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
           stops: [
-            [0, '#009479'],
+            [0, '#95b1fd'],
             [1, '#d4f5ef'],
           ],
         },
         threshold: null,
         marker: {
           lineWidth: 1,
-          lineColor: '#009479',
+          lineColor: '#95b1fd',
           fillColor: 'white',
         },
       },
