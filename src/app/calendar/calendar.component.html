@@ -20,19 +20,14 @@
       <mat-button-toggle-group
         class="calendar-view-toggle"
         name="currentView"
-        (change)="switchToView($event.source.value)"
-        aria-label="Calendar-View"
+        (change)="switchToView($event)"
+        aria-label="Calendar View"
       >
-        <mat-button-toggle checked="true" value="CalendarView.Month"
-          >Month</mat-button-toggle
-        >
-        <mat-button-toggle value="CalendarView.Week"
-          >Week</mat-button-toggle
-        >
-        <mat-button-toggle value="CalendarView.Day"
-          >Day</mat-button-toggle
-        >
+        <mat-button-toggle checked="true" value="month">Month</mat-button-toggle>
+        <mat-button-toggle value="week">Week</mat-button-toggle>
+        <mat-button-toggle value="day">Day</mat-button-toggle>
       </mat-button-toggle-group>
+
       <div class="calendar-controls" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: var(--secondary-color); border-radius: var(--border-radius); box-shadow: var(--box-shadow);">
         <button
           mat-icon-button

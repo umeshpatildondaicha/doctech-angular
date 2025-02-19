@@ -2,35 +2,49 @@
   <div class="patient-cards">
     <mat-card 
       *ngFor="let patient of waitingPatients"
-      class="patient-card mat-elevation-z4 compact-card"
+      class="patient-card mat-elevation-z4"
     >
-      <mat-card-header>
-        <img mat-card-avatar [src]="patient.photoUrl" alt="Patient photo" class="patient-avatar">
-        <div class="queue-number">{{ patient.queueNumber }}</div>
-        <mat-card-title class="small-title">{{ patient.name }}</mat-card-title>
-      </mat-card-header>
-
-      <mat-card-content class="compact-content">
-        <div class="patient-info">
-          <div class="info-row small-text">
-            <mat-icon class="info-icon small-icon">local_hospital</mat-icon>
-            <span class="info-text">{{ patient.problem }}</span>
+      <div class="patient-profile">
+        <div class="profile-section">
+          <div class="profile-image-container">
+            <img [src]="patient.photoUrl" alt="Patient photo" class="profile-image">
+            <div class="queue-badge">{{ patient.queueNumber }}</div>
           </div>
-          <div class="info-row small-text">
-            <mat-icon class="info-icon small-icon">access_time</mat-icon>
-            <span class="info-text">{{ patient.waitTime }}</span>
+          <div class="patient-name">{{ patient.name }}</div>
+        </div>
+
+        <div class="patient-overview">
+          <div class="info-section">
+            <div class="info-item">
+              <mat-icon class="info-icon">medical_services</mat-icon>
+              <div class="info-content">
+                <div class="info-value">{{ patient.problem }}</div>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <mat-icon class="info-icon">schedule</mat-icon>
+              <div class="info-content">
+                <div class="info-value">{{ patient.waitTime }}</div>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <mat-icon class="info-icon">phone</mat-icon>
+              <div class="info-content">
+                <div class="info-value">+91 8888888888</div>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <mat-icon class="info-icon">location_on</mat-icon>
+              <div class="info-content">
+                <div class="info-value">Pune</div>
+              </div>
+            </div>
           </div>
         </div>
-      </mat-card-content>
-
-      <mat-card-actions align="end" class="compact-actions">
-        <button mat-icon-button color="primary" aria-label="View patient details">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        <button mat-icon-button color="accent" aria-label="Call patient">
-          <mat-icon>phone</mat-icon>
-        </button>
-      </mat-card-actions>
+      </div>
     </mat-card>
   </div>
 </div>

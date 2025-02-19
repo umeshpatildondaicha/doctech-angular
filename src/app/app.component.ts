@@ -18,7 +18,7 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CalendarModule } from './calendar/calendar.module';
-import { CalendarComponent } from './calendar/calendar.component'; // Import CalendarComponent
+import { CalendarComponent } from './calendar/calendar.component'; 
 
 @Component({
   selector: 'app-root',
@@ -43,7 +43,7 @@ import { CalendarComponent } from './calendar/calendar.component'; // Import Cal
     MatListModule,
     DragDropModule,
     CalendarModule,
-    CalendarComponent, // Add CalendarComponent to imports
+    CalendarComponent, 
   ],
   providers: [MatDatepickerModule],
   templateUrl: './app.component.html',

@@ -52,10 +52,15 @@ export class CalendarComponent {
     this.generateCalendar();
   }
 
-  switchToView(view: string) {
-    this.currentView = view as 'month' | 'week' | 'day';
-    this.generateCalendar();
+  switchToView(event: any) {
+    const view = event.value; // Ensure we get the correct value
+    console.log('Switching to view:', view);
+    if (['month', 'week', 'day'].includes(view)) {
+      this.currentView = view as 'month' | 'week' | 'day';
+      this.generateCalendar();
+    }
   }
+  
 
   drop(event: CdkDragDrop<any[]>, date: Date, timeSlot?: string) {
     const previousIndex = this.appointments.findIndex(
@@ -90,20 +95,25 @@ export class CalendarComponent {
   previous() {
     if (this.currentView === 'month') {
       this.viewDate.setMonth(this.viewDate.getMonth() - 1);
-    } else if (this.currentView === 'week' || this.currentView === 'day') {
+    } else if (this.currentView === 'week') {
       this.viewDate.setDate(this.viewDate.getDate() - 7);
+    } else if (this.currentView === 'day') {
+      this.viewDate.setDate(this.viewDate.getDate() - 1);
     }
     this.generateCalendar();
   }
-
+  
   next() {
     if (this.currentView === 'month') {
       this.viewDate.setMonth(this.viewDate.getMonth() + 1);
-    } else if (this.currentView === 'week' || this.currentView === 'day') {
+    } else if (this.currentView === 'week') {
       this.viewDate.setDate(this.viewDate.getDate() + 7);
+    } else if (this.currentView === 'day') {
+      this.viewDate.setDate(this.viewDate.getDate() + 1);
     }
     this.generateCalendar();
   }
+  
 
   viewToday() {
     this.viewDate = new Date();
@@ -183,25 +193,43 @@ export class CalendarComponent {
   private generateCalendar() {
     this.weeks = [];
     this.monthDays = [];
-    const startOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1);
-    const endOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 0);
-    let currentDay = new Date(startOfMonth);
-
-    while (currentDay <= endOfMonth) {
-      this.monthDays.push(new Date(currentDay));
-      currentDay.setDate(currentDay.getDate() + 1);
-    }
-
-    let week: Date[] = [];
-    for (let day of this.monthDays) {
-      week.push(day);
-      if (week.length === 7) {
-        this.weeks.push(week);
-        week = [];
+  
+    if (this.currentView === 'month') {
+      // Generate month view
+      const startOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1);
+      const endOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 0);
+      
+      let currentDay = new Date(startOfMonth);
+      while (currentDay.getDay() !== 0) {
+        currentDay.setDate(currentDay.getDate() - 1); // Move back to Sunday
       }
-    }
-    if (week.length > 0) {
-      this.weeks.push(week);
+  
+      while (currentDay <= endOfMonth || currentDay.getDay() !== 0) {
+        let week: Date[] = [];
+        for (let i = 0; i < 7; i++) {
+          week.push(new Date(currentDay));
+          currentDay.setDate(currentDay.getDate() + 1);
+        }
+        this.weeks.push(week);
+      }
+    } 
+    
+    else if (this.currentView === 'week') {
+      // Generate week view (starting from Sunday of the selected week)
+      let startOfWeek = new Date(this.viewDate);
+      while (startOfWeek.getDay() !== 0) {
+        startOfWeek.setDate(startOfWeek.getDate() - 1);
+      }
+      for (let i = 0; i < 7; i++) {
+        this.monthDays[i] = new Date(startOfWeek);
+        startOfWeek.setDate(startOfWeek.getDate() + 1);
+      }
+    } 
+    
+    else if (this.currentView === 'day') {
+      // Generate day view (just the selected day)
+      this.monthDays = [new Date(this.viewDate)];
     }
   }
+  
 }
