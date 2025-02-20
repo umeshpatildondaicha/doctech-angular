@@ -12,7 +12,7 @@ import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 // import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
 import { NgModule } from '@angular/core';
-
+import { BehaviorSubject } from 'rxjs';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 
 
@@ -47,16 +47,40 @@ export class CalendarComponent {
   appointments: any[] = [];
   weeks: Date[][] = [];
   monthDays: Date[] = [];
+  currentViewSubject = new BehaviorSubject<'month' | 'week' | 'day'>('month');
+  currentView$ = this.currentViewSubject.asObservable();
 
   constructor(private dialog: MatDialog) {
     this.generateCalendar();
   }
 
+  getCurrentViewTitle(): string {
+    if (this.currentView === 'month') {
+      return `${this.viewDate.toLocaleString('default', { month: 'long' })} ${this.viewDate.getFullYear()}`;
+    } else if (this.currentView === 'week') {
+      const weekStart = new Date(this.viewDate);
+      while (weekStart.getDay() !== 0) {
+        weekStart.setDate(weekStart.getDate() - 1);
+      }
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+      
+      if (weekStart.getMonth() === weekEnd.getMonth()) {
+        return `${weekStart.toLocaleString('default', { month: 'long' })} ${weekStart.getFullYear()}`;
+      } else {
+        return `${weekStart.toLocaleString('default', { month: 'short' })} - ${weekEnd.toLocaleString('default', { month: 'short' })} ${weekStart.getFullYear()}`;
+      }
+    } else {
+      return `${this.viewDate.toLocaleString('default', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+    }
+  }
+
   switchToView(event: any) {
-    const view = event.value; // Ensure we get the correct value
+    const view = event.value;
     console.log('Switching to view:', view);
     if (['month', 'week', 'day'].includes(view)) {
       this.currentView = view as 'month' | 'week' | 'day';
+      this.currentViewSubject.next(this.currentView); // Emit new value
       this.generateCalendar();
     }
   }
@@ -91,35 +115,33 @@ export class CalendarComponent {
         appointment.timeSlot === timeSlot
     );
   }
-
   previous() {
     if (this.currentView === 'month') {
-      this.viewDate.setMonth(this.viewDate.getMonth() - 1);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() - 1, 1);
     } else if (this.currentView === 'week') {
-      this.viewDate.setDate(this.viewDate.getDate() - 7);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), this.viewDate.getDate() - 7);
     } else if (this.currentView === 'day') {
-      this.viewDate.setDate(this.viewDate.getDate() - 1);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), this.viewDate.getDate() - 1);
     }
     this.generateCalendar();
   }
   
   next() {
     if (this.currentView === 'month') {
-      this.viewDate.setMonth(this.viewDate.getMonth() + 1);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 1);
     } else if (this.currentView === 'week') {
-      this.viewDate.setDate(this.viewDate.getDate() + 7);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), this.viewDate.getDate() + 7);
     } else if (this.currentView === 'day') {
-      this.viewDate.setDate(this.viewDate.getDate() + 1);
+      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), this.viewDate.getDate() + 1);
     }
     this.generateCalendar();
   }
   
-
   viewToday() {
     this.viewDate = new Date();
     this.generateCalendar();
   }
-
+  
   selectDate(date?: Date, timeSlot?: string) {
     const dialogRef = this.dialog.open(AppointmentDialogComponent, {
       data: {

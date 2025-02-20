@@ -45,7 +45,7 @@
           (keydown.space)="viewToday()"
           style="color: var(--primary-color); border-color: var(--primary-color);"
         >
-          Today
+          {{ currentView === 'month' ? 'This Month' : currentView === 'week' ? 'This Week' : 'Today' }}
         </button>
         <button
           mat-icon-button

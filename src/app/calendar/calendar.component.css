@@ -299,3 +299,65 @@
 .black-icon svg {
   fill: black;
 }
+
+.calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--secondary-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+}
+
+button {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+button[mat-icon-button] {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--primary-color);
+  background: transparent;
+  border: none;
+}
+
+button[mat-icon-button]:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+button[mat-stroked-button] {
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 6px 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  background: transparent;
+}
+
+button[mat-stroked-button]:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+button[mat-flat-button] {
+  background-color: var(--primary-color);
+  color: black;
+  font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-left: 10px;
+}
+
+button[mat-flat-button]:hover {
+  background-color: darken(var(--primary-color), 10%);
+}
+
+mat-icon {
+  font-size: 24px;
+}
