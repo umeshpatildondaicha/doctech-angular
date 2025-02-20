@@ -6,6 +6,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 
 import { routes as appRoutes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,6 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(appRoutes),
     provideClientHydration(),
     provideAnimations(),
-    importProvidersFrom(MatNativeDateModule)
+    importProvidersFrom(MatNativeDateModule), provideAnimationsAsync()
   ]
 };

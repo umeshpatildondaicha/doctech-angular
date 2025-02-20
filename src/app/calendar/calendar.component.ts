@@ -7,13 +7,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { AppointmentDialogComponent } from '../appointment-dialog/appointment-dialog.component';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
-// import { provideDateFnsAdapter } from '@angular/material/core';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
-// import { provideLuxonDateAdapter } from '@angular/material-luxon-adapter';
-import { NgModule } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
+import { AppointmentEditComponent } from '../appointments/appointment-edit/appointment-edit.component';
+
 
 
 @Component({
@@ -27,8 +26,8 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
     MatNativeDateModule, 
     MatDatepickerModule,
     MatNativeDateModule ,
-    MatMomentDateModule
-
+    MatMomentDateModule,
+    AppointmentEditComponent
   ],
   providers: [
     provideNativeDateAdapter(),
@@ -53,6 +52,11 @@ export class CalendarComponent {
   constructor(private dialog: MatDialog) {
     this.generateCalendar();
   }
+  // const dialogRef = this.dialog.open(AppointmentEditComponent, {
+  //   width: '600px', 
+  //   data: {} 
+  // });
+
 
   getCurrentViewTitle(): string {
     if (this.currentView === 'month') {
@@ -161,7 +165,7 @@ export class CalendarComponent {
 
   editAppointment(appointment: any, event: Event) {
     event.stopPropagation();
-    const dialogRef = this.dialog.open(AppointmentDialogComponent, {
+    const dialogRef = this.dialog.open(AppointmentEditComponent, {
       data: appointment,
     });
 
@@ -180,7 +184,7 @@ export class CalendarComponent {
   }
 
   changeAppointmentTiming(date: Date) {
-    const dialogRef = this.dialog.open(AppointmentDialogComponent, {
+    const dialogRef = this.dialog.open(AppointmentEditComponent, {
       data: {
         date: date,
         isTimingChange: true

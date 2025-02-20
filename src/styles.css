@@ -26,3 +26,6 @@ body {
   background-color: rgba(0, 0, 0, 0.5); /* Slightly dark overlay */
   backdrop-filter: blur(6px); /* Background blur effect */
 }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }

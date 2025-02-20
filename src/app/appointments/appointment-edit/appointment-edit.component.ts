@@ -1,14 +1,34 @@
-import { Component } from '@angular/core';
+// import { Component } from '@angular/core';
+// import { CommonModule } from '@angular/common';
+// import { FormsModule } from '@angular/forms';
+
+// @Component({
+//   selector: 'app-appointment-edit',
+//   imports: [CommonModule, FormsModule], 
+//   templateUrl: './appointment-edit.component.html',
+//   styleUrls: ['./appointment-edit.component.css']
+// })
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-appointment-edit',
-  imports: [CommonModule, FormsModule], 
   templateUrl: './appointment-edit.component.html',
-  styleUrls: ['./appointment-edit.component.css']
+  styleUrls: ['./appointment-edit.component.css'],
+  imports: [CommonModule, FormsModule]
 })
 export class AppointmentEditComponent {
+
+  constructor(
+    public dialogRef: MatDialogRef<AppointmentEditComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any 
+  ) {}
+
+  closeDialog(): void {
+    this.dialogRef.close(); 
+  }
 
   weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
   selectedDays: string[] = [];
