@@ -1,0 +1,133 @@
+<div class="container mt-4">
+    <div class="row">
+        <!-- Left Side - Form Section -->
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+                <h4 class="text-center mb-3">Prescription Design</h4>
+
+                <!-- Form fields -->
+                <div>
+                    <!-- Patient Details Form -->
+                    <div class="mb-2">
+                        <label class="fw-bold mb-1">Patient Details Template</label>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="patientInfo.name" placeholder="Patient Name">
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" class="form-control form-control-sm" [(ngModel)]="patientInfo.age" placeholder="Age">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select form-select-sm" [(ngModel)]="patientInfo.gender">
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vitals Section -->
+                    <div class="mb-2">
+                        <label class="fw-bold mb-1">Vitals Template</label>
+                        <div class="row g-2">
+                            <div class="col-md-4"><input type="number" class="form-control form-control-sm" placeholder="Weight (kg)" [(ngModel)]="patientInfo.weight"></div>
+                            <div class="col-md-4"><input type="text" class="form-control form-control-sm" placeholder="Blood Pressure" [(ngModel)]="patientInfo.bp"></div>
+                            <div class="col-md-4"><input type="number" class="form-control form-control-sm" placeholder="Temp (°F)" [(ngModel)]="patientInfo.temperature"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clinical Information -->
+                <div class="mb-2">
+                    <label class="fw-bold mb-1">Clinical Notes Template</label>
+                    <textarea class="form-control form-control-sm mb-1" [(ngModel)]="patientInfo.symptoms" rows="2" placeholder="Symptoms"></textarea>
+                    <textarea class="form-control form-control-sm" [(ngModel)]="patientInfo.diagnosis" rows="2" placeholder="Diagnosis"></textarea>
+                </div>
+
+                <!-- Medications Section -->
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="fw-bold mb-0">Medications Template</label>
+                        <button class="btn btn-sm btn-secondary" (click)="addMedication()">+ Add Row</button>
+                    </div>
+                    <div *ngFor="let med of medications; let i = index" class="card p-2 mb-2">
+                        <div class="row g-1">
+                            <div class="col-md-6"><input type="text" class="form-control form-control-sm" placeholder="Medicine Name" [(ngModel)]="med.name"></div>
+                            <div class="col-md-6"><input type="text" class="form-control form-control-sm" placeholder="Dosage" [(ngModel)]="med.dosage"></div>
+                            <div class="col-md-6"><input type="text" class="form-control form-control-sm" placeholder="Frequency" [(ngModel)]="med.frequency"></div>
+                            <div class="col-md-6">
+                                <div class="d-flex gap-1">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Duration" [(ngModel)]="med.duration">
+                                    <button class="btn btn-danger btn-sm" (click)="removeMedication(i)">×</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Preview -->
+        <div class="col-md-6">
+            <div class="card shadow p-4" style="min-height: 800px;">
+                <div class="prescription-content border border-2 border-dark position-relative" 
+                     (mousedown)="startDrag($event)"
+                     (mousemove)="onDrag($event)"
+                     (mouseup)="stopDrag()">
+                    
+                    <!-- Resize handles -->
+                    <div class="border-top border-2 border-dark" style="position: absolute; top: 0; left: 0; right: 0; height: 4px; cursor: n-resize;" (mousedown)="startResize($event, 'top')"></div>
+                    <div class="border-bottom border-2 border-dark" style="position: absolute; bottom: 0; left: 0; right: 0; height: 4px; cursor: s-resize;" (mousedown)="startResize($event, 'bottom')"></div>
+                    <div class="border-start border-2 border-dark" style="position: absolute; left: 0; top: 0; bottom: 0; width: 4px; cursor: w-resize;" (mousedown)="startResize($event, 'left')"></div>
+                    <div class="border-end border-2 border-dark" style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; cursor: e-resize;" (mousedown)="startResize($event, 'right')"></div>
+                    
+                    <div class="p-4 flex-grow-1 small" style="margin: 0 auto; max-width: 90%;">
+                        <!-- Patient Info -->
+                        <div class="patient-info mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr><td><strong>Patient:</strong></td><td>{{patientInfo.name}}</td></tr>
+                                            <tr><td><strong>Age/Gender:</strong></td><td>{{patientInfo.age}}/{{patientInfo.gender}}</td></tr>
+                                            <tr><td><strong>Weight:</strong></td><td>{{patientInfo.weight}} kg</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <table class="table table-borderless table-sm">
+                                        <tbody>
+                                            <tr><td><strong>BP:</strong></td><td>{{patientInfo.bp}}</td></tr>
+                                            <tr><td><strong>Temp:</strong></td><td>{{patientInfo.temperature}}°F</td></tr>
+                                            <tr><td><strong>Date:</strong></td><td>{{today | date}}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="clinical-notes mb-4">
+                            <h5 class="small">Clinical Notes</h5>
+                            <p><strong>Symptoms:</strong> {{patientInfo.symptoms}}</p>
+                            <p><strong>Diagnosis:</strong> {{patientInfo.diagnosis}}</p>
+                        </div>
+
+                        <div class="medications">
+                            <h5 class="small">Prescribed Medications</h5>
+                            <table class="table table-sm">
+                                <thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th></tr></thead>
+                                <tbody><tr *ngFor="let med of medications"><td>{{med.name}}</td><td>{{med.dosage}}</td><td>{{med.frequency}}</td><td>{{med.duration}}</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="text-center mt-3">
+                <button class="btn btn-secondary btn-sm me-2">Save Design</button>
+                <button class="btn btn-primary btn-sm" (click)="printPage()">Print Prescription</button>
+            </div>
+        </div>
+    </div>
+</div>

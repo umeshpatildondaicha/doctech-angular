@@ -5,6 +5,7 @@ import { AppointmentCalendarComponent } from './appointments/appointment-calenda
 import { PatientProfileComponent } from './patient-profile/patient-profile.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { NgModule } from '@angular/core';
+import { PrintPrescriptionComponent } from './print-prescription/print-prescription.component'
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -23,6 +24,7 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./calendar/calendar.module').then((m) => m.CalendarModule),
   },
+  { path: 'print-prescription', component: PrintPrescriptionComponent },
   { path: '**', redirectTo: '/dashboard' },
 ];
 

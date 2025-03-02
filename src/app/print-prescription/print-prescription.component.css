@@ -1,0 +1,53 @@
+/* Container styles */
+.container {
+    max-width: 1400px;
+}
+
+/* Draggable border styles */
+.border-bottom[draggable="true"],
+.border-top[draggable="true"] {
+    cursor: row-resize;
+    position: relative;
+}
+
+.border-start[draggable="true"],
+.border-end[draggable="true"] {
+    cursor: col-resize;
+    position: relative;
+}
+
+/* Prevent text selection while dragging */
+.border-bottom[draggable="true"]:active,
+.border-top[draggable="true"]:active,
+.border-start[draggable="true"]:active,
+.border-end[draggable="true"]:active {
+    user-select: none;
+}
+
+/* Print styles */
+@media print {
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    
+    .border-bottom[draggable="true"],
+    .border-top[draggable="true"],
+    .border-start[draggable="true"],
+    .border-end[draggable="true"] {
+        display: none;
+    }
+
+    .table td {
+        white-space: nowrap;
+    }
+
+    .table-borderless {
+        width: 100%;
+    }
+
+    .col-md-6 {
+        width: 50%;
+        float: left;
+    }
+}
