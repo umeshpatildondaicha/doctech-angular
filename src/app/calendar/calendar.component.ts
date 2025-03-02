@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,8 +12,7 @@ import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { BehaviorSubject } from 'rxjs';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { AppointmentEditComponent } from '../appointments/appointment-edit/appointment-edit.component';
-
-
+import { GoogleCalendarService } from './google-calendar.service';
 
 @Component({
   selector: 'app-calendar',
@@ -23,22 +22,20 @@ import { AppointmentEditComponent } from '../appointments/appointment-edit/appoi
     MatButtonToggleModule,
     MatIconModule,
     DragDropModule,
-    MatNativeDateModule, 
+    MatNativeDateModule,
     MatDatepickerModule,
-    MatNativeDateModule ,
+    MatNativeDateModule,
     MatMomentDateModule,
     AppointmentEditComponent
   ],
   providers: [
     provideNativeDateAdapter(),
     provideMomentDateAdapter(),
-    // provideLuxonDateAdapter(),
-    // provideDateFnsAdapter()
   ],
   templateUrl: './calendar.component.html',
   styleUrls: ['./calendar.component.css']
 })
-export class CalendarComponent {
+export class CalendarComponent implements OnInit {
   viewDate: Date = new Date();
   currentView: 'month' | 'week' | 'day' = 'month';
   weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -49,14 +46,36 @@ export class CalendarComponent {
   currentViewSubject = new BehaviorSubject<'month' | 'week' | 'day'>('month');
   currentView$ = this.currentViewSubject.asObservable();
 
-  constructor(private dialog: MatDialog) {
+  constructor(
+    private dialog: MatDialog,
+    private googleCalendarService: GoogleCalendarService
+  ) {
     this.generateCalendar();
   }
-  // const dialogRef = this.dialog.open(AppointmentEditComponent, {
-  //   width: '600px', 
-  //   data: {} 
-  // });
 
+  ngOnInit() {
+    this.googleCalendarService.events$.subscribe((googleEvents) => {
+      this.mergeGoogleEvents(googleEvents);
+    });
+  }
+
+  signInWithGoogle() {
+    this.googleCalendarService.signIn();
+  }
+
+  signOutFromGoogle() {
+    this.googleCalendarService.signOut();
+  }
+
+  mergeGoogleEvents(googleEvents: any[]) {
+    const googleAppointments = googleEvents.map((event) => ({
+      title: event.summary,
+      date: new Date(event.start.dateTime || event.start.date),
+      color: '#4285f4', // Google Blue
+      googleEventId: event.id,
+    }));
+    this.appointments = [...this.appointments, ...googleAppointments];
+  }
 
   getCurrentViewTitle(): string {
     if (this.currentView === 'month') {
@@ -84,11 +103,10 @@ export class CalendarComponent {
     console.log('Switching to view:', view);
     if (['month', 'week', 'day'].includes(view)) {
       this.currentView = view as 'month' | 'week' | 'day';
-      this.currentViewSubject.next(this.currentView); // Emit new value
+      this.currentViewSubject.next(this.currentView);
       this.generateCalendar();
     }
   }
-  
 
   drop(event: CdkDragDrop<any[]>, date: Date, timeSlot?: string) {
     const previousIndex = this.appointments.findIndex(
@@ -119,6 +137,7 @@ export class CalendarComponent {
         appointment.timeSlot === timeSlot
     );
   }
+
   previous() {
     if (this.currentView === 'month') {
       this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() - 1, 1);
@@ -193,7 +212,6 @@ export class CalendarComponent {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        // Update appointments for this date with new timing
         const appointmentsForDate = this.appointments.filter(
           appt => this.isSameDate(appt.date, date)
         );
@@ -206,7 +224,6 @@ export class CalendarComponent {
 
   viewAppointmentCount(date: Date) {
     const count = this.getAppointmentCount(date);
-    // You could show this in a dialog or tooltip
     console.log(`Appointments for ${date.toDateString()}: ${count}`);
   }
 
@@ -221,13 +238,12 @@ export class CalendarComponent {
     this.monthDays = [];
   
     if (this.currentView === 'month') {
-      // Generate month view
       const startOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth(), 1);
       const endOfMonth = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 0);
       
       let currentDay = new Date(startOfMonth);
       while (currentDay.getDay() !== 0) {
-        currentDay.setDate(currentDay.getDate() - 1); // Move back to Sunday
+        currentDay.setDate(currentDay.getDate() - 1);
       }
   
       while (currentDay <= endOfMonth || currentDay.getDay() !== 0) {
@@ -239,9 +255,7 @@ export class CalendarComponent {
         this.weeks.push(week);
       }
     } 
-    
     else if (this.currentView === 'week') {
-      // Generate week view (starting from Sunday of the selected week)
       let startOfWeek = new Date(this.viewDate);
       while (startOfWeek.getDay() !== 0) {
         startOfWeek.setDate(startOfWeek.getDate() - 1);
@@ -251,11 +265,8 @@ export class CalendarComponent {
         startOfWeek.setDate(startOfWeek.getDate() + 1);
       }
     } 
-    
     else if (this.currentView === 'day') {
-      // Generate day view (just the selected day)
       this.monthDays = [new Date(this.viewDate)];
     }
   }
-  
 }
