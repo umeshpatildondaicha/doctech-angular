@@ -22,6 +22,19 @@ import { Prescription, Medication } from '../features/prescriptions/models/presc
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PrescriptionTabComponent } from './prescription-tab/prescription-tab.component';
 
+// Define the interface for care schedule items
+interface CareTimetableItem {
+  id: number;
+  type: string;
+  title: string;
+  description: string;
+  assignee: string;
+  startTime: Date;
+  endTime: Date;
+  status: string;
+  column?: number; // Add optional column property for horizontal positioning
+}
+
 @Component({
   selector: 'app-patient-profile',
   standalone: true,
@@ -224,23 +237,30 @@ export class PatientProfileComponent implements OnInit {
   ];
 
   patient = {
-    id: '#P7085',
-    name: 'Umesh Patil',
+    id: 'PT12345',
+    name: 'John Smith',
     gender: 'Male',
-    age: '41 years 0 months 3 days',
-    mobile: '+811 847-4958',
-    dob: new Date(1980, 7, 10),
-    bed: '104 - VIP Ward - 1st Floor',
-    email: 'info@softnio.com',
-    consultant: 'Ernesto Vargas',
-    patientType: 'In Patient',
-    country: 'United State',
-    nationality: 'United State',
-    photo: './assets/default-avatar.jpg',
-    phone: '+811 847-4958',
-    doctorsNote:
-      'Aproin at metus et dolor tincidunt feugiat eu id quam. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Aenean sollicitudin non nunc vel pharetra.',
-    noteAddedOn: new Date(2019, 10, 18, 17, 34),
+    age: '42',
+    mobile: '9999999999',
+    dob: new Date('1980-05-15'),
+    bed: 'A-101',
+    email: 'john.smith@example.com',
+    consultant: 'Dr. Jane Wilson',
+    patientType: 'Regular',
+    country: 'United States',
+    nationality: 'American',
+    photo: '',
+    phone: '9999999999',
+    doctorsNote: 'Patient has a history of hypertension.',
+    noteAddedOn: new Date('2023-03-15'),
+    admissionStatus: 'OPD',
+    wardInfo: {
+      ward: 'General Ward',
+      bed: 'Bed-102',
+      admissionDate: new Date('2023-07-10'),
+      expectedDischarge: new Date('2023-07-15'),
+      attendingDoctor: 'Dr. Sarah Johnson'
+    }
   };
 
   diagnosis = [
@@ -330,8 +350,388 @@ export class PatientProfileComponent implements OnInit {
     },
   ];
 
+  clinicalNotes = [
+    {
+      id: 1,
+      date: new Date('2023-07-10T14:30:00'),
+      category: 'Progress Note',
+      categoryColor: 'primary',
+      author: 'Dr. Sarah Johnson',
+      content: 'Patient reports feeling better today. Blood pressure is now within normal range. Continuing with current medication regimen.',
+      attachments: [
+        { name: 'BP-Chart.pdf', icon: 'bi-file-pdf' }
+      ]
+    },
+    {
+      id: 2,
+      date: new Date('2023-07-08T10:15:00'),
+      category: 'Consultation',
+      categoryColor: 'info',
+      author: 'Dr. Michael Chang',
+      content: 'Initial consultation for chest pain. ECG shows normal sinus rhythm. Recommending stress test and lipid panel.',
+      attachments: [
+        { name: 'ECG-Results.jpg', icon: 'bi-file-image' },
+        { name: 'Referral.pdf', icon: 'bi-file-pdf' }
+      ]
+    },
+    {
+      id: 3,
+      date: new Date('2023-07-05T09:00:00'),
+      category: 'Treatment Plan',
+      categoryColor: 'success',
+      author: 'Dr. Sarah Johnson',
+      content: 'Treatment plan updated to include new antihypertensive medication. Goal is to maintain BP below 130/80.',
+      attachments: []
+    }
+  ];
+
+  labReports = [
+    {
+      id: 1,
+      date: new Date('2023-07-09'),
+      name: 'Complete Blood Count',
+      category: 'Blood Test',
+      status: 'Completed',
+      abnormal: false,
+      report: 'CBC-Report.pdf'
+    },
+    {
+      id: 2,
+      date: new Date('2023-07-09'),
+      name: 'Lipid Panel',
+      category: 'Blood Test',
+      status: 'Completed',
+      abnormal: true,
+      report: 'Lipid-Report.pdf'
+    },
+    {
+      id: 3,
+      date: new Date('2023-07-10'),
+      name: 'Chest X-Ray',
+      category: 'Imaging',
+      status: 'Pending',
+      abnormal: null,
+      report: null
+    },
+    {
+      id: 4,
+      date: new Date('2023-07-11'),
+      name: 'Stress Test',
+      category: 'Cardiology',
+      status: 'Ordered',
+      abnormal: null,
+      report: null
+    }
+  ];
+
   parseNumber(value: any): number {
     return parseFloat(value);
+  }
+
+  // Current date for calculations
+  today = new Date();
+
+  /**
+   * Care schedule data for IPD patients
+   */
+  careScheduleItems: CareTimetableItem[] = [
+    {
+      id: 1,
+      type: 'medication',
+      title: 'Antibiotics',
+      description: 'IV Ceftriaxone 1g',
+      assignee: 'Nurse Johnson',
+      startTime: new Date(new Date().setHours(6, 0, 0)),
+      endTime: new Date(new Date().setHours(6, 15, 0)),
+      status: 'completed'
+    },
+    {
+      id: 2,
+      type: 'nursing',
+      title: 'Vital Signs Check',
+      description: 'BP, Temp, HR, RR, SpO2',
+      assignee: 'Nurse Williams',
+      startTime: new Date(new Date().setHours(8, 0, 0)),
+      endTime: new Date(new Date().setHours(8, 15, 0)),
+      status: 'completed'
+    },
+    {
+      id: 3,
+      type: 'medication',
+      title: 'Pain Management',
+      description: 'Acetaminophen 1000mg PO',
+      assignee: 'Nurse Johnson',
+      startTime: new Date(new Date().setHours(10, 0, 0)),
+      endTime: new Date(new Date().setHours(10, 10, 0)),
+      status: 'completed'
+    },
+    {
+      id: 4,
+      type: 'doctor-visit',
+      title: 'Doctor Rounds',
+      description: 'Daily assessment & care plan update',
+      assignee: 'Dr. Sarah Johnson',
+      startTime: new Date(new Date().setHours(11, 0, 0)),
+      endTime: new Date(new Date().setHours(11, 20, 0)),
+      status: 'in-progress'
+    },
+    {
+      id: 5,
+      type: 'nursing',
+      title: 'Dressing Change',
+      description: 'Surgical wound assessment and dressing',
+      assignee: 'Nurse Martinez',
+      startTime: new Date(new Date().setHours(12, 30, 0)),
+      endTime: new Date(new Date().setHours(12, 45, 0)),
+      status: 'pending'
+    },
+    {
+      id: 6,
+      type: 'medication',
+      title: 'Antibiotics',
+      description: 'IV Ceftriaxone 1g',
+      assignee: 'Nurse Johnson',
+      startTime: new Date(new Date().setHours(14, 0, 0)),
+      endTime: new Date(new Date().setHours(14, 15, 0)),
+      status: 'pending'
+    },
+    {
+      id: 7,
+      type: 'test',
+      title: 'Blood Draw',
+      description: 'CBC, CMP, CRP',
+      assignee: 'Lab Technician Wilson',
+      startTime: new Date(new Date().setHours(15, 30, 0)),
+      endTime: new Date(new Date().setHours(15, 40, 0)),
+      status: 'pending'
+    },
+    {
+      id: 8,
+      type: 'nursing',
+      title: 'Vital Signs Check',
+      description: 'BP, Temp, HR, RR, SpO2',
+      assignee: 'Nurse Williams',
+      startTime: new Date(new Date().setHours(16, 0, 0)),
+      endTime: new Date(new Date().setHours(16, 15, 0)),
+      status: 'pending'
+    },
+    {
+      id: 9,
+      type: 'medication',
+      title: 'Pain Management',
+      description: 'Acetaminophen 1000mg PO',
+      assignee: 'Nurse Johnson',
+      startTime: new Date(new Date().setHours(18, 0, 0)),
+      endTime: new Date(new Date().setHours(18, 10, 0)),
+      status: 'pending'
+    },
+    {
+      id: 10,
+      type: 'procedure',
+      title: 'Physical Therapy',
+      description: 'Mobility exercises',
+      assignee: 'PT Davis',
+      startTime: new Date(new Date().setHours(19, 0, 0)),
+      endTime: new Date(new Date().setHours(19, 30, 0)),
+      status: 'pending'
+    },
+    {
+      id: 11,
+      type: 'medication',
+      title: 'Night Medication',
+      description: 'Various medications as prescribed',
+      assignee: 'Nurse Thompson',
+      startTime: new Date(new Date().setHours(22, 0, 0)),
+      endTime: new Date(new Date().setHours(22, 15, 0)),
+      status: 'pending'
+    }
+  ];
+
+  /**
+   * Upcoming care activities for quick view
+   */
+  upcomingCareActivities = [
+    {
+      type: 'nursing',
+      title: 'Vital Check',
+      description: 'Regular monitoring of vital signs',
+      time: '4:00 PM',
+      assignee: 'Nurse Williams',
+      icon: 'bi-heart-pulse',
+      iconClass: 'nursing-icon',
+      badgeClass: 'bg-warning'
+    },
+    {
+      type: 'medication',
+      title: 'Antibiotics',
+      description: 'IV Ceftriaxone 1g',
+      time: '6:00 PM',
+      assignee: 'Nurse Johnson',
+      icon: 'bi-capsule',
+      iconClass: 'medication-icon',
+      badgeClass: 'bg-success'
+    },
+    {
+      type: 'doctor-visit',
+      title: 'Evening Rounds',
+      description: 'By attending physician',
+      time: '7:30 PM',
+      assignee: 'Dr. Williams',
+      icon: 'bi-person-badge',
+      iconClass: 'doctor-icon',
+      badgeClass: 'bg-primary'
+    }
+  ];
+
+  /**
+   * Calculate hour markers for the timeline
+   */
+  getHourMarkers() {
+    const markers = [];
+    for (let hour = 6; hour <= 22; hour++) {
+      // Add marker for the hour
+      markers.push({
+        hour: hour,
+        label: hour > 12 ? `${hour-12} PM` : hour === 12 ? '12 PM' : `${hour} AM`
+      });
+      
+      // Add marker for the half hour (except for the last hour)
+      if (hour < 22) {
+        markers.push({
+          hour: hour + 0.5,
+          label: hour >= 12 ? `${hour === 12 ? 12 : hour-12}:30 PM` : `${hour}:30 AM`
+        });
+      }
+    }
+    return markers;
+  }
+
+  /**
+   * Calculate the current time position on the timeline
+   */
+  getCurrentTimePosition(): number {
+    const now = new Date();
+    const currentHour = now.getHours() + (now.getMinutes() / 60);
+    // Calculate position for current time using the same scale as the markers
+    // Each hour is 80px tall now (to account for hour and half-hour markers)
+    return Math.max(0, (currentHour - 6) * 80); // 80px per hour with half-hour marks
+  }
+
+  /**
+   * Calculate position for schedule items on timeline
+   */
+  getScheduleItemPosition(item: CareTimetableItem): number {
+    const startHour = item.startTime.getHours() + (item.startTime.getMinutes() / 60);
+    // Calculate position: 80px per hour with half-hour marks, starting from 6 AM
+    return (startHour - 6) * 80;
+  }
+
+  /**
+   * Calculate horizontal position for overlapping items
+   */
+  getScheduleItemHorizontalPosition(item: CareTimetableItem): number {
+    // Check if this item has a column assigned
+    if (!item.hasOwnProperty('column')) {
+      // Assign columns to all items if not already assigned
+      this.assignOverlapColumns();
+    }
+    
+    // Return the horizontal position based on the column
+    // Each column is 10px offset from the left
+    return (item.column || 0) * 35;
+  }
+
+  /**
+   * Assign columns to items to prevent overlapping
+   */
+  assignOverlapColumns(): void {
+    // Sort items by start time
+    const sortedItems = [...this.careScheduleItems].sort((a, b) => 
+      a.startTime.getTime() - b.startTime.getTime()
+    );
+    
+    // Track active columns
+    const activeColumns: {endTime: Date, column: number}[] = [];
+    
+    // Process each item
+    for (const item of sortedItems) {
+      // Find first available column
+      let columnAssigned = false;
+      
+      // Check existing active columns first
+      for (let i = 0; i < activeColumns.length; i++) {
+        if (item.startTime >= activeColumns[i].endTime) {
+          // This column is free, reuse it
+          item.column = activeColumns[i].column;
+          activeColumns[i].endTime = item.endTime;
+          columnAssigned = true;
+          break;
+        }
+      }
+      
+      // If no column was reused, add a new one
+      if (!columnAssigned) {
+        const newColumn = activeColumns.length;
+        item.column = newColumn;
+        activeColumns.push({ endTime: item.endTime, column: newColumn });
+      }
+    }
+  }
+
+  /**
+   * Calculate height for schedule items on timeline
+   */
+  getScheduleItemHeight(item: CareTimetableItem): number {
+    const startTime = item.startTime.getHours() + (item.startTime.getMinutes() / 60);
+    const endTime = item.endTime.getHours() + (item.endTime.getMinutes() / 60);
+    const durationHours = endTime - startTime;
+    // Convert duration to pixels (80px per hour with half-hour marks)
+    return Math.max(70, durationHours * 80); // Minimum height of 70px
+  }
+
+  /**
+   * Get appropriate icon for schedule item based on type
+   */
+  getScheduleItemIcon(item: CareTimetableItem): string {
+    const icons: {[key: string]: string} = {
+      'medication': 'bi bi-capsule me-1',
+      'doctor-visit': 'bi bi-person-badge me-1',
+      'nursing': 'bi bi-heart-pulse me-1',
+      'procedure': 'bi bi-tools me-1',
+      'test': 'bi bi-flask me-1'
+    };
+    return icons[item.type] || 'bi bi-calendar-event me-1';
+  }
+
+  /**
+   * Handle click on a schedule item
+   */
+  onScheduleItemClick(item: CareTimetableItem): void {
+    // Show details or actions for the selected schedule item
+    console.log('Schedule item clicked:', item);
+    // In a real app, this might open a dialog with details and actions
+  }
+
+  /**
+   * Toggle patient between OPD and IPD status
+   */
+  toggleAdmissionStatus(): void {
+    if (this.patient.admissionStatus === 'OPD') {
+      this.patient.admissionStatus = 'IPD';
+      
+      // Set default admission data if none exists
+      if (!this.patient.wardInfo) {
+        this.patient.wardInfo = {
+          ward: 'General Ward',
+          bed: 'Bed-102',
+          admissionDate: new Date(),
+          expectedDischarge: new Date(new Date().setDate(new Date().getDate() + 5)),
+          attendingDoctor: 'Dr. Sarah Johnson'
+        };
+      }
+    } else {
+      this.patient.admissionStatus = 'OPD';
+    }
   }
 
   constructor(

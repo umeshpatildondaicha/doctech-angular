@@ -20,7 +20,7 @@ app-header {
 
 /* Sidebar width and hover functionality */
 app-sidebar {
-  width: 60px;
+  width: 2rem;
   transition: width 0.3s ease-in-out;
 }
 
@@ -39,12 +39,12 @@ app-sidebar.expanded {
 }
 
 /* When sidebar is expanded, shift content accordingly */
-app-sidebar.expanded + .content {
+/* app-sidebar.expanded + .content {
   margin-left: 15rem;
 }
 .content.shifted {
   margin-left: 15rem;
-}
+} */
 
 /* Draggable button styling */
 .draggable-button {
