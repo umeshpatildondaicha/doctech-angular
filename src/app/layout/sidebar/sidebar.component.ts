@@ -1,23 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { SidebarService } from '../services/sidebar.service';
+import { isPlatformBrowser } from '@angular/common';
+import * as Highcharts from 'highcharts';
 
 @Component({
     selector: 'app-sidebar',
-    imports: [CommonModule],
+    standalone: true,
+    imports: [CommonModule, RouterModule],
     templateUrl: './sidebar.component.html',
     styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
   isPinned = false;
+  Highcharts: typeof Highcharts = Highcharts;
+  chartOptions: Highcharts.Options = {};
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(private sidebarService: SidebarService, @Inject(PLATFORM_ID) private platformId: Object) {}
 
   ngOnInit(): void {
     // Subscribe to the pinned state from the service
     this.sidebarService.isPinned$.subscribe((isPinned) => {
       this.isPinned = isPinned;
     });
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.initializeChart();
+    }
   }
 
   onHoverStart() {
@@ -38,7 +48,14 @@ export class SidebarComponent implements OnInit {
     event.preventDefault();
     this.isSubmenuOpen = !this.isSubmenuOpen;
   }
+
   logout(): void {
     console.log("User logged out");
+  }
+
+  initializeChart(): void {
+    this.chartOptions = {
+      // Your Highcharts configuration
+    };
   }
 }

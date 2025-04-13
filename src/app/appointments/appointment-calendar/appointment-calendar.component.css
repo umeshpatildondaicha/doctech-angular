@@ -3,7 +3,7 @@
   max-width: 1000px;
   margin: auto;
   padding: 40px;
-  background: linear-gradient(135deg, #e0e0e0, #ffffff);
+  background: linear-gradient(135deg, var(--surface-color), var(--background-color));
   border-radius: 20px;
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
@@ -11,7 +11,7 @@
 /* Header */
 h2 {
   font-weight: 800;
-  color: #333;
+  color: var(--text-color);
   text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.1);
   margin-bottom: 20px;
 }
@@ -23,16 +23,17 @@ h2 {
   border-radius: 30px;
   padding: 10px 20px;
   font-size: 1rem;
+  color: var(--text-color);
 }
 
 .list-group-item:hover {
-  background: #cfd8dc;
+  background: var(--surface-color);
   transform: scale(1.05);
 }
 
 .list-group-item.active {
-  background: #2980b9;
-  color: white;
+  background: var(--primary-color);
+  color: var(--background-color);
   font-weight: bold;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
 }
@@ -40,18 +41,18 @@ h2 {
 /* Date Picker Icon */
 .list-group-item mat-icon {
   font-size: 28px;
-  color: #2980b9;
+  color: var(--primary-color);
   cursor: pointer;
 }
 
 .list-group-item mat-icon:hover {
-  color: #1c6ea4;
+  color: var(--accent-color);
 }
 
 /* Slot Section */
 h3 {
   font-size: 1.85rem;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 25px;
 }
 
@@ -61,8 +62,9 @@ h3 {
   padding: 10px;
   font-size: 16px;
   border-radius: 8px;
-  border: 1px solid #bbb;
-  background-color: #f9f9f9;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 /* Time Slots */
@@ -70,9 +72,10 @@ h3 {
   border-radius: 12px;
   cursor: pointer;
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-  background: #ffffff;
+  background: var(--background-color);
   padding: 15px;
   margin-bottom: 15px;
+  border: 1px solid var(--border-color);
 }
 
 .card:hover {
@@ -82,15 +85,15 @@ h3 {
 
 /* Slot Colors */
 .bg-light {
-  background: #e8e8e8 !important;
+  background: var(--surface-color) !important;
 }
 
 .bg-danger {
-  background: #e74c3c !important;
+  background: var(--error-color) !important;
 }
 
 .text-white {
-  color: white !important;
+  color: var(--background-color) !important;
 }
 
 /* Booking Status Badge */
@@ -101,12 +104,12 @@ h3 {
 }
 
 .bg-success {
-  background: #27ae60 !important;
+  background: var(--success-color) !important;
 }
 
 .bg-warning {
-  background: #f1c40f !important;
-  color: #333 !important;
+  background: var(--warning-color) !important;
+  color: var(--text-color) !important;
 }
 
 /* Booking Confirmation Modal */
@@ -121,11 +124,12 @@ h3 {
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   padding: 20px;
+  background: var(--background-color);
 }
 
 .modal-header {
-  background: #2980b9;
-  color: white;
+  background: var(--primary-color);
+  color: var(--background-color);
   border-top-left-radius: 12px;
   border-top-right-radius: 12px;
   padding: 15px;
@@ -134,11 +138,11 @@ h3 {
 .modal-footer .btn {
   padding: 12px 20px;
   border-radius: 8px;
-  background-color: #3498db;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   transition: background 0.3s ease;
 }
 
 .modal-footer .btn:hover {
-  background-color: #1c6ea4;
+  background-color: var(--accent-color);
 }

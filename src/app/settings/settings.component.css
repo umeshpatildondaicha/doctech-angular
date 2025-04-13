@@ -1,0 +1,64 @@
+.settings-container {
+  padding: 20px;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.theme-section {
+  margin-bottom: 24px;
+}
+
+.theme-section h3,
+.theme-preview h3 {
+  color: var(--text-color);
+  margin-bottom: 16px;
+}
+
+.theme-preview {
+  margin-top: 24px;
+}
+
+.preview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.preview-cards mat-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.preview-cards mat-card:hover {
+  transform: translateY(-4px);
+}
+
+.preview-cards h4 {
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.preview-cards p {
+  color: var(--text-secondary-color);
+  margin-bottom: 16px;
+}
+
+.primary-card {
+  border-left: 4px solid var(--primary-color);
+}
+
+.accent-card {
+  border-left: 4px solid var(--accent-color);
+}
+
+mat-form-field {
+  width: 100%;
+  max-width: 300px;
+}
+
+mat-divider {
+  margin: 24px 0;
+}

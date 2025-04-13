@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HighchartsChartModule } from 'highcharts-angular';
@@ -18,10 +18,16 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { SidebarService } from './layout/services/sidebar.service';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CalendarModule } from './calendar/calendar.module';
-import { CalendarComponent } from './calendar/calendar.component'; 
+import { CalendarComponent } from './calendar/calendar.component';
+import { PatientsComponent } from './patients/patients.component';
+import { DoctorsComponent } from './doctors/doctors.component';
+import { SettingsComponent } from './settings/settings.component';
+import { HelpComponent } from './help/help.component';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [
     RouterModule,
     CommonModule,
@@ -37,17 +43,13 @@ import { CalendarComponent } from './calendar/calendar.component';
     MatNativeDateModule,
     MatButtonModule,
     MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatMomentDateModule,
     MatListModule,
     DragDropModule,
-    CalendarModule,
-    CalendarComponent, 
-  ],
-  providers: [MatDatepickerModule],
+    CalendarModule
+  ] as const,
+  providers: [MatDatepickerModule, ThemeService],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css', './shared/styles.css'],
 })
 export class AppComponent implements OnInit {
   @ViewChild(RightSidebarComponent) rightSidebar!: RightSidebarComponent;
@@ -56,18 +58,34 @@ export class AppComponent implements OnInit {
   isSidebarPinned = false;
   isRightSidebarOpen = false;
   waitingPatientsCount: number = 0;
+  isSidebarOpen = true;
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(
+    private sidebarService: SidebarService,
+    private cdr: ChangeDetectorRef,
+    private themeService: ThemeService
+  ) {}
 
   ngOnInit(): void {
+    // Subscribe to theme changes
+    this.themeService.currentTheme$.subscribe(theme => {
+      document.documentElement.setAttribute('data-theme', theme.name);
+    });
+
+    // Then handle sidebar state
     this.sidebarService.isPinned$.subscribe((isPinned) => {
       this.isSidebarPinned = isPinned;
     });
   }
 
   ngAfterViewInit() {
-    // Get the patient count directly after the component is initialized
-    this.waitingPatientsCount = this.rightSidebar.waitingPatients.length;
+    // Use setTimeout to push the update to the next change detection cycle
+    setTimeout(() => {
+      if (this.rightSidebar) {
+        this.waitingPatientsCount = this.rightSidebar.waitingPatients.length;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onSidebarHoverStart() {
@@ -77,9 +95,14 @@ export class AppComponent implements OnInit {
   onSidebarHoverEnd() {
     this.sidebarService.setHoverState(false);
   }
+
   toggleRightSidebar() {
     if (this.rightSidebar) {
       this.rightSidebar.toggleSidebar();
     }
+  }
+
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
 }

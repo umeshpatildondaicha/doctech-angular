@@ -31,10 +31,9 @@ app-sidebar.expanded {
 /* Content area that adjusts according to sidebar state */
 .content {
   background: linear-gradient(to right, #95b1fd, #04e4ea);
-
   flex: 1;
   margin-top: 2.7rem;
-  margin-left: 3rem;
+  /* margin-left: 3rem; */
   padding: 1rem;
   transition: margin-left 0.3s ease-in-out;
 }

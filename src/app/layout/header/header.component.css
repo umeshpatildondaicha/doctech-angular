@@ -2,7 +2,7 @@
 .header {
     height: 3rem;
     margin-left: 3rem;
-    width: -webkit-fill-available !important;;
+    width: -webkit-fill-available !important;
     display: flex;
     align-items: center;
     padding: 0 20px;
@@ -11,16 +11,20 @@
     width: 100%;
     z-index: 100;
     transition: left 0.3s ease, width 0.3s ease;
-    background-color: white;
-    color: #b9bdbc;
+    background-color: var(--background-color);
+    color: var(--text-secondary-color);
     justify-content: space-between;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .logo h4 {
   margin: 0;
-  color: #333;
+  color: var(--text-color);
   font-size: 1.2rem;
+}
+
+.logo a{
+  color: var(--text-color);
 }
 
 /* Search Bar Styling */
@@ -28,15 +32,15 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background-color: white;
+  background-color: var(--background-color);
   padding: 5px 15px;
-  border: 1px solid #d1d9de;
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   max-width: 15rem;
 }
 
 .search-bar i{
-  color: #95b1fd !important;
+  color: var(--primary-color) !important;
 }
 
 .search-bar input {
@@ -45,12 +49,12 @@
   outline: none;
   background: transparent;
   font-size: 1rem;
-  color: #333;
+  color: var(--text-color);
   border: none !important;
 }
 
 .search-bar input::placeholder {
-  color: #8e9297;
+  color: var(--text-secondary-color);
 }
 
 /* Buttons */
@@ -60,7 +64,7 @@
   justify-content: center;
   padding: 8px;
   border: none;
-  background-color: #f8f9fa;
+  background-color: var(--surface-color);
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.2s ease;
@@ -68,15 +72,15 @@
 
 .btn i {
   font-size: 1rem;
-  color: #4a4a4a;
+  color: var(--text-secondary-color);
 }
 
 .btn:hover {
-  background-color: #e6e6e6;
+  background-color: var(--border-color);
 }
 
 .btn:hover i {
-  color: #000;
+  color: var(--text-color);
 }
 
 /* User Profile */
@@ -98,41 +102,41 @@
 
 .user-profile .specialization {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-secondary-color);
   margin: 0;
 }
 
-/* Dropdown */
- /* Dropdown Menu Styling */
- .dropdown-menu {
-  min-width: 200px; /* Slightly larger for more readability */
-  border-radius: 8px; /* Rounded corners for a modern look */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  border: none; /* Remove default border */
-  padding: 0.5rem 0; /* Space inside the dropdown */
-  background-color: #ffffff; /* Clean white background */
-  transform: translate(0px, 2.5rem) !important; /* Adjust positioning */
+/* Dropdown Menu Styling */
+.dropdown-menu {
+  min-width: 200px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  border: none;
+  padding: 0.5rem 0;
+  background-color: var(--background-color);
+  transform: translate(0px, 2.5rem) !important;
 }
 
 /* Dropdown Items */
 .dropdown-menu .dropdown-item {
-  font-size: 1rem; /* Slightly larger text */
-  padding: 0.5rem 1rem; /* Comfortable padding */
-  color: #333; /* Neutral text color */
-  transition: background-color 0.2s ease, color 0.2s ease; /* Smooth hover effect */
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  color: var(--text-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Hover Effects */
 .dropdown-menu .dropdown-item:hover {
-  background-color: #f8f9fa; /* Light grey hover background */
-  color: #007bff; /* Brand color on hover */
+  background-color: var(--surface-color);
+  color: var(--primary-color);
 }
 
 /* Divider Styling */
 .dropdown-menu .dropdown-divider {
-  margin: 0.5rem 0; /* Space around divider */
-  border-color: #e9ecef; /* Lighter border color */
+  margin: 0.5rem 0;
+  border-color: var(--border-color);
 }
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .logo h4 {
@@ -151,10 +155,11 @@
     display: none;
   }
 }
+
 /* logo */
 .logo a {
   text-decoration: none;
-  color: #333;
+  color: var(--text-color);
   font-size: 1.2rem;
 }
 

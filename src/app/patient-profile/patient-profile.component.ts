@@ -14,6 +14,13 @@ import Highcharts from 'highcharts';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { FlexLayoutServerModule } from '@angular/flex-layout/server';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { PrescriptionsListComponent } from '../features/prescriptions/components/prescription-list/prescription-list.component';
+import { PrescriptionFormComponent } from '../features/prescriptions/components/prescription-form/prescription-form.component';
+import { PrescriptionService } from '../features/prescriptions/services/prescription.service';
+import { Prescription, Medication } from '../features/prescriptions/models/prescription.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { PrescriptionTabComponent } from './prescription-tab/prescription-tab.component';
 
 @Component({
   selector: 'app-patient-profile',
@@ -33,13 +40,22 @@ import { FlexLayoutServerModule } from '@angular/flex-layout/server';
     FlexLayoutModule,
     HighchartsChartModule,
     FlexLayoutServerModule,
+    RouterModule,
+    PrescriptionsListComponent,
+    PrescriptionFormComponent,
+    PrescriptionTabComponent
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.css'],
+  providers: [PrescriptionService]
 })
 export class PatientProfileComponent implements OnInit {
   activeTab: string = 'profile';
   Highcharts: typeof Highcharts = Highcharts;
+  patientId: string | null = null;
+
+  prescriptions: Prescription[] = [];
+  currentPrescription: Prescription | null = null;
 
   displayedMedicationColumns: string[] = [
     'name',
@@ -261,53 +277,23 @@ export class PatientProfileComponent implements OnInit {
     {
       date: 'Jan 23',
       title: 'Pre-visit awareness',
-      description:
-        'A patient’s journey starts when they arrive at your digital front door.',
+      description: `A patient's journey starts when they arrive at your digital front door.`
     },
     {
       date: 'Jan 07',
       title: 'Initial contact',
-      description:
-        'The patient makes initial contact via call center, chat, or email.',
+      description: 'The patient makes initial contact via call center, chat, or email.'
     },
     {
       date: 'Jan 05',
       title: 'Care',
-      description: 'The patient is assessed at a medical facility.',
+      description: 'The patient is assessed at a medical facility.'
     },
     {
       date: 'Jan 01',
       title: 'Treatment',
-      description:
-        'The health system provides the patient with both on-site and follow-up care.',
-    },
-  ];
-
-  prescriptions = [
-    {
-      medicine: 'Erovit plus',
-      category: 'Capsule',
-      dosage: '1 - 0 - 1',
-      instruction: 'Take after full meal for 7 days.',
-      prescribedBy: 'Ernesto Vargas',
-      status: 'Active',
-    },
-    {
-      medicine: 'Napa Extra',
-      category: 'Tablet',
-      dosage: '1 - 1 - 1',
-      instruction: 'Take after full meal for 3 days.',
-      prescribedBy: 'Ernesto Vargas',
-      status: 'Active',
-    },
-    {
-      medicine: 'Sergel',
-      category: 'Capsule',
-      dosage: '1 - 0 - 1',
-      instruction: 'Take before meal for 15 days.',
-      prescribedBy: 'Ernesto Vargas',
-      status: 'Active',
-    },
+      description: 'The health system provides the patient with both on-site and follow-up care.'
+    }
   ];
 
   charges = [
@@ -348,9 +334,334 @@ export class PatientProfileComponent implements OnInit {
     return parseFloat(value);
   }
 
-  constructor() {}
+  constructor(
+    private route: ActivatedRoute,
+    private prescriptionService: PrescriptionService,
+    private snackBar: MatSnackBar
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params) => {
+      this.patientId = params.get('id');
+      this.loadPatientData(this.patientId);
+      
+      this.loadPatientPrescriptions();
+    });
+  }
+
+  private loadPatientData(patientId: string | null): void {
+    console.log('Loading patient data for id:', patientId);
+    if (patientId === null) {
+      console.log('Null patientId, using default data');
+      return;
+    }
+
+    this.patient.name = this.getPatientName(patientId);
+  }
+
+  private getPatientName(patientId: string): string {
+    const names = ['John Doe', 'Jane Smith', 'Bob Johnson', 'Alice Brown'];
+    const index = parseInt(patientId) % names.length;
+    return names[index];
+  }
+
+  loadPatientPrescriptions(): void {
+    this.prescriptionService.prescriptions$.subscribe((prescriptions) => {
+      this.prescriptions = prescriptions;
+    });
+  }
+
+  createNewPrescription(): void {
+    const newPrescription: Prescription = {
+      prescriptionId: 'PRES-' + Date.now().toString(),
+      date: new Date().toISOString(),
+      doctor: {
+        name: 'Dr. John Smith',
+        specialization: 'Cardiologist',
+        registrationNumber: 'MD12345',
+        clinicName: 'Heart Care Clinic',
+        address: '123 Healthcare Street',
+        phone: '555-0123'
+      },
+      patient: {
+        name: this.patient.name,
+        age: 41,
+        gender: this.patient.gender,
+        address: 'Patient Address',
+        phone: this.patient.phone || ''
+      },
+      diagnosis: '',
+      symptoms: [],
+      medications: [],
+      signature: 'Dr. J. Smith',
+      status: 'Active',
+      priority: 'Normal'
+    };
+
+    this.currentPrescription = newPrescription;
+    this.showNotification('New prescription created');
+  }
+
+  onEditPrescription(prescription: Prescription): void {
+    this.currentPrescription = prescription;
+  }
+
+  onDeletePrescription(prescription: Prescription): void {
+    if (confirm('Are you sure you want to delete this prescription?')) {
+      this.prescriptionService.deletePrescription(prescription.prescriptionId).subscribe(() => {
+        this.loadPatientPrescriptions();
+        this.showNotification('Prescription deleted successfully');
+        if (this.currentPrescription?.prescriptionId === prescription.prescriptionId) {
+          this.currentPrescription = null;
+        }
+      });
+    }
+  }
+
+  onGeneratePrescription(prescription: Prescription): void {
+    this.currentPrescription = prescription;
+    this.onPrint();
+  }
+
+  onAddDiagnosis(data: { diagnosis: string; symptoms: string }): void {
+    if (this.currentPrescription) {
+      const updatedPrescription = {
+        ...this.currentPrescription,
+        diagnosis: data.diagnosis,
+        symptoms: data.symptoms.split(',').map(s => s.trim())
+      };
+      
+      this.updatePrescription(updatedPrescription);
+      this.showNotification('Diagnosis added successfully');
+    } else {
+      this.createNewPrescriptionWithDiagnosis(data);
+    }
+  }
+
+  private createNewPrescriptionWithDiagnosis(data: { diagnosis: string; symptoms: string }): void {
+    const newPrescription: Prescription = {
+      prescriptionId: 'PRES-' + Date.now().toString(),
+      date: new Date().toISOString(),
+      doctor: {
+        name: 'Dr. John Smith',
+        specialization: 'Cardiologist',
+        registrationNumber: 'MD12345',
+        clinicName: 'Heart Care Clinic',
+        address: '123 Healthcare Street',
+        phone: '555-0123'
+      },
+      patient: {
+        name: this.patient.name,
+        age: 41,
+        gender: this.patient.gender,
+        address: 'Patient Address',
+        phone: this.patient.phone || ''
+      },
+      diagnosis: data.diagnosis,
+      symptoms: data.symptoms.split(',').map(s => s.trim()),
+      medications: [],
+      signature: 'Dr. J. Smith',
+      status: 'Active',
+      priority: 'Normal'
+    };
+
+    this.currentPrescription = newPrescription;
+    this.prescriptionService.savePrescription(newPrescription).subscribe(() => {
+      this.loadPatientPrescriptions();
+      this.showNotification('New prescription created with diagnosis');
+    });
+  }
+
+  onAddMedication(medication: any): void {
+    if (this.currentPrescription) {
+      const newMedication: Medication = {
+        name: medication.name,
+        dosage: medication.dosage,
+        frequency: medication.frequency,
+        duration: medication.duration,
+        instructions: medication.instructions || '',
+        route: medication.route || 'Oral',
+        timing: medication.timing || '',
+        withFood: medication.withFood || false
+      };
+
+      const updatedPrescription = {
+        ...this.currentPrescription,
+        medications: [...(this.currentPrescription.medications || []), newMedication]
+      };
+
+      this.updatePrescription(updatedPrescription);
+      this.showNotification('Medication added successfully');
+    } else {
+      this.createNewPrescriptionWithMedication(medication);
+    }
+  }
+
+  private createNewPrescriptionWithMedication(medication: any): void {
+    const newPrescription: Prescription = {
+      prescriptionId: 'PRES-' + Date.now().toString(),
+      date: new Date().toISOString(),
+      doctor: {
+        name: 'Dr. John Smith',
+        specialization: 'Cardiologist',
+        registrationNumber: 'MD12345',
+        clinicName: 'Heart Care Clinic',
+        address: '123 Healthcare Street',
+        phone: '555-0123'
+      },
+      patient: {
+        name: this.patient.name,
+        age: 41,
+        gender: this.patient.gender,
+        address: 'Patient Address',
+        phone: this.patient.phone || ''
+      },
+      diagnosis: '',
+      symptoms: [],
+      medications: [{
+        name: medication.name,
+        dosage: medication.dosage,
+        frequency: medication.frequency,
+        duration: medication.duration,
+        instructions: medication.instructions || '',
+        route: medication.route || 'Oral',
+        timing: medication.timing || '',
+        withFood: medication.withFood || false
+      }],
+      signature: 'Dr. J. Smith',
+      status: 'Active',
+      priority: 'Normal'
+    };
+
+    this.currentPrescription = newPrescription;
+    this.prescriptionService.savePrescription(newPrescription).subscribe(() => {
+      this.loadPatientPrescriptions();
+      this.showNotification('New prescription created with medication');
+    });
+  }
+
+  onSetNextVisit(data: { date: Date; instructions: string }): void {
+    if (this.currentPrescription) {
+      const visitDate = data.date instanceof Date ? data.date.toISOString() : data.date;
+      const instructions = data.instructions ? [data.instructions] : [];
+
+      const updatedPrescription = {
+        ...this.currentPrescription,
+        nextVisitDate: visitDate,
+        followUpInstructions: instructions
+      };
+
+      this.updatePrescription(updatedPrescription);
+      this.showNotification('Next visit scheduled successfully');
+    } else {
+      this.createNewPrescriptionWithNextVisit(data);
+    }
+  }
+
+  private createNewPrescriptionWithNextVisit(data: { date: Date; instructions: string }): void {
+    const newPrescription: Prescription = {
+      prescriptionId: 'PRES-' + Date.now().toString(),
+      date: new Date().toISOString(),
+      doctor: {
+        name: 'Dr. John Smith',
+        specialization: 'Cardiologist',
+        registrationNumber: 'MD12345',
+        clinicName: 'Heart Care Clinic',
+        address: '123 Healthcare Street',
+        phone: '555-0123'
+      },
+      patient: {
+        name: this.patient.name,
+        age: 41,
+        gender: this.patient.gender,
+        address: 'Patient Address',
+        phone: this.patient.phone || ''
+      },
+      diagnosis: '',
+      symptoms: [],
+      medications: [],
+      nextVisitDate: data.date instanceof Date ? data.date.toISOString() : data.date,
+      followUpInstructions: data.instructions ? [data.instructions] : [],
+      signature: 'Dr. J. Smith',
+      status: 'Active',
+      priority: 'Normal'
+    };
+
+    this.currentPrescription = newPrescription;
+    this.prescriptionService.savePrescription(newPrescription).subscribe(() => {
+      this.loadPatientPrescriptions();
+      this.showNotification('New prescription created with next visit');
+    });
+  }
+
+  onSaveAndClear(): void {
+    if (this.currentPrescription) {
+      const updatedPrescription = {
+        ...this.currentPrescription,
+        medications: [],
+        nextVisitDate: undefined,
+        followUpInstructions: []
+      };
+
+      this.updatePrescription(updatedPrescription);
+      this.showNotification('Prescription saved and cleared successfully');
+    } else {
+      this.showNotification('No active prescription to save and clear');
+    }
+  }
+
+  onPrescriptionSaved(prescription: Prescription): void {
+    this.updatePrescription(prescription);
+    this.showNotification('Prescription saved successfully');
+  }
+
+  private updatePrescription(prescription: Prescription): void {
+    this.currentPrescription = prescription;
+    this.prescriptionService.savePrescription(prescription).subscribe(() => {
+      this.loadPatientPrescriptions();
+    });
+  }
+
+  onPrint(): void {
+    if (!this.currentPrescription) {
+      this.showNotification('No prescription selected for printing');
+      return;
+    }
+
+    const originalTitle = document.title;
+    document.title = "Prescription";
+    
+    const style = document.createElement('style');
+    style.id = 'print-style-override';
+    style.innerHTML = `
+      @page { 
+        margin: 0 !important; 
+        size: A4 portrait !important;
+      }
+      @media print {
+        body { margin: 0 !important; }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    window.print();
+    
+    setTimeout(() => {
+      document.title = originalTitle;
+      const tempStyle = document.getElementById('print-style-override');
+      if (tempStyle) {
+        tempStyle.remove();
+      }
+    }, 1000);
+  }
+
+  private showNotification(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top'
+    });
+  }
 
   profilePieChartOption: Highcharts.Options = {
     chart: {
@@ -439,7 +750,7 @@ export class PatientProfileComponent implements OnInit {
 
   dietChartOptions: Highcharts.Options = {
     chart: {
-      type: 'column', // Change to column
+      type: 'column',
     },
     title: {
       text: 'Weekly Diet Plan',
@@ -480,3 +791,4 @@ export class PatientProfileComponent implements OnInit {
     ],
   };
 }
+

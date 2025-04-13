@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-appointment-calendar',
@@ -24,6 +25,7 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
     MatIconModule,
     MatMomentDateModule,
     FormsModule,
+    MatCardModule
   ],
   templateUrl: './appointment-calendar.component.html',
   styleUrls: ['./appointment-calendar.component.css'],

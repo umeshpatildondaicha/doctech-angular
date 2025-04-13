@@ -5,5 +5,5 @@
   width: 100%;
 }
 .dialog-content .error {
-  color: red;
+  color: var(--error-color);
 }

@@ -1,12 +1,13 @@
 .right-sidebar {
   margin-top: 3em;
   width: 350px;
+  z-index: auto;
   position: fixed;
   right: -350px;
   top: 0;
   height: 100vh;
-  z-index: 1000;
-  background: #ffffff;
+  /* z-index: 1000; */
+  background: var(--background-color);
   box-shadow: -2px 0 20px rgba(0, 0, 0, 0.15);
   transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -26,21 +27,21 @@
 }
 
 .patient-cards::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--surface-color);
 }
 
 .patient-cards::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--border-color);
   border-radius: 3px;
 }
 
 .patient-card {
   margin-bottom: 1.5rem;
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--background-color);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -81,8 +82,8 @@
   position: absolute;
   right: -10px;
   top: -10px;
-  background: linear-gradient(135deg, #2196F3, #1976D2);
-  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  color: var(--background-color);
   padding: 0.4rem 0.8rem;
   border-radius: 25px;
   font-weight: 600;
@@ -93,7 +94,7 @@
 .patient-name {
   font-weight: 600;
   font-size: 0.8em;
-  color: #2d3748;
+  color: var(--text-color);
   text-align: center;
   margin-top: 0.5rem;
 }
@@ -114,7 +115,7 @@
 }
 
 .info-icon {
-  color: #3f51b5;
+  color: var(--primary-color);
   margin-right: 0.4em;
   font-size: 1em;
 }
@@ -125,7 +126,7 @@
 
 .info-value {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text-color);
   font-size: 0.8em;
 }
 

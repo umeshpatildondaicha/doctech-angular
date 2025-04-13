@@ -1,12 +1,46 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { MatDialog } from '@angular/material/dialog';
-import { AppointmentDialogComponent } from '../appointment-dialog/appointment-dialog.component';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatTreeModule } from '@angular/material/tree';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatRippleModule } from '@angular/material/core';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatSliderModule } from '@angular/material/slider';
+import { MatDividerModule } from '@angular/material/divider';
+import { AppointmentDialogComponent } from '../appointment-dialog/appointment-dialog.component';
+import { ExpandChartCellComponent } from '../expand-chart-cell/expand-chart-cell.component';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideMomentDateAdapter } from '@angular/material-moment-adapter';
 import { BehaviorSubject } from 'rxjs';
@@ -14,17 +48,62 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { AppointmentEditComponent } from '../appointments/appointment-edit/appointment-edit.component';
 import { GoogleCalendarService } from './google-calendar.service';
 
+interface Appointment {
+  title: string;
+  date: Date;
+  timeSlot?: string;
+  color?: string;
+  googleEventId?: string;
+  uuid?: string;
+}
+
 @Component({
   selector: 'app-calendar',
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonToggleModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    MatCardModule,
+    MatButtonModule,
     MatIconModule,
-    DragDropModule,
-    MatNativeDateModule,
+    MatDialogModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatTooltipModule,
+    MatMenuModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatSlideToggleModule,
+    MatTabsModule,
+    MatExpansionModule,
+    MatChipsModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatStepperModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatGridListModule,
+    MatTreeModule,
+    MatBadgeModule,
+    MatBottomSheetModule,
+    MatButtonToggleModule,
+    MatRippleModule,
+    MatAutocompleteModule,
+    MatSliderModule,
+    MatDividerModule,
+    AppointmentDialogComponent,
+    ExpandChartCellComponent,
+    DragDropModule,
     MatMomentDateModule,
     AppointmentEditComponent
   ],
@@ -40,7 +119,7 @@ export class CalendarComponent implements OnInit {
   currentView: 'month' | 'week' | 'day' = 'month';
   weekDays: string[] = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   timeSlots: string[] = ['9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM'];
-  appointments: any[] = [];
+  appointments: Appointment[] = [];
   weeks: Date[][] = [];
   monthDays: Date[] = [];
   currentViewSubject = new BehaviorSubject<'month' | 'week' | 'day'>('month');
@@ -173,22 +252,22 @@ export class CalendarComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
       if (result) {
         this.appointments.push(result);
       }
-    }, (error) => {
+    }, (error: any) => {
       console.error('Dialog closed with error:', error);
     });
   }
 
-  editAppointment(appointment: any, event: Event) {
+  editAppointment(appointment: Appointment, event: Event) {
     event.stopPropagation();
     const dialogRef = this.dialog.open(AppointmentEditComponent, {
       data: appointment,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
       if (result) {
         const index = this.appointments.findIndex(
           (appt) => appt.uuid === result.uuid
@@ -197,7 +276,7 @@ export class CalendarComponent implements OnInit {
           this.appointments[index] = result;
         }
       }
-    }, (error) => {
+    }, (error: any) => {
       console.error('Dialog closed with error:', error);
     });
   }
@@ -210,7 +289,7 @@ export class CalendarComponent implements OnInit {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: Appointment | undefined) => {
       if (result) {
         const appointmentsForDate = this.appointments.filter(
           appt => this.isSameDate(appt.date, date)

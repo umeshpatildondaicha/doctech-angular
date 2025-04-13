@@ -1,0 +1,58 @@
+<div class="prescriptions-list">
+  <h2>Prescription Management</h2>
+
+  <div class="list-actions">
+    <button (click)="openDialog('diagnosis')" class="action-button">Add Diagnosis</button>
+    <button (click)="openDialog('medication')" class="action-button">Add Medication</button>
+    <button (click)="openDialog('visit')" class="action-button">Schedule Visit</button>
+    <button (click)="saveAndClear.emit()" class="action-button">Save & Clear</button>
+  </div>
+
+  <div class="search-container">
+    <input type="text" placeholder="Search prescriptions..." (input)="onSearch($event)">
+  </div>
+
+  <div class="prescriptions-by-date" *ngFor="let date of getSortedDates()">
+    <div class="date-header">
+      <h3>{{ date }}</h3>
+      <button (click)="onGenerateForDate(date)" class="small-button">Generate New</button>
+    </div>
+
+    <div class="prescription-card" *ngFor="let prescription of groupedPrescriptions[date]">
+      <div class="prescription-header">
+        <div class="prescription-title">
+          <span class="prescription-id">{{ prescription.prescriptionId }}</span>
+          <span *ngIf="prescription.patient?.name" class="patient-name">
+            {{ prescription.patient.name }}
+          </span>
+        </div>
+        <div class="prescription-actions">
+          <button (click)="onEdit(prescription)" class="small-button">Edit</button>
+          <button (click)="onDelete(prescription)" class="small-button">Delete</button>
+        </div>
+      </div>
+
+      <div class="prescription-content">
+        <div *ngIf="prescription.diagnosis" class="diagnosis">
+          <span class="label">Diagnosis:</span> {{ prescription.diagnosis }}
+        </div>
+        
+        <div *ngIf="prescription.medications && prescription.medications.length > 0" class="medications">
+          <span class="label">Medications:</span>
+          <span *ngFor="let med of prescription.medications; let last = last">
+            {{ med.name }}{{ last ? '' : ', ' }}
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="getNextVisitForDate(date) || getFollowUpForDate(date)" class="follow-up">
+        <div *ngIf="getNextVisitForDate(date)" class="next-visit">
+          <span class="label">Next Visit:</span> {{ getNextVisitForDate(date) && (getNextVisitForDate(date) | date) }}
+        </div>
+        <div *ngIf="getFollowUpForDate(date)" class="instructions">
+          <span class="label">Instructions:</span> {{ getFollowUpForDate(date) }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

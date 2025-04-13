@@ -1,8 +1,8 @@
-<header class="header d-flex align-items-center justify-content-between fixed-top bg-white px-3 shadow-sm">
+<header class="header d-flex align-items-center justify-content-between fixed-top px-3 shadow-sm">
   <!-- Logo Section -->
   <div class="logo">
     <!-- Dynamic Message -->
-    <a class="mb-0 text-dark" *ngIf="currentMessage" [ngClass]="{'show-message': currentMessage}">
+    <a class="mb-0" *ngIf="currentMessage" [ngClass]="{'show-message': currentMessage}">
       {{ currentMessage }}
     </a>
   </div>

@@ -1,0 +1,23 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.btn-success {
+  background-color: #4CAF50;
+  border-color: #4CAF50;
+  z-index: 100;
+}
+
+.btn-success:hover {
+  background-color: #388E3C;
+  border-color: #388E3C;
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+@media print {
+  .btn-success {
+    display: none !important;
+  }
+} 

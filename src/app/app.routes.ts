@@ -1,35 +1,30 @@
 // app.routes.ts
-import { RouterModule, Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component'; // Import your DashboardComponent
 import { AppointmentCalendarComponent } from './appointments/appointment-calendar/appointment-calendar.component';
 import { PatientProfileComponent } from './patient-profile/patient-profile.component';
-import { CalendarComponent } from './calendar/calendar.component';
-import { NgModule } from '@angular/core';
 import { PrintPrescriptionComponent } from './print-prescription/print-prescription.component'
+import { PatientsComponent } from './patients/patients.component';
+import { DoctorsComponent } from './doctors/doctors.component';
+import { SettingsComponent } from './settings/settings.component';
+import { HelpComponent } from './help/help.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'profile', component: PatientProfileComponent },
+  { path: 'profile/:id', component: PatientProfileComponent },
   {
     path: 'appointments',
-    loadChildren: () =>
-      import('./appointments/appointments.module').then(
-        (m) => m.AppointmentsModule
-      ),
+    loadChildren: () => import('./appointments/appointments.module').then(m => m.AppointmentsModule)
   },
-  { path: 'calendar', component: CalendarComponent },
   {
     path: 'calendar',
-    loadChildren: () =>
-      import('./calendar/calendar.module').then((m) => m.CalendarModule),
+    loadChildren: () => import('./calendar/calendar.module').then(m => m.CalendarModule)
   },
   { path: 'print-prescription', component: PrintPrescriptionComponent },
-  { path: '**', redirectTo: '/dashboard' },
+  { path: 'patients', component: PatientsComponent },
+  { path: 'doctors', component: DoctorsComponent },
+  { path: 'settings', component: SettingsComponent },
+  { path: 'help', component: HelpComponent },
+  { path: '**', redirectTo: '/dashboard' }
 ];
-
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule],
-})
-export class AppRoutingModule {}

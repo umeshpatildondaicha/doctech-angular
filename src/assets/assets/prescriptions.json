@@ -1,0 +1,127 @@
+{
+  "prescriptions": [
+    {
+      "prescriptionId": "PRES-001",
+      "date": "2024-04-02T10:30:00",
+      "doctor": {
+        "name": "Dr. John Smith",
+        "specialization": "Cardiologist",
+        "registrationNumber": "MD12345",
+        "clinicName": "Heart Care Clinic",
+        "address": "123 Healthcare Street, Medical District",
+        "phone": "(555) 123-4567",
+        "email": "dr.smith@heartcare.com"
+      },
+      "patient": {
+        "name": "Jane Doe",
+        "age": 45,
+        "gender": "Female",
+        "address": "456 Patient Street, City",
+        "phone": "(555) 987-6543",
+        "email": "jane.doe@email.com",
+        "bloodGroup": "O+",
+        "height": "165cm",
+        "weight": "65kg",
+        "allergies": ["Penicillin", "Sulfa drugs"],
+        "medicalHistory": ["Hypertension", "Type 2 Diabetes"]
+      },
+      "diagnosis": "Hypertension and Mild Arrhythmia",
+      "symptoms": ["Chest pain", "Shortness of breath", "Irregular heartbeat"],
+      "vitals": {
+        "bloodPressure": "140/90",
+        "heartRate": "85",
+        "temperature": "37.2°C",
+        "oxygenSaturation": "98%"
+      },
+      "medications": [
+        {
+          "name": "Lisinopril",
+          "dosage": "10mg",
+          "frequency": "Once daily",
+          "duration": "30 days",
+          "instructions": "Take in the morning with food",
+          "route": "Oral",
+          "timing": "Morning",
+          "withFood": true
+        },
+        {
+          "name": "Amlodipine",
+          "dosage": "5mg",
+          "frequency": "Once daily",
+          "duration": "30 days",
+          "instructions": "Take in the evening",
+          "route": "Oral",
+          "timing": "Evening",
+          "withFood": false
+        }
+      ],
+      "investigations": [
+        {
+          "name": "ECG",
+          "date": "2024-04-02",
+          "results": "Sinus rhythm with occasional PVCs",
+          "status": "Completed"
+        },
+        {
+          "name": "Blood Test",
+          "date": "2024-04-02",
+          "results": "Pending",
+          "status": "Ordered"
+        }
+      ],
+      "notes": "Monitor blood pressure daily. Follow up in 2 weeks.",
+      "nextVisitDate": "2024-04-16T10:00:00",
+      "followUpInstructions": [
+        "Monitor blood pressure twice daily",
+        "Keep a log of readings",
+        "Report any side effects immediately"
+      ],
+      "signature": "Dr. John Smith",
+      "status": "Active",
+      "priority": "Normal",
+      "attachments": [
+        {
+          "name": "ECG Report",
+          "type": "PDF",
+          "url": "/attachments/ecg-report.pdf"
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "TEMP-001",
+      "name": "Hypertension Management",
+      "description": "Standard template for hypertension patients",
+      "medications": [
+        {
+          "name": "Lisinopril",
+          "dosage": "10mg",
+          "frequency": "Once daily",
+          "duration": "30 days",
+          "instructions": "Take in the morning with food",
+          "route": "Oral",
+          "timing": "Morning",
+          "withFood": true
+        }
+      ],
+      "notes": "Monitor blood pressure daily"
+    }
+  ],
+  "settings": {
+    "clinicInfo": {
+      "name": "Heart Care Clinic",
+      "address": "123 Healthcare Street, Medical District",
+      "phone": "(555) 123-4567",
+      "email": "info@heartcare.com",
+      "website": "www.heartcare.com",
+      "logo": "/assets/logo.png"
+    },
+    "doctorInfo": {
+      "name": "Dr. John Smith",
+      "specialization": "Cardiologist",
+      "registrationNumber": "MD12345",
+      "signature": "/assets/signature.png"
+    }
+  }
+} 

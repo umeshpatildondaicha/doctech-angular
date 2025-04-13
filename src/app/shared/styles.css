@@ -1,0 +1,29 @@
+/* Common styles for all components */
+.patients-container,
+.doctors-container,
+.settings-container,
+.help-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content {
+  background: var(--background-color);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+}
+
+h2 {
+  color: var(--text-color);
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+p {
+  color: var(--text-secondary-color);
+  line-height: 1.6;
+  margin-bottom: 15px;
+} 

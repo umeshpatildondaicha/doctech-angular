@@ -1,0 +1,148 @@
+
+
+<div class="row">
+  <div class="col-md-12">
+    <!-- Prescriptions List Component -->
+    <app-prescriptions-list
+      [prescriptions]="prescriptions"
+      [currentPrescription]="currentPrescription"
+      (editPrescription)="onEditPrescription($event)"
+      (deletePrescription)="onDeletePrescription($event)"
+      (generatePrescription)="onGeneratePrescription($event)"
+      (addDiagnosis)="onAddDiagnosis($event)"
+      (addMedication)="onAddMedication($event)"
+      (setNextVisit)="onSetNextVisit($event)"
+      (saveAndClear)="onSaveAndClear()">
+    </app-prescriptions-list>
+  </div>
+</div>
+
+<!-- Print Button -->
+<button 
+  *ngIf="currentPrescription" 
+  class="btn btn-success position-fixed bottom-0 end-0 m-4 rounded-circle shadow" 
+  style="width: 60px; height: 60px;" 
+  (click)="onPrint()">
+  <i class="bi bi-printer fs-4"></i>
+</button>
+
+<!-- Print only section - Will only be visible when printing -->
+<div class="print-wrapper">
+  <div class="prescription-print-container" *ngIf="currentPrescription">
+    <!-- Empty space at top for letterhead (20%) -->
+    <div class="letterhead-space"></div>
+    
+    <!-- Professional Header with Medical Caduceus Symbol -->
+    <div class="prescription-header">
+      <div class="rx-header">
+        <div class="rx-title">PRESCRIPTION</div>
+        <div class="rx-symbol-large">℞</div>
+      </div>
+      <div class="prescription-meta">
+        <div class="prescription-date">Date: {{ currentPrescription.date | date:'dd/MM/yyyy' }}</div>
+        <div class="prescription-ref">Ref. No: {{ currentPrescription.prescriptionId }}</div>
+      </div>
+    </div>
+    
+    <!-- Patient Information Section -->
+    <div class="patient-info-section">
+      <div class="section-label">PATIENT DETAILS</div>
+      <div class="patient-details">
+        <div class="patient-field name-field">
+          <span class="patient-field-label">Name:</span>
+          <span class="patient-field-value">{{ currentPrescription.patient.name || 'N/A' }}</span>
+        </div>
+        <div class="patient-field">
+          <span class="patient-field-label">Age:</span>
+          <span class="patient-field-value">{{ currentPrescription.patient.age || 'N/A' }} years</span>
+        </div>
+        <div class="patient-field">
+          <span class="patient-field-label">Gender:</span>
+          <span class="patient-field-value">{{ currentPrescription.patient.gender || 'N/A' }}</span>
+        </div>
+        <div class="patient-field">
+          <span class="patient-field-label">Date:</span>
+          <span class="patient-field-value">{{ currentPrescription.date | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="patient-field address-field">
+          <span class="patient-field-label">Address:</span>
+          <span class="patient-field-value">{{ currentPrescription.patient.address || 'N/A' }}</span>
+        </div>
+        <div class="patient-field">
+          <span class="patient-field-label">Phone:</span>
+          <span class="patient-field-value">{{ currentPrescription.patient.phone || 'N/A' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diagnosis Section with professional medical styling -->
+    <div class="diagnosis-section" *ngIf="currentPrescription.diagnosis">
+      <div class="section-label">DIAGNOSIS</div>
+      <div class="diagnosis-content">
+        <p class="diagnosis-text">{{ currentPrescription.diagnosis }}</p>
+        <div *ngIf="currentPrescription.symptoms && currentPrescription.symptoms.length > 0" class="symptoms-container">
+          <div class="symptoms-label">Presenting Symptoms:</div>
+          <p class="symptoms-text">{{ currentPrescription.symptoms.join(', ') }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medications Section with classic Rx styling -->
+    <div class="medications-section" *ngIf="currentPrescription.medications && currentPrescription.medications.length > 0">
+      <div class="section-label">MEDICATION</div>
+      <div class="rx-line"></div>
+      <div class="medications-list">
+        <div class="medication-item" *ngFor="let med of currentPrescription.medications; let i = index">
+          <div class="medication-single-line">
+            <span class="medication-number">{{i+1}}.</span>
+            <span class="medication-name">{{ med.name }}</span>
+            <span class="medication-details-inline">
+              <span *ngIf="med.dosage" class="med-detail"><span class="med-label">Dosage:</span> {{ med.dosage }}</span>
+              <span *ngIf="med.frequency" class="med-detail"><span class="med-label">Freq:</span> {{ med.frequency }}</span>
+              <span *ngIf="med.duration" class="med-detail"><span class="med-label">Duration:</span> {{ med.duration }}</span>
+              <span *ngIf="med.instructions" class="med-detail"><span class="med-label">Instruct:</span> {{ med.instructions }}</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next Visit Section with callout styling -->
+    <div class="next-visit-section" *ngIf="currentPrescription.nextVisitDate || (currentPrescription.followUpInstructions && currentPrescription.followUpInstructions.length > 0)">
+      <div class="section-label">FOLLOW-UP</div>
+      <div class="followup-content">
+        <div *ngIf="currentPrescription.nextVisitDate" class="next-visit-date">
+          <span class="followup-label">Next Visit:</span>
+          <span class="followup-value">{{ currentPrescription.nextVisitDate | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div *ngIf="currentPrescription.followUpInstructions && currentPrescription.followUpInstructions.length > 0" class="followup-instructions">
+          <span class="followup-label">Instructions:</span>
+          <span class="followup-value">{{ currentPrescription.followUpInstructions.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Force page break div - will get a class added via script if needed -->
+    <div class="signature-page-break"></div>
+    
+    <!-- Professional Footer with Doctor's Signature and Stamp Area -->
+    <div class="signature-space" [ngClass]="{'signature-space-needed': prescriptionNeedsPageBreak}">
+      <div class="signature-note">This prescription is valid for 30 days from the date of issue.</div>
+      
+      <!-- Doctor's signature -->
+      <div class="doctor-signature">
+        <div class="signature-line"></div>
+        <div class="doctor-credentials-container">
+          <div class="doctor-name" *ngIf="currentPrescription.doctor?.name">{{ currentPrescription.doctor.name }}</div>
+          <div class="doctor-credentials">
+            <div class="doctor-details" *ngIf="currentPrescription.doctor?.specialization">{{ currentPrescription.doctor.specialization }}</div>
+            <div class="doctor-details" *ngIf="currentPrescription.doctor?.registrationNumber">Reg. No.: {{ currentPrescription.doctor.registrationNumber }}</div>
+          </div>
+        </div>
+        <div class="stamp-container">
+          <div class="stamp-area">STAMP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

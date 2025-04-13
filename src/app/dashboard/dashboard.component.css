@@ -15,7 +15,7 @@
   flex: 1;
   padding: 1em;
   border: none;
-  background-color: white;
+  background-color: var(--background-color);
   border-radius: 8px;
   box-shadow: 2px 4px 11px 0px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -25,6 +25,7 @@
   align-items: center;
   font-weight: 700;
   font-size: 1em;
+  color: var(--text-color);
 }
 
 .card:hover {
@@ -42,31 +43,31 @@
   font-weight: 500;
   border-radius: 0.5em;
   font-size: 0.8em;
-  border: 0.1em solid #95b1fd;
+  border: 0.1em solid var(--primary-color);
   padding: 0.2em 1em;
   width: max-content;
-  background-color: #95b1fd;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
 }
 
 .button-class:hover {
-  border: 0.1em solid #95b1fd;
-  background-color: white;
-  color: #95b1fd;
+  border: 0.1em solid var(--primary-color);
+  background-color: var(--background-color);
+  color: var(--primary-color);
   cursor: pointer;
 }
 
 .duration {
   font-weight: 500;
   font-size: 0.8em;
-  color: #979292;
+  color: var(--text-secondary-color);
 }
 
 .card-heading {
   font-size: 1em;
   font-weight: 600;
   margin-bottom: 0.4em;
-  color: #514e4e;
+  color: var(--text-color);
 }
 
 .chart-container,
@@ -74,7 +75,7 @@
 .doctor-schedule {
   grid-column: span 2;
   padding: 1rem;
-  background-color: #fff;
+  background-color: var(--background-color);
   border-radius: 8px;
   box-shadow: 2px 4px 11px 0px rgba(0, 0, 0, 0.1);
 }
@@ -84,15 +85,15 @@
 }
 
 .appointments .Confirmed {
-  color: green;
+  color: var(--success-color);
 }
 
 .appointments .Pending {
-  color: orange;
+  color: var(--warning-color);
 }
 
 .appointments .Cancelled {
-  color: red;
+  color: var(--error-color);
 }
 
 .doctor-schedule ul {
@@ -102,6 +103,7 @@
 
 .doctor-schedule li {
   padding: 0.5rem 0;
+  color: var(--text-color);
 }
 
 /* Increment UI */
@@ -114,30 +116,30 @@
   margin-left: 0.5rem;
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  border: #97929225 1px solid;
-  background: white; /* Subtle background for better readability */
+  border: 1px solid var(--border-color);
+  background: var(--background-color);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .increment-positive {
-  color: #28a745; /* Green for positive values */
+  color: var(--success-color);
 }
 
 .increment-negative {
-  color: #dc3545; /* Red for negative values */
+  color: var(--error-color);
 }
 
 .increment:hover {
   border: none;
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add hover effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .icon-container {
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.5em; /* Slightly larger icon */
+  font-size: 0.5em;
   margin-right: 0.3rem;
 }
 
@@ -146,19 +148,11 @@
   font-weight: bold;
 }
 
-.increment-positive {
-  color: rgb(64, 201, 64);
-}
-
-.increment-negative {
-  color: rgb(201, 64, 64);
-}
-
 .schedule {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: #3d3a3a25 1px solid;
+  border: 1px solid var(--border-color);
 }
 
 .schedule-sub-div {
@@ -168,10 +162,9 @@
   flex-direction: column;
 }
 
-
 /* Appointment */
 .appointments {
-  background: white;
+  background: var(--background-color);
   border-radius: 12px;
   padding: 1.5em;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
@@ -188,17 +181,20 @@
 .filter-dropdown,
 .filter-date {
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   border-radius: 6px;
   font-size: 1rem;
   outline: none;
   transition: box-shadow 0.3s ease;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .filter-input:focus,
 .filter-dropdown:focus,
 .filter-date:focus {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
 }
 
 /* Custom Grid Styling */
@@ -208,15 +204,15 @@
   width: 100%;
   border-radius: 12px;
   overflow: hidden;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
 }
 
 /* Header Row Styling */
 .grid-header {
   display: flex;
-  background-color: #95b1fd;
-  color: #ffffff;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   font-weight: bold;
   padding: 0.5rem;
   text-align: center;
@@ -227,7 +223,7 @@
   display: flex;
   padding: 0.1rem;
   transition: background-color 0.3s ease, transform 0.3s ease;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .grid-row:last-child {
@@ -235,7 +231,7 @@
 }
 
 .grid-row:hover {
-  background-color: rgba(0, 148, 121, 0.1); /* Light green highlight */
+  background-color: var(--surface-color);
   transform: scale(1.01);
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -248,6 +244,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--text-color);
 }
 
 /* Status Badge Styling */
@@ -260,18 +257,18 @@
 }
 
 .status-confirmed {
-  background-color: #28a745; /* Green */
-  color: white;
+  background-color: var(--success-color);
+  color: var(--background-color);
 }
 
 .status-pending {
-  background-color: #ffc107; /* Yellow */
-  color: black;
+  background-color: var(--warning-color);
+  color: var(--text-color);
 }
 
 .status-cancelled {
-  background-color: #dc3545; /* Red */
-  color: white;
+  background-color: var(--error-color);
+  color: var(--background-color);
 }
 
 /* Responsive Design */
@@ -286,28 +283,52 @@
   }
 }
 
-
 .dashboard-container {
   display: grid;
   gap: 1.5rem;
-  grid-template-columns: repeat(4, 1fr); /* Three columns for layout */
-  grid-template-rows: auto; /* Rows adjust based on content */
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: auto;
 }
 
 /* Upcoming Appointments: Left-side, spans full height */
 .appointments {
-  grid-column: span 2; /* Occupy one column */
-  grid-row: span 2; /* Span two rows to match the height of the right cards */
+  grid-column: span 2;
+  grid-row: span 2;
 }
 
 /* Patient Visit: Right-side, top */
 .chart-container:first-of-type {
-  grid-column: span 2; /* Occupy two columns */
-  grid-row: span 1; /* Occupy one row */
+  grid-column: span 2;
+  grid-row: span 1;
 }
 
 /* Income: Right-side, bottom */
 .chart-container:last-of-type {
-  grid-column: span 2; /* Occupy two columns */
-  grid-row: span 1; /* Occupy one row */
+  grid-column: span 2;
+  grid-row: span 1;
+}
+/* Table Header Styling */
+.table-header {
+  background-color: var(--primary-color);
+  color: var(--text-color);
+}
+
+.table-header th {
+  color: var(--text-color);
+  font-weight: 600;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.text-mute{
+  color: var(--text-color);
+}
+tr{
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.table td, th {
+  color: var(--text-color);
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
 }

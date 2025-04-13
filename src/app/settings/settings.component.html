@@ -1,0 +1,53 @@
+<div class="settings-container">
+  <h2>Settings</h2>
+  <div class="content">
+    <mat-card class="mat-elevation-z2">
+      <mat-card-header>
+        <mat-card-title>Theme Settings</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="theme-section">
+          <h3>Select Theme</h3>
+          <mat-form-field appearance="outline">
+            <mat-label>Theme</mat-label>
+            <mat-select [(ngModel)]="selectedTheme" (selectionChange)="onThemeChange($event.value)">
+              <mat-option value="light">Light Theme</mat-option>
+              <mat-option value="dark">Dark Theme</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="theme-preview">
+          <h3>Theme Preview</h3>
+          <div class="preview-cards">
+            <mat-card class="mat-elevation-z2">
+              <mat-card-content>
+                <h4>Sample Card</h4>
+                <p>This is a sample card to preview the theme colors.</p>
+                <button mat-button color="primary">Action Button</button>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="mat-elevation-z2 primary-card">
+              <mat-card-content>
+                <h4>Primary Card</h4>
+                <p>Card with primary color accent.</p>
+                <button mat-button color="primary">Action Button</button>
+              </mat-card-content>
+            </mat-card>
+
+            <mat-card class="mat-elevation-z2 accent-card">
+              <mat-card-content>
+                <h4>Accent Card</h4>
+                <p>Card with accent color accent.</p>
+                <button mat-button color="accent">Action Button</button>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

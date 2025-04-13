@@ -1,0 +1,225 @@
+<form [formGroup]="prescriptionForm" (ngSubmit)="onSubmit()" class="prescription-form">
+  <!-- Doctor Information Section -->
+  <div class="form-section">
+    <h2>Doctor Information</h2>
+    <div formGroupName="doctor">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="doctorName">Doctor Name*</label>
+          <input id="doctorName" type="text" formControlName="name" placeholder="Enter doctor's name">
+          <div *ngIf="prescriptionForm.get('doctor.name')?.invalid && prescriptionForm.get('doctor.name')?.touched" class="error-message">
+            Doctor name is required
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="specialization">Specialization</label>
+          <input id="specialization" type="text" formControlName="specialization" placeholder="Enter specialization">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="registrationNumber">Registration Number*</label>
+          <input id="registrationNumber" type="text" formControlName="registrationNumber" placeholder="Enter registration number">
+          <div *ngIf="prescriptionForm.get('doctor.registrationNumber')?.invalid && prescriptionForm.get('doctor.registrationNumber')?.touched" class="error-message">
+            Registration number is required
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="clinicName">Clinic Name</label>
+          <input id="clinicName" type="text" formControlName="clinicName" placeholder="Enter clinic name">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="address">Address</label>
+          <input id="address" type="text" formControlName="address" placeholder="Enter address">
+        </div>
+        <div class="form-field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="text" formControlName="phone" placeholder="Enter phone number">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Patient Information Section -->
+  <div class="form-section">
+    <h2>Patient Information</h2>
+    <div formGroupName="patient">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="patientName">Patient Name*</label>
+          <input id="patientName" type="text" formControlName="name" placeholder="Enter patient's name">
+          <div *ngIf="prescriptionForm.get('patient.name')?.invalid && prescriptionForm.get('patient.name')?.touched" class="error-message">
+            Patient name is required
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="age">Age*</label>
+          <input id="age" type="number" formControlName="age" placeholder="Enter age">
+          <div *ngIf="prescriptionForm.get('patient.age')?.invalid && prescriptionForm.get('patient.age')?.touched" class="error-message">
+            Valid age is required (0-120)
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="gender">Gender</label>
+          <select id="gender" formControlName="gender">
+            <option value="">Select gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label for="patientAddress">Address</label>
+          <input id="patientAddress" type="text" formControlName="address" placeholder="Enter address">
+        </div>
+        <div class="form-field">
+          <label for="patientPhone">Phone</label>
+          <input id="patientPhone" type="text" formControlName="phone" placeholder="Enter phone number">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Diagnosis Section -->
+  <div class="form-section">
+    <h2>Diagnosis</h2>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="diagnosis">Diagnosis*</label>
+        <input id="diagnosis" type="text" formControlName="diagnosis" placeholder="Enter diagnosis">
+        <div *ngIf="prescriptionForm.get('diagnosis')?.invalid && prescriptionForm.get('diagnosis')?.touched" class="error-message">
+          Diagnosis is required
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="symptoms">Symptoms (comma separated)</label>
+        <textarea id="symptoms" formControlName="symptoms" placeholder="Enter symptoms"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medications Section -->
+  <div class="form-section">
+    <h2>Medications</h2>
+    <div class="medications-list" formArrayName="medications">
+      <div *ngFor="let med of medications.controls; let i = index" [formGroupName]="i" class="medication-item">
+        <div class="medication-header">
+          <h3>Medication #{{i + 1}}</h3>
+          <button type="button" class="remove-btn" (click)="removeMedication(i)">Remove</button>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="medName{{i}}">Medicine Name*</label>
+            <input id="medName{{i}}" type="text" formControlName="name" placeholder="Enter medicine name">
+            <div *ngIf="med.get('name')?.invalid && med.get('name')?.touched" class="error-message">
+              Medicine name is required
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="dosage{{i}}">Dosage*</label>
+            <input id="dosage{{i}}" type="text" formControlName="dosage" placeholder="e.g. 500mg">
+            <div *ngIf="med.get('dosage')?.invalid && med.get('dosage')?.touched" class="error-message">
+              Dosage is required
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="frequency{{i}}">Frequency*</label>
+            <input id="frequency{{i}}" type="text" formControlName="frequency" placeholder="e.g. Twice daily">
+            <div *ngIf="med.get('frequency')?.invalid && med.get('frequency')?.touched" class="error-message">
+              Frequency is required
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="duration{{i}}">Duration*</label>
+            <input id="duration{{i}}" type="text" formControlName="duration" placeholder="e.g. 7 days">
+            <div *ngIf="med.get('duration')?.invalid && med.get('duration')?.touched" class="error-message">
+              Duration is required
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="route{{i}}">Route</label>
+            <select id="route{{i}}" formControlName="route">
+              <option value="">Select route</option>
+              <option value="Oral">Oral</option>
+              <option value="Topical">Topical</option>
+              <option value="Injection">Injection</option>
+              <option value="Inhalation">Inhalation</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="timing{{i}}">Timing</label>
+            <select id="timing{{i}}" formControlName="timing">
+              <option value="">Select timing</option>
+              <option value="Morning">Morning</option>
+              <option value="Afternoon">Afternoon</option>
+              <option value="Evening">Evening</option>
+              <option value="Before meals">Before meals</option>
+              <option value="After meals">After meals</option>
+              <option value="Bedtime">Bedtime</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="withFood{{i}}">With Food</label>
+            <select id="withFood{{i}}" formControlName="withFood">
+              <option [ngValue]="true">Yes</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="instructions{{i}}">Special Instructions</label>
+            <textarea id="instructions{{i}}" formControlName="instructions" placeholder="Enter any special instructions"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="add-medication-btn" (click)="addMedication()">Add Medication</button>
+  </div>
+
+  <!-- Next Visit Section -->
+  <div class="form-section">
+    <h2>Next Visit & Follow-up</h2>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="nextVisitDate">Next Visit Date</label>
+        <input id="nextVisitDate" type="date" formControlName="nextVisitDate">
+      </div>
+      <div class="form-field">
+        <label for="followUpInstructions">Follow-Up Instructions</label>
+        <textarea id="followUpInstructions" formControlName="followUpInstructions" placeholder="Enter follow-up instructions"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature Section -->
+  <div class="form-section">
+    <h2>Signature</h2>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="signature">Doctor's Signature</label>
+        <input id="signature" type="text" formControlName="signature" placeholder="Enter signature">
+      </div>
+      <div class="form-field">
+        <label for="date">Date</label>
+        <input id="date" type="date" formControlName="date">
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Actions -->
+  <div class="form-actions">
+    <button type="button" (click)="onCancel()" class="cancel-btn">Cancel</button>
+    <button type="submit" [disabled]="prescriptionForm.invalid" class="submit-btn">Save Prescription</button>
+  </div>
+</form>

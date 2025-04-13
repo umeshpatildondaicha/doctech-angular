@@ -1,7 +1,7 @@
 /* Sidebar Container */
 .sidebar {
-  background: white;
-  color: #95b1fd;
+  background: var(--background-color);
+  color: var(--primary-color);
   top: 0;
   height: 100%;
   width: 3rem;
@@ -34,7 +34,7 @@
 .pin-button {
   background: none;
   border: none;
-  color: #95b1fd;
+  color: var(--primary-color);
   font-size: 16px;
   cursor: pointer;
   transition: transform 0.3s ease;
@@ -42,10 +42,6 @@
 
 .pin-button:hover {
   transform: scale(1.2);
-}
-
-.sidebar:hover {
-  width: 15rem;
 }
 
 /* Remove list dots */
@@ -61,29 +57,31 @@
   align-items: center;
   padding: 0.6rem 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease;
   position: relative;
 }
 
-.nk-menu-item a {
+.nk-menu-link {
   display: flex;
   align-items: center;
   width: 100%;
   text-decoration: none;
-  color: #b9bdbc;
-}
-.nk-menu-item:hover a {
-  color: white;
-}
-.nk-menu-item:hover {
-  background-color: #95b1fd;
-  /* transform: scale(1.02); */
-  color: white;
+  color: var(--text-secondary-color);
+  cursor: pointer;
 }
 
-.nk-menu-item.active {
-  background-color: #007bff;
-  color: white;
+.nk-menu-item:hover .nk-menu-link {
+  color: var(--background-color);
+}
+
+.nk-menu-item:hover {
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.nk-menu-item.active .nk-menu-link {
+  background-color: var(--primary-color);
+  color: var(--background-color);
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.5);
 }
 
@@ -96,13 +94,11 @@
   justify-content: center;
   width: 40px;
   text-align: center;
-  color: #95b1fd;
+  color: var(--primary-color);
 }
-.sidebar:hover {
-  color: #b9bdbc;
-}
+
 .nk-menu-item:hover .sidebar-icon {
-  color: white;
+  color: var(--background-color);
 }
 
 /* Text Styling */
@@ -113,25 +109,16 @@
   transition: opacity 0.3s ease;
   font-size: 14px;
   font-weight: 500;
-  color: black;
+  color: var(--text-color);
 }
 
 /* Show text on hover */
 .sidebar:hover .sidebar-text {
   opacity: 1;
 }
+
 .sidebar.pinned .sidebar-text {
   opacity: 1;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .sidebar {
-    /* width: 100px; */
-  }
-  .sidebar:hover {
-    width: 200px;
-  }
 }
 
 /* Sidebar Footer Styling */
@@ -139,7 +126,7 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  background-color: white;
+  background-color: var(--background-color);
   padding: 1rem 0;
 }
 
@@ -154,16 +141,31 @@
   padding: 0.6rem 1rem;
 }
 
-.sidebar-footer .nk-menu-item a {
+.sidebar-footer .nk-menu-link {
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #b9bdbc;
+  color: var(--text-secondary-color);
   font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
 }
 
 .sidebar-footer .nk-menu-item:hover {
-  background-color: #95b1fd;
-  color: white;
+  background-color: var(--primary-color);
+  color: var(--background-color);
+}
+
+.sidebar-footer .nk-menu-item:hover .nk-menu-link {
+  color: var(--background-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 3rem;
+  }
+  .sidebar:hover {
+    width: 15rem;
+  }
 }

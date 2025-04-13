@@ -4,15 +4,16 @@ import * as Highcharts from 'highcharts';
 import { CommonModule } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { FormsModule } from '@angular/forms'; // Import FormsModule
+import { FormsModule } from '@angular/forms';
 import { ColDef } from 'ag-grid-community';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { ThemeService } from '../core/services/theme.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, HighchartsChartModule, FormsModule], // Add FormsModule here
+  imports: [CommonModule, HighchartsChartModule, FormsModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -20,42 +21,152 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 export class DashboardComponent {
   Highcharts: typeof Highcharts = Highcharts;
   incomeChartOptions: Highcharts.Options = {};
+  visitChartOptions: Highcharts.Options = {};
   isBrowser = false;
-  constructor(@Inject(PLATFORM_ID) private platformId: object) {
+
+  constructor(@Inject(PLATFORM_ID) private platformId: object, private themeService: ThemeService) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-    if (isPlatformBrowser(this.platformId)) {
+    this.initializeCharts();
+    this.themeService.currentTheme$.subscribe(() => {
+      this.updateChartColors();
+    });
+  }
+
+  private initializeCharts() {
+    if (this.isBrowser) {
       this.incomeChartOptions = {
         chart: {
           type: 'column',
           height: null,
+          backgroundColor: 'var(--background-color)',
+          style: {
+            fontFamily: 'inherit'
+          }
         },
-        title: { text: 'Income Overview' },
+        title: { 
+          text: 'Income Overview',
+          style: {
+            color: 'var(--text-color)'
+          }
+        },
         xAxis: {
-          categories:
-            this.incomeFilter === '7days'
-              ? ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7']
-              : [
-                  'Jan',
-                  'Feb',
-                  'Mar',
-                  'Apr',
-                  'May',
-                  'Jun',
-                  'Jul',
-                  'Aug',
-                  'Sep',
-                  'Oct',
-                  'Nov',
-                  'Dec',
-                ],
+          categories: this.incomeFilter === '7days'
+            ? ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7']
+            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
         },
-        series: [
-          {
-            name: 'Income',
-            data: this.getIncomeData(),
-            type: 'column',
-          },
-        ],
+        yAxis: {
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
+        },
+        series: [{
+          name: 'Income',
+          type: 'column',
+          data: this.getIncomeData(),
+          color: 'var(--success-color)'
+        }]
+      };
+
+      this.visitChartOptions = {
+        chart: {
+          type: 'areaspline',
+          backgroundColor: 'var(--background-color)',
+          style: {
+            fontFamily: 'inherit'
+          }
+        },
+        title: { 
+          text: 'Patient Visits',
+          style: {
+            color: 'var(--text-color)'
+          }
+        },
+        xAxis: {
+          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
+        },
+        yAxis: {
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
+        },
+        plotOptions: {
+          areaspline: {
+            fillColor: {
+              linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
+              stops: [
+                [0, 'var(--primary-color)'],
+                [1, 'var(--surface-color)']
+              ]
+            },
+            marker: {
+              lineWidth: 1,
+              lineColor: 'var(--primary-color)',
+              fillColor: 'var(--background-color)'
+            }
+          }
+        },
+        series: [{
+          type: 'areaspline',
+          name: 'Visits',
+          data: [120, 200, 150, 80, 70, 110, 130, 190, 230, 210, 150, 100]
+        }]
+      };
+    }
+  }
+
+  private updateChartColors() {
+    if (this.isBrowser && this.incomeChartOptions) {
+      const updatedOptions: Highcharts.Options = {
+        chart: {
+          backgroundColor: 'var(--background-color)',
+          style: {
+            fontFamily: 'inherit'
+          }
+        },
+        title: {
+          style: {
+            color: 'var(--text-color)'
+          }
+        },
+        xAxis: {
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
+        },
+        yAxis: {
+          labels: {
+            style: {
+              color: 'var(--text-color)'
+            }
+          }
+        },
+        series: [{
+          type: 'column',
+          name: 'Income',
+          data: this.getIncomeData(),
+          color: 'var(--success-color)'
+        }]
+      };
+
+      this.incomeChartOptions = {
+        ...this.incomeChartOptions,
+        ...updatedOptions
       };
     }
   }
@@ -192,51 +303,6 @@ export class DashboardComponent {
       return matchesSearch && matchesStatus && matchesVisitType;
     });
   }
-
-  visitChartOptions: Highcharts.Options = {
-    title: { text: 'Patient Visits' },
-    xAxis: {
-      categories: [
-        'Jan',
-        'Feb',
-        'Mar',
-        'Apr',
-        'May',
-        'Jun',
-        'Jul',
-        'Aug',
-        'Sep',
-        'Oct',
-        'Nov',
-        'Dec',
-      ],
-    },
-    plotOptions: {
-      areaspline: {
-        color: '#95b1fd',
-        fillColor: {
-          linearGradient: { x1: 0, x2: 0, y1: 0, y2: 1 },
-          stops: [
-            [0, '#95b1fd'],
-            [1, '#d4f5ef'],
-          ],
-        },
-        threshold: null,
-        marker: {
-          lineWidth: 1,
-          lineColor: '#95b1fd',
-          fillColor: 'white',
-        },
-      },
-    },
-    series: [
-      {
-        type: 'areaspline',
-        name: 'Visits',
-        data: [120, 200, 150, 80, 70, 110, 130, 190, 230, 210, 150, 100],
-      },
-    ],
-  };
 
   schedule = {
     available: 45,

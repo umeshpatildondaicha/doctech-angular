@@ -1,0 +1,13 @@
+/* Help component specific styles */
+.help-container {
+  min-height: 100vh;
+  background-color: var(--surface-color);
+}
+
+.content {
+  background-color: var(--background-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  /* margin-top: 20px; */
+} 
