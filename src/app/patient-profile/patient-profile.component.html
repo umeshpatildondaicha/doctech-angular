@@ -32,287 +32,29 @@
       class="tab-pane fade"
       [ngClass]="{ 'show active': activeTab === 'profile' }"
     >
-      <mat-card class="mat-elevation-z2">
-        <mat-card-content>
-          <div class="row">
-            <!-- Patient Photo and Basic Info -->
-            <div class="col-md-3 text-center h-100">
-              <img
-                [src]="patient.photo || '../../../assets/default-avatar.jpg'"
-                class="rounded-circle img-thumbnail mb-3"
-                alt="Patient Photo"
-                style="width: 200px; height: 200px; object-fit: cover"
-              />
-            </div>
-
-            <!-- Patient Details -->
-            <div class="col-md-9">
-              <div class="row mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="d-flex align-items-center gap-3">
-                    <h4 class="mb-0">{{ patient.name }}</h4>
-                    <p class="mb-0 text-muted">ID: {{ patient.id }}</p>
-                  </div>
-                  <div class="d-flex gap-2">
-                    <a
-                      href="https://wa.me/{{ patient.phone }}"
-                      class="btn btn-success"
-                      target="_blank"
-                    >
-                      <i class="bi bi-whatsapp"></i>
-                    </a>
-                    <a
-                      href="mailto:{{ patient.email }}"
-                      class="btn btn-primary"
-                    >
-                      <i class="bi bi-envelope"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="col">
-                  <div class="d-flex gap-2">
-                    <span class="badge bg-primary">{{
-                      patient.patientType
-                    }}</span>
-                    <span class="badge bg-info">{{ patient.gender }}</span>
-                    <span class="badge bg-warning"
-                      >{{ patient.age }} years</span
-                    >
-                    <!-- OPD/IPD Status Badge with Toggle -->
-                    <span 
-                      class="badge d-flex align-items-center" 
-                      [ngClass]="{'bg-success': patient.admissionStatus === 'OPD', 'bg-danger': patient.admissionStatus === 'IPD'}"
-                      style="cursor: pointer;"
-                      (click)="toggleAdmissionStatus()"
-                    >
-                      {{ patient.admissionStatus || 'OPD' }}
-                      <i class="bi bi-arrow-repeat ms-1" title="Toggle patient status"></i>
-                    </span>
-                    <!-- Ward/Room Information if IPD -->
-                    <span class="badge bg-secondary" *ngIf="patient.admissionStatus === 'IPD'">
-                      {{ patient.wardInfo.ward || 'Ward' }} | {{ patient.wardInfo.bed || 'Bed' }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Medical Stats -->
-              <div class="row mb-4">
-                <ng-container *ngFor="let stat of patientStats">
-                  <div class="col-md-3">
-                    <mat-card class="mat-elevation-z1">
-                      <mat-card-content>
-                        <strong>{{ stat.value }}</strong> &nbsp; {{ stat.unit }}
-                        <div class="d-flex">
-                          {{ stat.label }}
-                          <div
-                            *ngIf="stat.change"
-                            [ngClass]="{
-                              'increment-positive': parseNumber(stat.change) > 0,
-                              'increment-negative': parseNumber(stat.change) < 0
-                            }"
-                            class="increment"
-                          >
-                            <span class="icon-container">
-                              <i
-                                class="fa-solid"
-                                [ngClass]="{
-                                  'fa-arrow-trend-up':
-                                    parseNumber(stat.change) > 0,
-                                  'fa-arrow-trend-down':
-                                    parseNumber(stat.change) < 0
-                                }"
-                              >
-                              </i>
-                            </span>
-                            <span class="increment-text">
-                              {{ parseNumber(stat.change) > 0 ? "+" : ""
-                              }}{{ stat.change }}
-                            </span>
-                          </div>
-                        </div>
-                      </mat-card-content>
-                    </mat-card>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+      <!-- Patient Info Card Component -->
+      <app-patient-info-card 
+        [patient]="patient" 
+        [patientStats]="patientStats"
+        [toggleAdmissionStatus]="toggleAdmissionStatus.bind(this)"
+      ></app-patient-info-card>
 
       <br />
 
       <!-- IPD Management Section - Only visible for IPD patients -->
-      <div *ngIf="patient.admissionStatus === 'IPD'" class="card mb-3">
-        <div class="card-header bg-danger text-white">
-          <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Inpatient Management</h5>
-            <div class="badge bg-light text-danger fw-bold">
-              {{ (patient.wardInfo.expectedDischarge.getTime() - today.getTime()) / (1000 * 3600 * 24) | number:'1.0-0' }} Days Left
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <!-- Admission Details -->
-            <div class="col-md-6">
-              <div class="mb-3">
-                <h6 class="text-muted">Admission Details</h6>
-                <div class="row g-3">
-                  <div class="col-md-6">
-                    <label class="small text-muted">Ward</label>
-                    <p class="mb-1 fw-bold">{{ patient.wardInfo.ward }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="small text-muted">Bed Number</label>
-                    <p class="mb-1 fw-bold">{{ patient.wardInfo.bed }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="small text-muted">Admission Date</label>
-                    <p class="mb-1 fw-bold">{{ patient.wardInfo.admissionDate | date }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="small text-muted">Expected Discharge</label>
-                    <p class="mb-1 fw-bold">{{ patient.wardInfo.expectedDischarge | date }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="small text-muted">Attending Doctor</label>
-                    <p class="mb-1 fw-bold">{{ patient.wardInfo.attendingDoctor }}</p>
-                  </div>
-                  <div class="col-md-6">
-                    <label class="small text-muted">Length of Stay</label>
-                    <p class="mb-1 fw-bold">
-                      {{ (today.getTime() - patient.wardInfo.admissionDate.getTime()) / (1000 * 3600 * 24) | number:'1.0-0' }} Days
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Quick Actions -->
-            <div class="col-md-6">
-              <h6 class="text-muted mb-3">Quick Actions</h6>
-              <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-outline-primary">
-                  <i class="bi bi-clipboard-pulse me-2"></i>Daily Rounds
-                </button>
-                <button class="btn btn-outline-success">
-                  <i class="bi bi-capsule me-2"></i>Medication Order
-                </button>
-                <button class="btn btn-outline-info">
-                  <i class="bi bi-activity me-2"></i>Record Vitals
-                </button>
-                <button class="btn btn-outline-secondary">
-                  <i class="bi bi-diagram-3 me-2"></i>Care Plan
-                </button>
-                <button class="btn btn-outline-warning">
-                  <i class="bi bi-cup-hot me-2"></i>Diet Order
-                </button>
-                <button class="btn btn-outline-danger">
-                  <i class="bi bi-file-earmark-text me-2"></i>Discharge Summary
-                </button>
-              </div>
-              
-              <!-- Latest Vitals -->
-              <div class="mt-3">
-                <h6 class="d-flex justify-content-between align-items-center">
-                  <span>Latest Vitals</span>
-                  <small class="text-muted">Today, 09:45 AM</small>
-                </h6>
-                <div class="d-flex flex-wrap gap-3 mt-2">
-                  <div class="vital-badge d-flex align-items-center">
-                    <i class="bi bi-heart-pulse text-danger fs-5 me-2"></i>
-                    <div>
-                      <div class="vital-value">98 bpm</div>
-                      <div class="vital-label">Pulse</div>
-                    </div>
-                  </div>
-                  <div class="vital-badge d-flex align-items-center">
-                    <i class="bi bi-thermometer-half text-warning fs-5 me-2"></i>
-                    <div>
-                      <div class="vital-value">37.2°C</div>
-                      <div class="vital-label">Temperature</div>
-                    </div>
-                  </div>
-                  <div class="vital-badge d-flex align-items-center">
-                    <i class="bi bi-graph-up text-primary fs-5 me-2"></i>
-                    <div>
-                      <div class="vital-value">120/80</div>
-                      <div class="vital-label">BP</div>
-                    </div>
-                  </div>
-                  <div class="vital-badge d-flex align-items-center">
-                    <i class="bi bi-lungs text-info fs-5 me-2"></i>
-                    <div>
-                      <div class="vital-value">97%</div>
-                      <div class="vital-label">SpO2</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Care Schedule Section -->
-          <div class="mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="text-muted mb-0">Care Schedule</h6>
-              <div>
-                <button class="btn btn-sm btn-outline-primary">
-                  <i class="bi bi-plus-circle me-1"></i> Add Schedule
-                </button>
-                <button class="btn btn-sm btn-outline-secondary ms-2">
-                  <i class="bi bi-calendar3 me-1"></i> View Full Schedule
-                </button>
-              </div>
-            </div>
-            
+      <app-ipd-management 
+        *ngIf="patient.admissionStatus === 'IPD'"
+        [patient]="patient"
+        [upcomingCareActivities]="upcomingCareActivities"
+      ></app-ipd-management>
 
-            <!-- Upcoming Care Activities -->
-            <div class="row mt-3">
-              <div class="col-md-4" *ngFor="let activity of upcomingCareActivities">
-                <div class="card h-100 upcoming-activity" [ngClass]="activity.type">
-                  <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                      <div>
-                        <div class="activity-time">{{ activity.time }}</div>
-                        <h6 class="mb-1">{{ activity.title }}</h6>
-                        <p class="mb-0 small">{{ activity.description }}</p>
-                      </div>
-                      <div class="activity-icon" [ngClass]="activity.iconClass">
-                        <i class="bi" [ngClass]="activity.icon"></i>
-                      </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                      <span class="badge" [ngClass]="activity.badgeClass">{{ activity.type }}</span>
-                      <span class="small text-muted">{{ activity.assignee }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <!-- Actions and Medicines Section -->
       <div
         fxLayout="row"
         fxLayoutAlign="space-between"
         style="height: 35em"
         fxLayoutGap="1em"
       >
-        <!-- <div
-          fxLayout="column"
-          fxLayoutAlign="space-between"
-          fxFlex="50"
-          fxLayoutGap="1em"
-        > -->
-          
-          <!-- <mat-card
-            fxFlex="70"
-            class="mat-elevation-z2 mat-card-with-chart"
-          > -->
           <mat-card
           fxFlex="50"
           class="mat-elevation-z2"
@@ -331,7 +73,6 @@
               </highcharts-chart>
             </mat-card-content>
           </mat-card>
-        <!-- </div> -->
 
         <mat-card
           fxFlex="50"
@@ -339,137 +80,25 @@
           fxLayout="column"
           fxLayoutAlign="space-between"
           fxLayoutGap="1em"
+          style="overflow: hidden"
         >
           <div class="div-heading" fxFlex="10">Actions</div>
-            <div class="div-body" fxFlex="90">
-                          <!-- Today's Schedule Timeline -->
-                          <div class="card">
-                            <div class="card-header bg-light py-2">
-                              <div class="d-flex justify-content-between align-items-center">
-                                <div class="d-flex align-items-center">
-                                  <i class="bi bi-calendar-check me-2"></i>
-                                  <span class="fw-bold">Today's Schedule</span>
-                                </div>
-                                <div class="date-nav d-flex align-items-center">
-                                  <button class="btn btn-sm btn-link text-muted"><i class="bi bi-chevron-left"></i></button>
-                                  <span class="mx-2 fw-bold">{{ today | date:'mediumDate' }}</span>
-                                  <button class="btn btn-sm btn-link text-muted"><i class="bi bi-chevron-right"></i></button>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="card-body p-0">
-                              <div class="care-schedule-timeline">
-                                <!-- Time Indicator Line -->
-                                <div class="current-time-indicator" 
-                                    [ngStyle]="{'top': getCurrentTimePosition() + 'px'}">
-                                  <div class="time-indicator-dot"></div>
-                                  <div class="time-indicator-line"></div>
-                                  <div class="time-indicator-label">{{ today | date:'shortTime' }}</div>
-                                </div>
-                                
-                                <!-- Hour Markers -->
-                                <div class="hour-marker" *ngFor="let hour of getHourMarkers()">
-                                  <div class="hour-label">{{ hour.label }}</div>
-                                  <div class="hour-line"></div>
-                                </div>
-                                
-                                <!-- Schedule Items -->
-                                <div class="schedule-item" 
-                                    *ngFor="let item of careScheduleItems" 
-                                    [ngClass]="[item.type, item.status]"
-                                    [ngStyle]="{
-                                      'top': getScheduleItemPosition(item) + 'px',
-                                      'height': getScheduleItemHeight(item) + 'px',
-                                      'left': (75 + getScheduleItemHorizontalPosition(item)) + 'px',
-                                      'right': (15 + getScheduleItemHorizontalPosition(item)) + 'px',
-                                      'width': 'calc(100% - ' + (90 + getScheduleItemHorizontalPosition(item)*2) + 'px)'
-                                    }"
-                                    (click)="onScheduleItemClick(item)">
-                                  <div class="schedule-time">
-                                    <i [ngClass]="getScheduleItemIcon(item)"></i>
-                                    {{ item.startTime | date:'shortTime' }}
-                                  </div>
-                                  <div class="schedule-content">
-                                    <div class="schedule-title">{{ item.title }}</div>
-                                    <div class="schedule-details">{{ item.description }}</div>
-                                    <div class="schedule-assignee">
-                                      <i class="bi bi-person-badge me-1"></i>{{ item.assignee }}
-                                    </div>
-                                  </div>
-                                  <div class="item-actions">
-                                    <button *ngIf="item.status === 'pending'" class="btn btn-sm action-button complete-btn" title="Mark Complete">
-                                      <i class="bi bi-check2"></i>
-                                    </button>
-                                    <button *ngIf="item.status === 'pending'" class="btn btn-sm action-button reschedule-btn" title="Reschedule">
-                                      <i class="bi bi-arrow-clockwise"></i>
-                                    </button>
-                                    <div *ngIf="item.status === 'completed'" class="status-indicator completed">
-                                      <i class="bi bi-check-circle-fill"></i>
-                                    </div>
-                                    <div *ngIf="item.status === 'in-progress'" class="status-indicator in-progress">
-                                      <i class="bi bi-hourglass-split"></i>
-                                    </div>
-                                    <div *ngIf="item.status === 'missed'" class="status-indicator missed">
-                                      <i class="bi bi-x-circle-fill"></i>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <!-- Legend -->
-                            <div class="card-footer bg-light py-2">
-                              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                <div class="d-flex align-items-center gap-3">
-                                  <div class="legend-item">
-                                    <span class="legend-color medication"></span>
-                                    <span>Medication</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="legend-color doctor-visit"></span>
-                                    <span>Doctor Visit</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="legend-color nursing"></span>
-                                    <span>Nursing</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="legend-color procedure"></span>
-                                    <span>Procedure</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="legend-color test"></span>
-                                    <span>Test</span>
-                                  </div>
-                                </div>
-                                <div class="d-flex align-items-center gap-3">
-                                  <div class="legend-item">
-                                    <span class="status-dot completed"></span>
-                                    <span>Completed</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="status-dot in-progress"></span>
-                                    <span>In Progress</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="status-dot pending"></span>
-                                    <span>Pending</span>
-                                  </div>
-                                  <div class="legend-item">
-                                    <span class="status-dot missed"></span>
-                                    <span>Missed</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
+          <div 
+            class="div-body" 
+            fxFlex="90"
+            style="overflow: hidden"
+          >
+            <!-- Care Schedule Timeline Component -->
+            <app-care-schedule-timeline
+              [careScheduleItems]="careScheduleItems"
+            ></app-care-schedule-timeline>
             </div>
         </mat-card>
       </div>
 
       <br />
 
+      <!-- Medical History and Timeline Section -->
       <div
         fxLayout="row"
         fxLayoutAlign="space-between"
@@ -489,20 +118,10 @@
             fxFlex="90"
             style="overflow-y: auto; scrollbar-width: thin"
           >
-            <div class="timeline-card">
-              <div class="timeline-item" *ngFor="let event of timelineData">
-                <div class="timeline-dot"></div>
-                <div class="timeline-content">
-                  <div class="d-flex justify-content-between">
-                    <div class="timeline-title">{{ event.title }}</div>
-                    <div class="timeline-date">{{ event.date }}</div>
-                  </div>
-                  <div class="timeline-description">
-                    {{ event.description }}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <!-- Timeline Component -->
+            <app-patient-timeline
+              [timelineData]="timelineData"
+            ></app-patient-timeline>
           </div>
         </mat-card>
         <mat-card
@@ -513,120 +132,38 @@
           fxLayoutGap="1em"
         >
           <div class="div-heading" fxFlex="10">Medical History</div>
-          <div class="div-body" fxFlex="90"></div>
-        </mat-card>
-      </div>
-
-      <br />
-
-      <div
-        fxLayout="row"
-        fxLayoutAlign="space-between"
-        style="height: 30em"
-        fxLayoutGap="1em"
-      >
-        <mat-card
-          fxFlex="65"
-          class="mat-elevation-z2 mat-card-with-table"
-          fxLayout="column"
-          fxLayoutAlign="space-between"
-          fxLayoutGap="1em"
-        >
-          <div class="div-heading" fxFlex="10">Medications</div>
-          <div class="div-body" fxFlex="90" style="overflow-y: auto">
-            <mat-card-content class="p-2">
-              <div class="table-container">
-                <div
-                  *ngFor="let date of getUniqueAppointmentDates()"
-                  class="mb-4"
-                >
-                  <div class="date-header ms-2">
-                    <mat-chip-set>
-                      <mat-chip color="primary">{{
-                        date | date : "mediumDate"
-                      }}</mat-chip>
-                    </mat-chip-set>
-                  </div>
-                  <table
-                    mat-table
-                    [dataSource]="getMedicationsForDate(date)"
-                    class="w-100"
-                  >
-                    <!-- Medication Name -->
-                    <ng-container matColumnDef="name">
-                      <th mat-header-cell *matHeaderCellDef class="fw-bold">
-                        Medication
-                      </th>
-                      <td mat-cell *matCellDef="let element">
-                        <div class="d-flex align-items-center">
-                          <mat-icon class="me-2 text-primary"
-                            >medication</mat-icon
-                          >
-                          {{ element.name }}
-                        </div>
+          <div 
+            class="div-body" 
+            fxFlex="90"
+            style="overflow-y: auto; overflow-x: hidden; scrollbar-width: thin"
+          >
+            <!-- Medical History Content -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Condition</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of medicalHistory">
+                    <td>{{ item.condition }}</td>
+                    <td>{{ item.date | date }}</td>
+                    <td>
+                      <span
+                        class="badge"
+                        [ngClass]="
+                          item.status === 'Resolved' ? 'bg-success' : 'bg-warning'
+                        "
+                      >
+                        {{ item.status }}
+                      </span>
                       </td>
-                    </ng-container>
-
-                    <!-- Dosage -->
-                    <ng-container matColumnDef="dosage">
-                      <th mat-header-cell *matHeaderCellDef class="fw-bold">
-                        Dosage
-                      </th>
-                      <td mat-cell *matCellDef="let element">
-                        <mat-chip-set>
-                          <mat-chip color="accent">{{
-                            element.dosage
-                          }}</mat-chip>
-                        </mat-chip-set>
-                      </td>
-                    </ng-container>
-
-                    <!-- Frequency -->
-                    <ng-container matColumnDef="frequency">
-                      <th mat-header-cell *matHeaderCellDef class="fw-bold">
-                        Frequency
-                      </th>
-                      <td mat-cell *matCellDef="let element">
-                        <span class="badge bg-info">{{
-                          element.frequency
-                        }}</span>
-                      </td>
-                    </ng-container>
-
-                    <tr
-                      mat-header-row
-                      *matHeaderRowDef="['name', 'dosage', 'frequency']"
-                    ></tr>
-                    <tr
-                      mat-row
-                      *matRowDef="
-                        let row;
-                        columns: ['name', 'dosage', 'frequency']
-                      "
-                      class="hover-row"
-                    ></tr>
+                  </tr>
+                </tbody>
                   </table>
-                </div>
-              </div>
-            </mat-card-content>
-          </div>
-        </mat-card>
-        <mat-card
-          fxFlex="40"
-          class="mat-elevation-z2 mat-card-with-chart"
-          fxLayout="column"
-          fxLayoutAlign="space-between"
-          fxLayoutGap="1em"
-        >
-          <div class="div-heading" fxFlex="10">Diet</div>
-          <div class="div-body" fxFlex="90" style="overflow: auto">
-            <div style="height: 100%; padding: 20px">
-              <highcharts-chart
-                [Highcharts]="Highcharts"
-                [options]="dietChartOptions"
-                style="width: 100%; height: 100%; display: block"
-              >
-              </highcharts-chart>
             </div>
           </div>
         </mat-card>

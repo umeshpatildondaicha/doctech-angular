@@ -1,0 +1,108 @@
+<mat-card class="mat-elevation-z2">
+  <mat-card-content>
+    <div class="row">
+      <!-- Patient Photo and Basic Info -->
+      <div class="col-md-3 text-center h-100">
+        <img
+          [src]="patient.photo || '../../../../../assets/default-avatar.jpg'"
+          class="rounded-circle img-thumbnail mb-3"
+          alt="Patient Photo"
+          style="width: 200px; height: 200px; object-fit: cover"
+        />
+      </div>
+
+      <!-- Patient Details -->
+      <div class="col-md-9">
+        <div class="row mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+              <h4 class="mb-0">{{ patient.name }}</h4>
+              <p class="mb-0 text-muted">ID: {{ patient.id }}</p>
+            </div>
+            <div class="d-flex gap-2">
+              <a
+                href="https://wa.me/{{ patient.phone }}"
+                class="btn btn-success"
+                target="_blank"
+              >
+                <i class="bi bi-whatsapp"></i>
+              </a>
+              <a
+                href="mailto:{{ patient.email }}"
+                class="btn btn-primary"
+              >
+                <i class="bi bi-envelope"></i>
+              </a>
+            </div>
+          </div>
+          <div class="col">
+            <div class="d-flex gap-2">
+              <span class="badge bg-primary">{{
+                patient.patientType
+              }}</span>
+              <span class="badge bg-info">{{ patient.gender }}</span>
+              <span class="badge bg-warning"
+                >{{ patient.age }} years</span
+              >
+              <!-- OPD/IPD Status Badge with Toggle -->
+              <span 
+                class="badge d-flex align-items-center" 
+                [ngClass]="{'bg-success': patient.admissionStatus === 'OPD', 'bg-danger': patient.admissionStatus === 'IPD'}"
+                style="cursor: pointer;"
+                (click)="toggleAdmissionStatus()"
+              >
+                {{ patient.admissionStatus || 'OPD' }}
+                <i class="bi bi-arrow-repeat ms-1" title="Toggle patient status"></i>
+              </span>
+              <!-- Ward/Room Information if IPD -->
+              <span class="badge bg-secondary" *ngIf="patient.admissionStatus === 'IPD'">
+                {{ patient.wardInfo?.ward || 'Ward' }} | {{ patient.wardInfo?.bed || 'Bed' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Stats -->
+        <div class="row mb-4">
+          <ng-container *ngFor="let stat of patientStats">
+            <div class="col-md-3">
+              <mat-card class="mat-elevation-z1">
+                <mat-card-content>
+                  <strong>{{ stat.value }}</strong> &nbsp; {{ stat.unit }}
+                  <div class="d-flex">
+                    {{ stat.label }}
+                    <div
+                      *ngIf="stat.change"
+                      [ngClass]="{
+                        'increment-positive': parseNumber(stat.change) > 0,
+                        'increment-negative': parseNumber(stat.change) < 0
+                      }"
+                      class="increment"
+                    >
+                      <span class="icon-container">
+                        <i
+                          class="fa-solid"
+                          [ngClass]="{
+                            'fa-arrow-trend-up':
+                              parseNumber(stat.change) > 0,
+                            'fa-arrow-trend-down':
+                              parseNumber(stat.change) < 0
+                          }"
+                        >
+                        </i>
+                      </span>
+                      <span class="increment-text">
+                        {{ parseNumber(stat.change) > 0 ? "+" : ""
+                        }}{{ stat.change }}
+                      </span>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card> 

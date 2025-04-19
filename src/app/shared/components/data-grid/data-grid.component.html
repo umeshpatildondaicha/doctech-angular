@@ -1,0 +1,106 @@
+<div class="grid-container">
+  <div class="grid-header">
+    <div class="grid-title-section" *ngIf="title">
+      <h2 class="grid-title">{{ title }}</h2>
+      <span class="item-count" *ngIf="showItemCount && rowData">{{ rowData.length }} of {{ rowData.length }}</span>
+    </div>
+
+    <div class="grid-controls">
+      <div class="search-box" *ngIf="showSearch">
+        <input 
+          class="search-input" 
+          type="text" 
+          placeholder="Search..." 
+          [(ngModel)]="searchText"
+          (ngModelChange)="applyFilter()">
+        <button 
+          class="clear-search" 
+          *ngIf="searchText" 
+          (click)="clearSearch()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <div class="action-buttons">
+        <button 
+          *ngIf="showRefresh" 
+          class="action-btn" 
+          (click)="onRefresh()"
+          title="Refresh">
+          <mat-icon>refresh</mat-icon>
+          <span class="action-btn-label" *ngIf="refreshButtonLabel">{{ refreshButtonLabel }}</span>
+        </button>
+        
+        <button 
+          *ngIf="showExport" 
+          class="action-btn" 
+          (click)="onExport()"
+          title="Export">
+          <mat-icon>download</mat-icon>
+          <span class="action-btn-label" *ngIf="exportButtonLabel">{{ exportButtonLabel }}</span>
+        </button>
+
+        <button class="action-btn" title="Add item">
+          <mat-icon>add</mat-icon>
+          <span class="action-btn-label">Add</span>
+        </button>
+
+        <button class="action-btn" title="Customize view">
+          <mat-icon>tune</mat-icon>
+        </button>
+
+        <button class="action-btn" title="Filter list">
+          <mat-icon>filter_list</mat-icon>
+        </button>
+        
+        <ng-container *ngFor="let button of actionButtons">
+          <button 
+            class="action-btn" 
+            [ngClass]="{'primary': button.primary, 'disabled': button.disabled}"
+            [disabled]="button.disabled"
+            [title]="button.label"
+            (click)="onActionButtonClick(button)">
+            <mat-icon *ngIf="button.icon">{{ button.icon }}</mat-icon>
+            <span class="action-btn-label" *ngIf="button.label">{{ button.label }}</span>
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-body">
+    <ag-grid-angular
+      [ngClass]="gridTheme"
+      style="width: 100%; height: 100%; min-height: 400px;"
+      [columnDefs]="columnDefs"
+      [rowData]="filteredRowData"
+      [defaultColDef]="defaultColDef"
+      [rowSelection]="rowSelection"
+      [suppressRowClickSelection]="suppressRowClickSelection"
+      [pagination]="showPagination"
+      [paginationPageSize]="paginationPageSize"
+      [paginationPageSizeSelector]="paginationPageSizeSelector"
+      [rowMultiSelectWithClick]="rowMultiSelectWithClick"
+      [modules]="modules"
+      domLayout="autoHeight"
+      (rowClicked)="onRowClicked($event)"
+      (selectionChanged)="onSelectionChanged($event)"
+      (gridReady)="onGridReady($event)">
+    </ag-grid-angular>
+  </div>
+
+  <!-- Row Actions Menu Template (for reference) -->
+  <!-- This would be connected to the action buttons using MatMenu in a real implementation -->
+  <ng-template #rowActionsMenu let-data>
+    <div class="row-actions-menu">
+      <ng-container *ngFor="let action of rowActions">
+        <button
+          (click)="onRowActionClick(action, data)"
+          [disabled]="isRowActionDisabled(action, data)">
+          <mat-icon *ngIf="action.icon">{{action.icon}}</mat-icon>
+          <span>{{action.label}}</span>
+        </button>
+      </ng-container>
+    </div>
+  </ng-template>
+</div> 

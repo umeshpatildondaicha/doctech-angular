@@ -1,0 +1,620 @@
+.care-schedule-timeline {
+  position: relative;
+  height: 600px;
+  padding: 10px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  background-color: #fafafa;
+}
+
+/* Make the timeline card look more professional */
+.timeline-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Hour Markers */
+.hour-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 40px; /* Half the height per hour for half-hour markers */
+  border-top: 1px solid #e9ecef;
+  z-index: 1;
+}
+
+.hour-label {
+  position: absolute;
+  left: 10px;
+  top: -10px;
+  font-size: 12px;
+  color: #6c757d;
+  background-color: #fafafa;
+  padding: 0 5px;
+  z-index: 2;
+  font-weight: 500;
+}
+
+.hour-line {
+  position: absolute;
+  left: 70px;
+  right: 15px;
+  top: 0;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Current Time Indicator */
+.current-time-indicator {
+  position: absolute;
+  left: 70px;
+  right: 0;
+  z-index: 3;
+}
+
+.time-indicator-line {
+  position: absolute;
+  left: 10px;
+  right: 15px;
+  border-top: 2px dashed #dc3545;
+}
+
+.time-indicator-dot {
+  position: absolute;
+  left: 0;
+  top: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(220, 53, 69, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
+  }
+}
+
+.time-indicator-label {
+  position: absolute;
+  left: -60px;
+  top: -10px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #dc3545;
+}
+
+/* Schedule Items - Improved Layout */
+.schedule-item {
+  position: absolute;
+  left: 50px;
+  right: 15px;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  overflow: hidden;
+  border-left: 4px solid transparent;
+  width: calc(100% - 95px);
+}
+
+/* Offset classes for staggered layout */
+.schedule-item.offset-0 { 
+  left: 75px; 
+  width: calc(100% - 105px); 
+  z-index: 5;
+}
+.schedule-item.offset-1 { 
+  left: 90px; 
+  width: calc(100% - 135px); 
+  z-index: 4;
+}
+.schedule-item.offset-2 { 
+  left: 105px; 
+  width: calc(100% - 165px); 
+  z-index: 3;
+}
+.schedule-item.offset-3 { 
+  left: 120px; 
+  width: calc(100% - 195px); 
+  z-index: 2;
+}
+.schedule-item.offset-4 { 
+  left: 135px; 
+  width: calc(100% - 225px); 
+  z-index: 1;
+}
+
+.schedule-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+  z-index: 10;
+}
+
+.schedule-time {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.schedule-time i {
+  font-size: 14px;
+}
+
+.schedule-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #212529;
+}
+
+.schedule-details {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 20px; /* Space for action buttons */
+}
+
+.schedule-assignee {
+  font-size: 11px;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.item-actions {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.action-button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.schedule-item:hover .action-button {
+  opacity: 1;
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+}
+
+.complete-btn {
+  background-color: rgba(40,167,69,0.1);
+  color: #28a745;
+}
+
+.complete-btn:hover {
+  background-color: rgba(40,167,69,0.2);
+}
+
+.reschedule-btn {
+  background-color: rgba(0,123,255,0.1);
+  color: #007bff;
+}
+
+.reschedule-btn:hover {
+  background-color: rgba(0,123,255,0.2);
+}
+
+.status-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.status-indicator.completed {
+  background-color: rgba(40,167,69,0.1);
+  color: #28a745;
+}
+
+.status-indicator.in-progress {
+  background-color: rgba(0,123,255,0.1);
+  color: #007bff;
+}
+
+.status-indicator.missed {
+  background-color: rgba(220,53,69,0.1);
+  color: #dc3545;
+}
+
+/* Type-specific styling */
+.medication {
+  border-left-color: #28a745;
+  background-color: rgba(40,167,69,0.03);
+}
+
+.doctor-visit {
+  border-left-color: #007bff;
+  background-color: rgba(0,123,255,0.03);
+}
+
+.nursing {
+  border-left-color: #ffc107;
+  background-color: rgba(255,193,7,0.03);
+}
+
+.procedure {
+  border-left-color: #6f42c1;
+  background-color: rgba(111,66,193,0.03);
+}
+
+.test {
+  border-left-color: #17a2b8;
+  background-color: rgba(23,162,184,0.03);
+}
+
+/* Status-specific styling */
+.completed {
+  opacity: 0.7;
+}
+
+.pending {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #dee2e6;
+}
+
+.missed {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+}
+
+/* Legend - make more compact */
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 15px;
+  background-color: #f8f9fa;
+  margin-right: 5px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border-radius: 2px;
+}
+
+.legend-color.medication {
+  background-color: #28a745;
+}
+
+.legend-color.doctor-visit {
+  background-color: #007bff;
+}
+
+.legend-color.nursing {
+  background-color: #ffc107;
+}
+
+.legend-color.procedure {
+  background-color: #6f42c1;
+}
+
+.legend-color.test {
+  background-color: #17a2b8;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-dot.completed {
+  background-color: #28a745;
+}
+
+.status-dot.in-progress {
+  background-color: #007bff;
+}
+
+.status-dot.pending {
+  background-color: #6c757d;
+}
+
+.status-dot.missed {
+  background-color: #dc3545;
+}
+
+/* Card containment fixes */
+.card {
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Grid-based Schedule Layout */
+.schedule-grid {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  overflow-y: auto;
+  background-color: #f8f9fa;
+}
+
+.time-block {
+  display: flex;
+  min-height: 60px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.time-label {
+  width: 80px;
+  padding: 10px;
+  text-align: right;
+  font-size: 12px;
+  color: #6c757d;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.time-slot {
+  flex: 1;
+  padding: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 60px;
+  background-color: white;
+  border-left: 1px solid #e9ecef;
+}
+
+/* Current time indicator */
+.time-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #dc3545;
+  z-index: 1;
+}
+
+/* Schedule Items */
+.schedule-item {
+  /* margin-bottom: 5px; */
+  padding: 8px 10px;
+  border-radius: 6px;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border-left: 3px solid transparent;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.schedule-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.schedule-time {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 2px;
+  color: #495057;
+}
+
+.schedule-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-details {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.schedule-assignee {
+  font-size: 11px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.status-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.status-indicator.completed {
+  background-color: rgba(40,167,69,0.1);
+  color: #28a745;
+}
+
+.status-indicator.in-progress {
+  background-color: rgba(0,123,255,0.1);
+  color: #007bff;
+}
+
+.status-indicator.missed {
+  background-color: rgba(220,53,69,0.1);
+  color: #dc3545;
+}
+
+/* Type-specific styling */
+.medication {
+  border-left-color: #28a745;
+  background-color: rgba(40,167,69,0.03);
+}
+
+.doctor-visit {
+  border-left-color: #007bff;
+  background-color: rgba(0,123,255,0.03);
+}
+
+.nursing {
+  border-left-color: #ffc107;
+  background-color: rgba(255,193,7,0.03);
+}
+
+.procedure {
+  border-left-color: #6f42c1;
+  background-color: rgba(111,66,193,0.03);
+}
+
+.test {
+  border-left-color: #17a2b8;
+  background-color: rgba(23,162,184,0.03);
+}
+
+/* Status-specific styling */
+.completed {
+  opacity: 0.7;
+}
+
+.pending {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #dee2e6;
+}
+
+.missed {
+  opacity: 0.6;
+  background-color: #f8f9fa;
+}
+
+/* Legend */
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
+  margin: 2px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  border-radius: 2px;
+}
+
+.legend-color.medication {
+  background-color: #28a745;
+}
+
+.legend-color.doctor-visit {
+  background-color: #007bff;
+}
+
+.legend-color.nursing {
+  background-color: #ffc107;
+}
+
+.legend-color.procedure {
+  background-color: #6f42c1;
+}
+
+.legend-color.test {
+  background-color: #17a2b8;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-dot.completed {
+  background-color: #28a745;
+}
+
+.status-dot.in-progress {
+  background-color: #007bff;
+}
+
+.status-dot.pending {
+  background-color: #6c757d;
+}
+
+.status-dot.missed {
+  background-color: #dc3545;
+} 

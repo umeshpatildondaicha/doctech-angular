@@ -1,0 +1,42 @@
+.increment {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+}
+
+.increment-positive {
+  color: #28a745;
+}
+
+.increment-negative {
+  color: #dc3545;
+}
+
+.icon-container {
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.increment-text {
+  font-weight: 500;
+}
+
+mat-card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+mat-card-content {
+  padding: 16px;
+}
+
+.badge {
+  padding: 0.5em 0.7em;
+  font-weight: 500;
+}
+
+.badge i {
+  font-size: 0.8em;
+} 

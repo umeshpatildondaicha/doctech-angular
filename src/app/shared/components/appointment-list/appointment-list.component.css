@@ -1,0 +1,29 @@
+.appointment-list-container {
+  margin-bottom: 1.5rem;
+}
+
+.filter-input {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.filter-input:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.table-header {
+  background-color: var(--bs-light, #f8f9fa);
+}
+
+.appointment-row {
+  cursor: pointer;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.appointment-row:hover {
+  background-color: var(--bs-light, #f8f9fa);
+} 

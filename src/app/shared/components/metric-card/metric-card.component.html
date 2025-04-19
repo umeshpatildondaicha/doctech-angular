@@ -1,0 +1,45 @@
+<div class="card flex-grow-1 metric-card">
+  <div class="card-heading text-nowrap">{{ title }}</div>
+  <div class="card-middle-content d-flex align-items-center">
+    <span class="text-nowrap">{{ value }}</span>
+    <div
+      *ngIf="increment"
+      [ngClass]="{
+        'increment-positive': isPositiveIncrement(),
+        'increment-negative': isNegativeIncrement()
+      }"
+      class="increment ms-2"
+    >
+      <span class="icon-container">
+        <i
+          class="fa-solid"
+          [ngClass]="{
+            'fa-arrow-trend-up': isPositiveIncrement(),
+            'fa-arrow-trend-down': isNegativeIncrement()
+          }"
+        ></i>
+      </span>
+      <span class="increment-text text-nowrap">
+        {{ increment }}
+      </span>
+    </div>
+  </div>
+  <div
+    class="card-bottom-content d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2"
+  >
+    <p
+      class="duration mb-0 text-nowrap text-truncate"
+      style="max-width: 150px"
+      [title]="subtext"
+    >
+      {{ subtext }}
+    </p>
+    <button 
+      *ngIf="showDetails"
+      class="button-class text-nowrap mt-1" 
+      (click)="onSeeDetailsClick()"
+    >
+      See details
+    </button>
+  </div>
+</div> 

@@ -1,0 +1,74 @@
+.card {
+  background-color: var(--bs-card-bg, #fff);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 15px;
+  margin-bottom: 1rem;
+  min-width: 250px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-heading {
+  font-size: 0.9rem;
+  color: var(--bs-gray-600, #6c757d);
+  margin-bottom: 10px;
+}
+
+.card-middle-content {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--bs-dark, #212529);
+}
+
+.card-bottom-content {
+  font-size: 0.85rem;
+}
+
+.duration {
+  color: var(--bs-gray-600, #6c757d);
+}
+
+.button-class {
+  background-color: transparent;
+  border: none;
+  color: var(--bs-primary, #0d6efd);
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.button-class:hover {
+  color: var(--bs-primary-dark, #0a58ca);
+}
+
+.increment {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+.increment-positive {
+  color: var(--bs-success, #28a745);
+}
+
+.increment-negative {
+  color: var(--bs-danger, #dc3545);
+}
+
+.icon-container {
+  margin-right: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.increment-text {
+  font-weight: 500;
+} 

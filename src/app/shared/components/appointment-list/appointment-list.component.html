@@ -1,0 +1,76 @@
+<div class="appointment-list-container">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>{{ title }}</h4>
+    
+    <!-- Search Box (Optional) -->
+    <div class="filters mb-2" *ngIf="showSearch">
+      <input
+        type="text"
+        placeholder="Search by name or symptoms..."
+        class="filter-input"
+        [(ngModel)]="searchQuery"
+      />
+    </div>
+  </div>
+  
+  <!-- No Appointments Message -->
+  <div *ngIf="filteredAppointments().length === 0" class="text-center py-4 text-muted">
+    <i class="bi bi-calendar-x fs-2"></i>
+    <p class="mt-2">No appointments found</p>
+  </div>
+  
+  <!-- Appointments Table -->
+  <div class="table-responsive" *ngIf="filteredAppointments().length > 0">
+    <table class="table table-hover">
+      <!-- Header Row -->
+      <thead>
+        <tr class="table-header">
+          <th scope="col" class="fw-bold">Patient Name</th>
+          <th scope="col" class="fw-bold">Visit Type</th>
+          <th scope="col" class="fw-bold">Symptoms</th>
+          <th scope="col" class="fw-bold">Status</th>
+        </tr>
+      </thead>
+      <!-- Filtered Rows -->
+      <tbody>
+        <tr
+          *ngFor="let appointment of filteredAppointments()"
+          class="align-middle appointment-row"
+          (click)="onAppointmentClick(appointment)"
+        >
+          <td>
+            <div class="d-flex align-items-center">
+              <img
+                [src]="appointment.photoUrl || defaultPhotoUrl"
+                class="rounded-circle me-2"
+                width="32"
+                height="32"
+                alt="Patient Photo"
+              />
+              <span>{{ appointment.name }}</span>
+            </div>
+          </td>
+          <td>
+            <i class="bi bi-clipboard-pulse me-2"></i>
+            {{ appointment.visitType }}
+          </td>
+          <td>
+            <span class="text-muted">{{ appointment.symptoms }}</span>
+          </td>
+          <td>
+            <span
+              class="badge rounded-pill px-3 py-2"
+              [ngClass]="{
+                'bg-success': appointment.status === 'Confirmed',
+                'bg-warning text-dark': appointment.status === 'Pending',
+                'bg-danger': appointment.status === 'Cancelled'
+              }"
+            >
+              {{ appointment.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div> 

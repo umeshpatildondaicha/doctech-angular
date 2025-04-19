@@ -1,0 +1,102 @@
+<div class="card timeline-card">
+  <div class="card-header bg-light py-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-calendar-check me-2"></i>
+        <span class="fw-bold">Today's Schedule</span>
+      </div>
+      <div class="date-nav d-flex align-items-center">
+        <button class="btn btn-sm btn-link text-muted"><i class="bi bi-chevron-left"></i></button>
+        <span class="mx-2 fw-bold">{{ today | date:'mediumDate' }}</span>
+        <button class="btn btn-sm btn-link text-muted"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="schedule-grid">
+      <!-- Time slots with schedule items -->
+      <div class="time-block" *ngFor="let hour of getHourMarkers()">
+        <div class="time-label">{{ hour.label }}</div>
+        <div class="time-slot">
+          <!-- Find items for this time slot -->
+          <ng-container *ngFor="let item of getItemsForTimeSlot(hour.hour)">
+            <div class="schedule-item" 
+                [ngClass]="[item.type, item.status]"
+                (click)="onScheduleItemClick(item)">
+              <div class="schedule-time">
+                <i [ngClass]="getScheduleItemIcon(item)"></i>
+                {{ item.startTime | date:'shortTime' }} - {{ item.endTime | date:'shortTime' }}
+              </div>
+              <div class="schedule-title">{{ item.title }}</div>
+              <div class="schedule-details">{{ item.description }}</div>
+              <div class="schedule-assignee">
+                <i class="bi bi-person-badge me-1"></i>{{ item.assignee }}
+              </div>
+              <!-- Status indicators -->
+              <div class="item-status">
+                <div *ngIf="item.status === 'completed'" class="status-indicator completed">
+                  <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div *ngIf="item.status === 'in-progress'" class="status-indicator in-progress">
+                  <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div *ngIf="item.status === 'missed'" class="status-indicator missed">
+                  <i class="bi bi-x-circle-fill"></i>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          
+          <!-- Current time indicator -->
+          <div class="time-indicator" *ngIf="isCurrentTimeInSlot(hour.hour)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Legend -->
+  <div class="card-footer bg-light py-2">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+      <div class="d-flex align-items-center flex-wrap gap-1">
+        <div class="legend-item">
+          <span class="legend-color medication"></span>
+          <span>Medication</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color doctor-visit"></span>
+          <span>Doctor Visit</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color nursing"></span>
+          <span>Nursing</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color procedure"></span>
+          <span>Procedure</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color test"></span>
+          <span>Test</span>
+        </div>
+      </div>
+      <div class="d-flex align-items-center flex-wrap gap-1">
+        <div class="legend-item">
+          <span class="status-dot completed"></span>
+          <span>Completed</span>
+        </div>
+        <div class="legend-item">
+          <span class="status-dot in-progress"></span>
+          <span>In Progress</span>
+        </div>
+        <div class="legend-item">
+          <span class="status-dot pending"></span>
+          <span>Pending</span>
+        </div>
+        <div class="legend-item">
+          <span class="status-dot missed"></span>
+          <span>Missed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

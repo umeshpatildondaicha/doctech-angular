@@ -763,3 +763,26 @@ mat-card-title {
   background-color: rgba(0, 188, 212, 0.1);
   color: #00bcd4;
 }
+
+/* Card containment fixes */
+mat-card {
+  overflow: hidden !important;
+}
+
+.div-body {
+  overflow: hidden !important;
+}
+
+/* Ensure care schedule timeline is properly contained */
+app-care-schedule-timeline {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Ensure schedule items stay within bounds */
+.schedule-item {
+  max-width: calc(100% - 90px) !important;
+  overflow: hidden !important;
+}

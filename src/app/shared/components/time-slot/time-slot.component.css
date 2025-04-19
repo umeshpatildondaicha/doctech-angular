@@ -1,0 +1,90 @@
+.time-slot-card {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  margin-bottom: 0.5rem;
+  border-radius: 8px;
+}
+
+.time-slot-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.time-slot-card.available {
+  background-color: #f8f9fa;
+  border-left: 4px solid #28a745;
+}
+
+.time-slot-card.booked {
+  background-color: #f8d7da;
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+}
+
+.time-slot-card.break {
+  opacity: 0.7;
+}
+
+.time-label {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+.status-available {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-booked {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.patient-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+}
+
+.patient-details {
+  flex: 1;
+}
+
+.patient-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.patient-contact {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.patient-notes {
+  font-size: 0.8rem;
+  color: #6c757d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.break-indicator {
+  text-align: center;
+}
+
+.break-badge {
+  background-color: #ffc107;
+  color: #212529;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+} 

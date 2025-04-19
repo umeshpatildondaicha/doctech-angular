@@ -12,6 +12,17 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
+// Import our components
+import { PatientInfoCardComponent } from './components/patient-info-card/patient-info-card.component';
+import { IpdManagementComponent } from './components/ipd-management/ipd-management.component';
+import { CareScheduleTimelineComponent } from './components/care-schedule-timeline/care-schedule-timeline.component';
+import { PatientTimelineComponent } from './components/patient-timeline/patient-timeline.component';
+import { MetricCardComponent } from './components/metric-card/metric-card.component';
+import { ChartContainerComponent } from './components/chart-container/chart-container.component';
+import { AppointmentListComponent } from './components/appointment-list/appointment-list.component';
+import { TimeSlotComponent } from './components/time-slot/time-slot.component';
+import { NavItemComponent } from './components/nav-item/nav-item.component';
+
 @NgModule({
   declarations: [],
   imports: [
@@ -26,7 +37,18 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatDatepickerModule,
     MatNativeDateModule,
     MatMomentDateModule,
-    DragDropModule
+    DragDropModule,
+    
+    // Import standalone components
+    PatientInfoCardComponent,
+    IpdManagementComponent,
+    CareScheduleTimelineComponent,
+    PatientTimelineComponent,
+    MetricCardComponent,
+    ChartContainerComponent,
+    AppointmentListComponent,
+    TimeSlotComponent,
+    NavItemComponent
   ],
   exports: [
     CommonModule,
@@ -40,7 +62,18 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
     MatDatepickerModule,
     MatNativeDateModule,
     MatMomentDateModule,
-    DragDropModule
+    DragDropModule,
+    
+    // Export our components
+    PatientInfoCardComponent,
+    IpdManagementComponent,
+    CareScheduleTimelineComponent,
+    PatientTimelineComponent,
+    MetricCardComponent,
+    ChartContainerComponent,
+    AppointmentListComponent,
+    TimeSlotComponent,
+    NavItemComponent
   ]
 })
 export class SharedModule { } 

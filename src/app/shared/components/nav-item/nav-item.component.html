@@ -1,0 +1,40 @@
+<div class="nav-item" [ngClass]="{'active': item.active, 'collapsed': collapsed}">
+  <a *ngIf="item.route && !item.children?.length" 
+     [routerLink]="item.route" 
+     routerLinkActive="active-link"
+     class="nav-link"
+     [style.padding-left.px]="level * 16">
+    <i [class]="item.icon"></i>
+    <span class="nav-label" *ngIf="!collapsed">{{item.label}}</span>
+  </a>
+  
+  <a *ngIf="item.action && !item.children?.length" 
+     class="nav-link"
+     (click)="onNavItemClick()"
+     [style.padding-left.px]="level * 16">
+    <i [class]="item.icon"></i>
+    <span class="nav-label" *ngIf="!collapsed">{{item.label}}</span>
+  </a>
+  
+  <a *ngIf="item.children?.length" 
+     class="nav-link has-children"
+     (click)="toggleExpand($event)"
+     [style.padding-left.px]="level * 16">
+    <i [class]="item.icon"></i>
+    <span class="nav-label" *ngIf="!collapsed">{{item.label}}</span>
+    <i *ngIf="!collapsed" 
+       class="expand-icon"
+       [class.bi-chevron-down]="!item.active"
+       [class.bi-chevron-up]="item.active"></i>
+  </a>
+  
+  <div class="child-items" *ngIf="item.children?.length && item.active && !collapsed">
+    <app-nav-item
+      *ngFor="let child of item.children"
+      [item]="child"
+      [collapsed]="collapsed"
+      [level]="level + 1"
+      (toggle)="toggle.emit($event)">
+    </app-nav-item>
+  </div>
+</div> 

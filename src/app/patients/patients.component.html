@@ -1,23 +1,25 @@
 <div class="patients-container">
-  <h2>Patients Management</h2>
-  <div class="content">
-    <div class="patients-list">
-      <mat-card *ngFor="let patient of patients" 
-                [routerLink]="['/profile', patient.id]"
-                class="patient-card mat-elevation-z2">
-        <mat-card-content>
-          <div class="patient-info">
-            <h3>{{ patient.name }}</h3>
-            <p><strong>Age:</strong> {{ patient.age }}</p>
-            <p><strong>Condition:</strong> {{ patient.condition }}</p>
-            <p><strong>Last Visit:</strong> {{ formatDate(patient.lastVisit) }}</p>
-            <p><strong>Status:</strong> <span class="status-badge">{{ patient.status }}</span></p>
-          </div>
-          <div class="patient-actions">
-            <button mat-button color="primary" class="view-profile">View Profile</button>
-          </div>
-        </mat-card-content>
-      </mat-card>
-    </div>
-  </div>
+  
+  <app-data-grid
+    title="Patient List"
+    [columnDefs]="columnDefs"
+    [rowData]="patients"
+    [showSearch]="true"
+    [showRefresh]="true"
+    [showExport]="true"
+    [paginationPageSize]="10"
+    [showCheckbox]="true"
+    [rowActions]="rowActions"
+    refreshButtonLabel="Refresh"
+    exportButtonLabel="Export"
+    (rowClick)="onPatientRowClicked($event)"
+    (refresh)="onRefreshGrid()"
+    (selectionChange)="onSelectionChanged($event)"
+    [actionButtons]="[{
+      label: 'Add Patient',
+      icon: 'person_add',
+      primary: true,
+      action: onAddPatientClick
+    }]">
+  </app-data-grid>
 </div>

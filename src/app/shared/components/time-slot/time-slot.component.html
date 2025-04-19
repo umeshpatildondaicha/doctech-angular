@@ -1,0 +1,39 @@
+<mat-card 
+  class="time-slot-card" 
+  [ngClass]="{
+    'booked': slot.booked,
+    'available': !slot.booked,
+    'break': slot.hasBreak
+  }"
+  (click)="onSlotClick()"
+>
+  <mat-card-content>
+    <div class="d-flex justify-content-between align-items-center">
+      <span class="time-label">{{ slot.time }}</span>
+      <span class="status-badge" [ngClass]="{'status-available': !slot.booked, 'status-booked': slot.booked}">
+        {{ slot.booked ? 'Booked' : 'Available' }}
+      </span>
+    </div>
+    
+    <!-- Patient information (if booked) -->
+    <div *ngIf="slot.booked && slot.patientName" class="patient-info mt-2">
+      <div class="d-flex align-items-center">
+        <img [src]="slot.patientProfile || defaultProfileImage" 
+             alt="Patient" 
+             class="patient-avatar">
+        <div class="patient-details">
+          <div class="patient-name">{{ slot.patientName }}</div>
+          <div *ngIf="slot.patientContact" class="patient-contact">{{ slot.patientContact }}</div>
+        </div>
+      </div>
+      <div *ngIf="slot.patientNotes" class="patient-notes mt-1">
+        {{ slot.patientNotes }}
+      </div>
+    </div>
+  </mat-card-content>
+</mat-card>
+
+<!-- Break indicator (if applicable) -->
+<div *ngIf="slot.hasBreak" class="break-indicator mt-1">
+  <span class="break-badge">Break</span>
+</div> 
