@@ -1,0 +1,255 @@
+.table-modifier {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+
+    .modifier-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .add-column {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover {
+                background: #45a049;
+            }
+        }
+    }
+
+    .new-column-dialog {
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        background: white;
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+        min-width: 300px;
+
+        form {
+            .edit-field {
+                margin-bottom: 15px;
+
+                label {
+                    display: block;
+                    margin-bottom: 8px;
+                    color: #666;
+                    font-weight: 500;
+
+                    .required {
+                        color: #ff4444;
+                        margin-left: 4px;
+                    }
+                }
+
+                input, select {
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 14px;
+
+                    &:focus {
+                        outline: none;
+                        border-color: #2196F3;
+                    }
+                }
+
+                select {
+                    background-color: #fff;
+                }
+            }
+
+            .actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 20px;
+                justify-content: flex-end;
+
+                button {
+                    padding: 8px 15px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: 500;
+
+                    &:disabled {
+                        opacity: 0.6;
+                        cursor: not-allowed;
+                    }
+
+                    &.cancel-btn {
+                        background: #f5f5f5;
+                        color: #666;
+                        border: 1px solid #ddd;
+
+                        &:hover:not(:disabled) {
+                            background: #e5e5e5;
+                        }
+                    }
+
+                    &.save-btn {
+                        background: #4CAF50;
+                        color: white;
+
+                        &:hover:not(:disabled) {
+                            background: #45a049;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #f5f5f5;
+        }
+
+        .column-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .edit-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #666;
+                
+                &:hover {
+                    color: #333;
+                }
+            }
+
+            .edit-dropdown {
+                position: absolute;
+                background: white;
+                border: 1px solid #ddd;
+                padding: 15px;
+                border-radius: 4px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                z-index: 1000;
+                min-width: 250px;
+
+                .edit-field {
+                    margin-bottom: 15px;
+
+                    label {
+                        display: block;
+                        margin-bottom: 8px;
+                        color: #666;
+                        font-weight: 500;
+
+                        .required {
+                            color: #ff4444;
+                            margin-left: 4px;
+                        }
+                    }
+
+                    input, select {
+                        width: 100%;
+                        padding: 8px;
+                        border: 1px solid #ddd;
+                        border-radius: 4px;
+                        font-size: 14px;
+
+                        &:focus {
+                            outline: none;
+                            border-color: #2196F3;
+                        }
+                    }
+
+                    select {
+                        background-color: #fff;
+                    }
+                }
+
+                .actions {
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 15px;
+
+                    button {
+                        padding: 8px 15px;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-weight: 500;
+
+                        &:disabled {
+                            opacity: 0.6;
+                            cursor: not-allowed;
+                        }
+
+                        &.delete-btn {
+                            background: #ff4444;
+                            color: white;
+
+                            &:hover:not(:disabled) {
+                                background: #cc0000;
+                            }
+                        }
+
+                        &.save-btn {
+                            background: #4CAF50;
+                            color: white;
+
+                            &:hover:not(:disabled) {
+                                background: #45a049;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .modifier-footer {
+        display: flex;
+        justify-content: flex-end;
+
+        .save-config {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+
+            &:hover {
+                background: #1976D2;
+            }
+        }
+    }
+}

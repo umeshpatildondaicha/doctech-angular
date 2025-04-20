@@ -8,6 +8,7 @@ import { PatientsComponent } from './patients/patients.component';
 import { DoctorsComponent } from './doctors/doctors.component';
 import { SettingsComponent } from './settings/settings.component';
 import { HelpComponent } from './help/help.component';
+import { TableViewComponent } from './shared/components/table-view/table-view.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -22,7 +23,7 @@ export const routes: Routes = [
     loadChildren: () => import('./calendar/calendar.module').then(m => m.CalendarModule)
   },
   { path: 'print-prescription', component: PrintPrescriptionComponent },
-  { path: 'patients', component: PatientsComponent },
+  { path: 'patients', component: TableViewComponent },
   { path: 'doctors', component: DoctorsComponent },
   { path: 'settings', component: SettingsComponent },
   { path: 'help', component: HelpComponent },

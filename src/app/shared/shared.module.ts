@@ -22,7 +22,7 @@ import { ChartContainerComponent } from './components/chart-container/chart-cont
 import { AppointmentListComponent } from './components/appointment-list/appointment-list.component';
 import { TimeSlotComponent } from './components/time-slot/time-slot.component';
 import { NavItemComponent } from './components/nav-item/nav-item.component';
-
+import { TableModifierComponent } from './components/table-modifier/table-modifier.component';
 @NgModule({
   declarations: [],
   imports: [
@@ -48,7 +48,8 @@ import { NavItemComponent } from './components/nav-item/nav-item.component';
     ChartContainerComponent,
     AppointmentListComponent,
     TimeSlotComponent,
-    NavItemComponent
+    NavItemComponent,
+    TableModifierComponent,
   ],
   exports: [
     CommonModule,

@@ -1,0 +1,72 @@
+.dialog-container {
+  padding: 20px;
+  min-width: 400px;
+
+  h2 {
+    margin: 0 0 20px 0;
+    color: #333;
+  }
+
+  .columns-list {
+    max-height: 400px;
+    overflow-y: auto;
+
+    .column-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      background: white;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .drag-handle {
+        cursor: move;
+        color: #999;
+        margin-right: 10px;
+      }
+
+      .column-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex: 1;
+
+        .column-header {
+          display: flex;
+          flex-direction: column;
+          
+          .column-name {
+            font-weight: 500;
+            color: #333;
+          }
+          
+          .column-type {
+            font-size: 12px;
+            color: #666;
+          }
+        }
+
+        mat-slide-toggle {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    margin-top: 20px;
+    padding: 0;
+  }
+}
+
+::ng-deep .mat-mdc-dialog-content.mdc-dialog__content {
+  max-height: none !important;
+  height: auto;
+  overflow: visible;
+} 

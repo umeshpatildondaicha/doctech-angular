@@ -1,0 +1,113 @@
+<div class="table-modifier">
+    <div class="modifier-header">
+        <h2>Table Configuration</h2>
+        <button class="add-column" (click)="addNewColumn()">
+            <i class="fas fa-plus"></i> Add Column
+        </button>
+    </div>
+
+    <!-- New Column Dialog -->
+    <div class="new-column-dialog" *ngIf="isAddingNewColumn">
+        <form #newColumnForm="ngForm">
+            <div class="edit-field">
+                <label>Select Column: <span class="required">*</span></label>
+                <select name="newColumnKey" 
+                        [(ngModel)]="newColumnKey" 
+                        (ngModelChange)="onColumnKeyChange($event)"
+                        required>
+                    <option value="">Select a column</option>
+                    <option *ngFor="let availableCol of getUnusedColumns()" [value]="availableCol">
+                        {{availableCol}}
+                    </option>
+                </select>
+            </div>
+            <div class="edit-field">
+                <label>Display Name: (Optional)</label>
+                <input type="text" 
+                       name="editingName" 
+                       [(ngModel)]="editingName" 
+                       placeholder="Leave empty to use column name">
+            </div>
+            <div class="actions">
+                <button type="button" 
+                        class="cancel-btn" 
+                        (click)="cancelAddColumn()">
+                    Cancel
+                </button>
+                <button type="button" 
+                        class="save-btn" 
+                        [disabled]="!newColumnForm.form.valid"
+                        (click)="confirmAddColumn()">
+                    Add Column
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th *ngFor="let column of columns">
+                    <div class="column-header">
+                        <span>{{column.name}}</span>
+                        <button class="edit-btn" (click)="startEditing(column)">
+                            <i class="fas fa-pencil-alt"></i>
+                        </button>
+                        
+                        <!-- Column Edit Dropdown -->
+                        <div class="edit-dropdown" *ngIf="editingColumn?.key === column.key">
+                            <form #columnForm="ngForm">
+                                <div class="edit-field">
+                                    <label>Select Column: <span class="required">*</span></label>
+                                    <select name="columnKey" 
+                                            [ngModel]="editingColumn.key" 
+                                            (ngModelChange)="onColumnKeyChange($event)" 
+                                            *ngIf="editingColumn"
+                                            required>
+                                        <option *ngIf="getUnusedColumns().length === 0" disabled>No available columns</option>
+                                        <option *ngFor="let availableCol of getUnusedColumns()" [value]="availableCol">
+                                            {{availableCol}}
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="edit-field">
+                                    <label>Display Name: (Optional)</label>
+                                    <input type="text" 
+                                           name="editingName" 
+                                           [(ngModel)]="editingName" 
+                                           placeholder="Leave empty to use column name">
+                                </div>
+                                <div class="actions">
+                                    <button type="button" 
+                                            class="delete-btn" 
+                                            (click)="deleteColumn(column); editingColumn = null">
+                                        Delete Column
+                                    </button>
+                                    <button type="button" 
+                                            class="save-btn" 
+                                            [disabled]="!columnForm.form.valid"
+                                            (click)="saveColumnEdit(); editingColumn = null">
+                                        Save
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let item of data">
+                <td *ngFor="let column of columns">
+                    {{item[column.key]}}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="modifier-footer">
+        <button class="save-config" (click)="saveConfiguration()">
+            Save Configuration
+        </button>
+    </div>
+</div>

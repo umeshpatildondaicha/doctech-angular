@@ -1,0 +1,104 @@
+<div class="container">
+    <div class="header">
+        <div class="info">
+            Displaying {{filteredPatients.length}} of {{patients.length}}
+            <span class="last-updated">Last updated: {{lastUpdated}}</span>
+        </div>
+        <div class="actions">
+            <button class="action-btn" (click)="downloadData()">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="action-btn" (click)="uploadData()">
+                <i class="fas fa-upload"></i>
+            </button>
+            <button class="action-btn" (click)="refreshData()">
+                <i class="fas fa-sync"></i>
+            </button>
+            <button class="action-btn" [class.active]="viewMode === 'list'" (click)="toggleView('list')">
+                <i class="fas fa-list"></i>
+            </button>
+            <button class="action-btn" [class.active]="viewMode === 'grid'" (click)="toggleView('grid')">
+                <i class="fas fa-th"></i>
+            </button>
+            <button class="action-btn" (click)="openTableModifier()">
+                <i class="fas fa-table"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="filters">
+        <select [(ngModel)]="selectedCondition">
+            <option>All Conditions</option>
+            <option *ngFor="let condition of conditions">{{condition}}</option>
+        </select>
+
+        <select [(ngModel)]="selectedWard">
+            <option>All Wards</option>
+            <option *ngFor="let ward of wards">{{ward}}</option>
+        </select>
+
+        <select [(ngModel)]="selectedDoctor">
+            <option>All Doctors</option>
+            <option *ngFor="let doctor of doctors">{{doctor}}</option>
+        </select>
+
+        <div class="search-box">
+            <input type="text" [(ngModel)]="searchText" placeholder="Search patients...">
+        </div>
+
+        <button (click)="clearFilters()" class="clear-filters">Clear Filters</button>
+    </div>
+
+    <div [ngClass]="{'table-view': viewMode === 'list', 'grid-view': viewMode === 'grid'}">
+        <table *ngIf="viewMode === 'list'">
+            <thead>
+                <tr class="table-header">
+                    <th *ngFor="let column of tableColumns" [hidden]="column.visible === false">{{column.name}}</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let patient of filteredPatients" (click)="navigateToPatientProfile(patient.id)">
+                    <td *ngFor="let column of tableColumns" [hidden]="column.visible === false">
+                        {{patient[column.key]}}
+                    </td>
+                    <td>
+                        <button class="add-tags">Add tags</button>
+                        <button class="more-actions">⋮</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="grid-container" *ngIf="viewMode === 'grid'">
+            <div class="grid-item" *ngFor="let patient of filteredPatients" (click)="navigateToPatientProfile(patient.id)">
+                <div class="patient-card">
+                    <div class="status">{{patient.status}}</div>
+                    <h3>{{patient.name}}</h3>
+                    <p>{{patient.condition}}</p>
+                    <p>Age: {{patient.age}}</p>
+                    <p>Doctor: {{patient.doctor}}</p>
+                    <p>Ward: {{patient.ward}} - Room {{patient.roomNumber}}</p>
+                    <div class="card-actions">
+                        <button class="add-tags">Add tags</button>
+                        <button class="more-actions">⋮</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pagination">
+        <div class="items-per-page">
+            Items per page:
+            <select [(ngModel)]="itemsPerPage">
+                <option>5</option>
+                <option>10</option>
+                <option>20</option>
+            </select>
+        </div>
+        <!-- <div class="page-info">
+            Page {{currentPage}} of {{Math.ceil(filteredCars.length / itemsPerPage)}}
+        </div> -->
+    </div>
+</div> 
