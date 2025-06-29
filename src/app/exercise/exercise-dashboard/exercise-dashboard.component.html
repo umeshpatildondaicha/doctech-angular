@@ -1,0 +1,113 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h1>Exercise Dashboard</h1>
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="openTableModifier()">
+        <mat-icon>settings</mat-icon>
+        Customize View
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-container">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>fitness_center</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{exercises.length}}</span>
+          <span class="stat-label">Total Exercises</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>group</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{exerciseGroups.length}}</span>
+          <span class="stat-label">Exercise Groups</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>notifications_active</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{getActiveNotifications()}}</span>
+          <span class="stat-label">Active Notifications</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>schedule</mat-icon>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{{getTodayExercises()}}</span>
+          <span class="stat-label">Today's Exercises</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="filters">
+    <!-- ... existing filters ... -->
+  </div>
+
+  <mat-tab-group (selectedTabChange)="onTabChange($event)">
+    <mat-tab label="Exercises">
+      <app-table-view
+        [columns]="exerciseColumns"
+        [data]="exercises"
+        [title]="'Exercise List'"
+        [showSearch]="true"
+        [showRefresh]="true"
+        [showExport]="true"
+        [showPagination]="true"
+        [showCheckbox]="true"
+        (onRowClick)="onRowClick($event)"
+        (onSelectionChange)="onSelectionChange($event)">
+        <ng-container *ngTemplateOutlet="exerciseActions"></ng-container>
+      </app-table-view>
+    </mat-tab>
+
+    <mat-tab label="Groups">
+      <app-table-view
+        [columns]="groupColumns"
+        [data]="exerciseGroups"
+        [title]="'Exercise Groups'"
+        [showSearch]="true"
+        [showRefresh]="true"
+        [showExport]="true"
+        [showPagination]="true"
+        [showCheckbox]="true"
+        (onRowClick)="onRowClick($event)"
+        (onSelectionChange)="onSelectionChange($event)">
+        <ng-container *ngTemplateOutlet="groupActions"></ng-container>
+      </app-table-view>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #exerciseActions>
+  <button mat-raised-button color="primary" (click)="addExercise()">
+    <mat-icon>add</mat-icon>
+    Add Exercise
+  </button>
+</ng-template>
+
+<ng-template #groupActions>
+  <button mat-raised-button color="primary" (click)="addGroup()">
+    <mat-icon>add</mat-icon>
+    Add Group
+  </button>
+</ng-template>

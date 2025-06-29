@@ -1,0 +1,53 @@
+<div class="slot-management-container">
+  <div class="header">
+    <h2>Time Slot Management</h2>
+    <button mat-raised-button color="primary" (click)="addSlot()">
+      <mat-icon>add</mat-icon>
+      Add New Slot
+    </button>
+  </div>
+
+  <div class="filters">
+    <mat-form-field>
+      <mat-label>Select Date</mat-label>
+      <input matInput [matDatepicker]="picker" [(ngModel)]="selectedDate">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+
+  <div class="slots-grid">
+    <mat-card *ngFor="let slot of slots" class="slot-card" [ngClass]="slot.status">
+      <mat-card-content>
+        <div class="slot-header">
+          <div class="time">
+            {{slot.startTime}} - {{slot.endTime}}
+          </div>
+          <div class="status-badge" [ngClass]="slot.status">
+            {{getSlotStatus(slot)}}
+          </div>
+        </div>
+
+        <div class="slot-details">
+          <div class="detail-item">
+            <mat-icon>event</mat-icon>
+            {{slot.date | date:'MMM d, y'}}
+          </div>
+          <div class="detail-item">
+            <mat-icon>group</mat-icon>
+            Capacity: {{slot.capacity}}
+          </div>
+        </div>
+
+        <div class="slot-actions">
+          <button mat-icon-button color="primary" (click)="editSlot(slot)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteSlot(slot.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div> 

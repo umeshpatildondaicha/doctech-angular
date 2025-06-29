@@ -1,89 +1,114 @@
-<div class="container py-5">
-  <!-- Header -->
-  <h2 class="text-center mb-5 text-primary">Appointment Calendar</h2>
-
-  <div class="row">
-    <!-- Horizontal Tabs for Last 7 Days -->
-    <div class="col-md-12 mb-4">
-      <div class="list-group d-flex flex-row justify-content-center">
-        <div *ngFor="let day of lastSevenDays" 
-             class="list-group-item list-group-item-action text-center rounded-pill mx-1" 
-             [ngClass]="{'active bg-primary text-white': selectedDate.toDateString() === day.date.toDateString()}" 
-             (click)="selectDay(day)">
-          {{ day.label }}
-        </div>
-        
-        <!-- Date Picker Icon -->
-        <div class="list-group-item text-center rounded-pill mx-1">
-          <input type="date" class="form-control" [(ngModel)]="selectedDate" (change)="fetchAppointments()">
-        </div>
-      </div>
+<div class="calendar-container">
+  <div class="calendar-header">
+    <div class="calendar-controls">
+      <button mat-icon-button (click)="previousPeriod()" matTooltip="Previous">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button mat-button (click)="today()">Today</button>
+      <button mat-icon-button (click)="nextPeriod()" matTooltip="Next">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+      <h2 class="current-date">{{ currentDate | date:'MMMM yyyy' }}</h2>
     </div>
+    <div class="view-controls">
+      <button mat-button [class.active]="viewMode === 'month'" (click)="changeView('month')">Month</button>
+      <button mat-button [class.active]="viewMode === 'week'" (click)="changeView('week')">Week</button>
+      <button mat-button [class.active]="viewMode === 'day'" (click)="changeView('day')">Day</button>
+    </div>
+  </div>
 
-    <!-- Slots Section -->
-    <div class="col-md-12">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="text-secondary">Available Time Slots</h3>
-        <div>
-          <label for="filter" class="me-2">Filter by:</label>
-          <select id="filter" class="form-select d-inline-block w-auto" [(ngModel)]="slotFilter">
-            <option value="all">All</option>
-            <option value="morning">Morning</option>
-            <option value="afternoon">Afternoon</option>
-            <option value="evening">Evening</option>
-          </select>
+  <div class="calendar-body" [ngClass]="viewMode">
+    <!-- Month View -->
+    <div class="month-view" *ngIf="viewMode === 'month'">
+      <div class="weekdays-header">
+        <div class="weekday" *ngFor="let day of ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']">
+          {{ day }}
         </div>
       </div>
-      
-      <div *ngIf="timeSlots.length === 0" class="alert alert-warning text-center">
-        No slots available for the selected date.
-      </div>
-      
-      <div class="row row-cols-1 row-cols-md-2 g-4">
-        <div *ngFor="let slot of filteredSlots()" class="col">
-          <mat-card class="mat-elevation-z2" [ngClass]="{'bg-danger text-white': slot.booked, 'bg-light': !slot.booked}" (click)="confirmBooking(slot)">
-            <mat-card-content>
-              <div class="d-flex justify-content-between">
-                <span *ngIf="!slot.booked">{{ slot.time }}</span>
-                <span class="badge" [ngClass]="{'bg-success': !slot.booked, 'bg-danger': slot.booked}">
-                  {{ slot.booked ? 'Booked' : 'Available' }}
-                </span>
-                <span *ngIf="slot.booked">{{ slot.time }}</span>
-              </div>
-              <div *ngIf="slot.booked" class="d-flex mt-1">
-                <img src="{{ slot.patientProfile }}" alt="Profile" class="rounded-circle me-2" style="width: 30px; height: 30px;">
-                <div>
-                  <small>{{ slot.patientName }}</small>
-                  <small>{{ slot.patientContact }}</small>
-                  <small>{{ slot.patientNotes }}</small>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
-          <div *ngIf="slot.hasBreak" class="text-center mt-1">
-            <span class="badge bg-warning text-dark">Break</span>
+      <div class="days-grid">
+        <div class="day-cell" 
+             *ngFor="let day of getDaysInMonth(currentDate)"
+             [class.other-month]="day.getMonth() !== currentDate.getMonth()"
+             [class.today]="isToday(day)"
+             [class.selected]="isSelected(day)"
+             (click)="selectDate(day)">
+          <div class="day-number">{{ day | date:'d' }}</div>
+          <div class="day-events">
+            <div class="event-dot" 
+                 *ngFor="let event of getEventsForDate(day)"
+                 [matTooltip]="event.title + ' - ' + event.patientName"
+                 [style.background-color]="getStatusColor(event.status)">
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Booking Confirmation Modal -->
-  <div *ngIf="selectedSlot" class="modal fade show" tabindex="-1" style="display: block; background: rgba(0,0,0,0.5);">
-    <div class="modal-dialog">
-      <mat-card class="mat-elevation-z8">
-        <mat-card-header class="bg-primary text-white">
-          <mat-card-title>Confirm Booking</mat-card-title>
-          <button type="button" class="btn-close" (click)="cancelBooking()"></button>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Do you want to book the slot at <strong>{{ selectedSlot.time }}</strong>?</p>
-        </mat-card-content>
-        <mat-card-actions align="end">
-          <button type="button" class="btn btn-secondary" (click)="cancelBooking()">Cancel</button>
-          <button type="button" class="btn btn-primary" (click)="bookSlot(selectedSlot)">Confirm</button>
-        </mat-card-actions>
-      </mat-card>
+    <!-- Week View -->
+    <div class="week-view" *ngIf="viewMode === 'week'">
+      <div class="time-column">
+        <div class="time-slot" *ngFor="let hour of getHours()">
+          {{ hour }}:00
+        </div>
+      </div>
+      <div class="days-columns">
+        <div class="day-column" *ngFor="let day of getDaysInWeek(currentDate)">
+          <div class="day-header">{{ day | date:'EEE d' }}</div>
+          <div class="day-events">
+            <div class="event" 
+                 *ngFor="let event of getEventsForDate(day)"
+                 [style.top.%]="getEventPosition(event)"
+                 [style.height.%]="getEventHeight(event)"
+                 [matTooltip]="event.title + ' - ' + event.patientName"
+                 (click)="showEventDetails(event)">
+              {{ event.title }}
+            </div>
+            <div class="time-slot-clickable" 
+                 *ngFor="let hour of getHours()"
+                 [style.top.%]="(hour * 100) / 24"
+                 [style.height.%]="100 / 24"
+                 (click)="clickTimeSlot(hour, 0)">
+            </div>
+            <div class="time-slot-clickable" 
+                 *ngFor="let hour of getHours()"
+                 [style.top.%]="((hour * 60 + 30) * 100) / (24 * 60)"
+                 [style.height.%]="100 / (24 * 2)"
+                 (click)="clickTimeSlot(hour, 30)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Day View -->
+    <div class="day-view" *ngIf="viewMode === 'day'">
+      <div class="time-column">
+        <div class="time-slot" *ngFor="let hour of getHours()">
+          {{ hour }}:00
+        </div>
+      </div>
+      <div class="day-events">
+        <div class="event" 
+             *ngFor="let event of getEventsForDate(selectedDate)"
+             [style.top.%]="getEventPosition(event)"
+             [style.height.%]="getEventHeight(event)"
+             [matTooltip]="event.title + ' - ' + event.patientName"
+             (click)="showEventDetails(event)">
+          {{ event.title }}
+        </div>
+        <div class="time-slot-clickable" 
+             *ngFor="let hour of getHours()"
+             [style.top.%]="(hour * 100) / 24"
+             [style.height.%]="100 / 24"
+             (click)="clickTimeSlot(hour, 0)">
+        </div>
+        <div class="time-slot-clickable" 
+             *ngFor="let hour of getHours()"
+             [style.top.%]="((hour * 60 + 30) * 100) / (24 * 60)"
+             [style.height.%]="100 / (24 * 2)"
+             (click)="clickTimeSlot(hour, 30)">
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</div> 

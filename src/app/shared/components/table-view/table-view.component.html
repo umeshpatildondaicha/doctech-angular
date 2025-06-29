@@ -1,17 +1,15 @@
 <div class="container">
     <div class="header">
+        <div class="title">{{title}}</div>
         <div class="info">
-            Displaying {{filteredPatients.length}} of {{patients.length}}
+            Displaying {{filteredData.length}} of {{data.length}} items
             <span class="last-updated">Last updated: {{lastUpdated}}</span>
         </div>
         <div class="actions">
-            <button class="action-btn" (click)="downloadData()">
+            <button *ngIf="showExport" class="action-btn" (click)="exportData()">
                 <i class="fas fa-download"></i>
             </button>
-            <button class="action-btn" (click)="uploadData()">
-                <i class="fas fa-upload"></i>
-            </button>
-            <button class="action-btn" (click)="refreshData()">
+            <button *ngIf="showRefresh" class="action-btn" (click)="refreshData()">
                 <i class="fas fa-sync"></i>
             </button>
             <button class="action-btn" [class.active]="viewMode === 'list'" (click)="toggleView('list')">
@@ -26,79 +24,63 @@
         </div>
     </div>
 
-    <div class="filters">
-        <select [(ngModel)]="selectedCondition">
-            <option>All Conditions</option>
-            <option *ngFor="let condition of conditions">{{condition}}</option>
-        </select>
-
-        <select [(ngModel)]="selectedWard">
-            <option>All Wards</option>
-            <option *ngFor="let ward of wards">{{ward}}</option>
-        </select>
-
-        <select [(ngModel)]="selectedDoctor">
-            <option>All Doctors</option>
-            <option *ngFor="let doctor of doctors">{{doctor}}</option>
-        </select>
-
+    <div class="filters" *ngIf="showSearch">
         <div class="search-box">
-            <input type="text" [(ngModel)]="searchText" placeholder="Search patients...">
+            <input type="text" [(ngModel)]="searchText" (ngModelChange)="onSearch()" placeholder="Search...">
         </div>
-
-        <button (click)="clearFilters()" class="clear-filters">Clear Filters</button>
     </div>
 
     <div [ngClass]="{'table-view': viewMode === 'list', 'grid-view': viewMode === 'grid'}">
         <table *ngIf="viewMode === 'list'">
             <thead>
                 <tr class="table-header">
-                    <th *ngFor="let column of tableColumns" [hidden]="column.visible === false">{{column.name}}</th>
-                    <th>Actions</th>
+                    <th *ngIf="showCheckbox">
+                        <input type="checkbox" (change)="handleSelectAll($any($event.target).checked)">
+                    </th>
+                    <th *ngFor="let column of columns" [style.width]="column.width">
+                        {{column.headerName}}
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let patient of filteredPatients" (click)="navigateToPatientProfile(patient.id)">
-                    <td *ngFor="let column of tableColumns" [hidden]="column.visible === false">
-                        {{patient[column.key]}}
+                <tr *ngFor="let row of paginatedData" (click)="handleRowClick(row)">
+                    <td *ngIf="showCheckbox">
+                        <input type="checkbox" [checked]="selectedItems.includes(row)" 
+                               (change)="handleSelectRow(row, $any($event.target).checked)">
                     </td>
-                    <td>
-                        <button class="add-tags">Add tags</button>
-                        <button class="more-actions">⋮</button>
+                    <td *ngFor="let column of columns">
+                        {{getCellValue(row, column)}}
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <div class="grid-container" *ngIf="viewMode === 'grid'">
-            <div class="grid-item" *ngFor="let patient of filteredPatients" (click)="navigateToPatientProfile(patient.id)">
-                <div class="patient-card">
-                    <div class="status">{{patient.status}}</div>
-                    <h3>{{patient.name}}</h3>
-                    <p>{{patient.condition}}</p>
-                    <p>Age: {{patient.age}}</p>
-                    <p>Doctor: {{patient.doctor}}</p>
-                    <p>Ward: {{patient.ward}} - Room {{patient.roomNumber}}</p>
-                    <div class="card-actions">
-                        <button class="add-tags">Add tags</button>
-                        <button class="more-actions">⋮</button>
+            <div class="grid-item" *ngFor="let row of paginatedData" (click)="handleRowClick(row)">
+                <div class="card">
+                    <div *ngFor="let column of columns" class="card-field">
+                        <span class="field-label">{{column.headerName}}:</span>
+                        <span class="field-value">{{getCellValue(row, column)}}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="pagination">
+    <div class="pagination" *ngIf="showPagination">
         <div class="items-per-page">
             Items per page:
-            <select [(ngModel)]="itemsPerPage">
+            <select [(ngModel)]="itemsPerPage" (change)="currentPage = 1">
                 <option>5</option>
                 <option>10</option>
                 <option>20</option>
+                <option>50</option>
             </select>
         </div>
-        <!-- <div class="page-info">
-            Page {{currentPage}} of {{Math.ceil(filteredCars.length / itemsPerPage)}}
-        </div> -->
+        <div class="page-navigation">
+            <button [disabled]="currentPage === 1" (click)="onPageChange(currentPage - 1)">Previous</button>
+            <span>Page {{currentPage}} of {{totalPages}}</span>
+            <button [disabled]="currentPage === totalPages" (click)="onPageChange(currentPage + 1)">Next</button>
+        </div>
     </div>
 </div> 

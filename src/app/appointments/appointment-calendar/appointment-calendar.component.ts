@@ -1,128 +1,291 @@
-import { NgClass, NgFor, NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { CommonModule } from '@angular/common';
+import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatMomentDateModule } from '@angular/material-moment-adapter';
-import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  start: Date;
+  end: Date;
+  patientName: string;
+  type: string;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'no-show';
+  doctor: string;
+}
+
+interface TimeSlot {
+  hour: number;
+  minute: number;
+  hasEvent: boolean;
+  event?: CalendarEvent;
+}
 
 @Component({
   selector: 'app-appointment-calendar',
+  templateUrl: './appointment-calendar.component.html',
+  styleUrls: ['./appointment-calendar.component.scss'],
   standalone: true,
   imports: [
-    NgFor,
-    NgIf,
-    NgClass,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
+    CommonModule,
+    MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatMomentDateModule,
-    FormsModule,
-    MatCardModule
-  ],
-  templateUrl: './appointment-calendar.component.html',
-  styleUrls: ['./appointment-calendar.component.css'],
+    MatTooltipModule,
+    MatMenuModule,
+    MatBadgeModule,
+    MatDialogModule,
+    MatSnackBarModule
+  ]
 })
 export class AppointmentCalendarComponent implements OnInit {
+  currentDate: Date = new Date();
   selectedDate: Date = new Date();
-  timeSlots: { time: string; booked: boolean; hasBreak: boolean; patientName?: string; patientContact?: string; patientNotes?: string; patientProfile?: string }[] = [];
-  lastSevenDays: { label: string; date: Date }[] = [];
-  slotFilter: string = 'all';
-  selectedSlot: { time: string; booked: boolean; hasBreak: boolean; patientName?: string; patientContact?: string; patientNotes?: string; patientProfile?: string } | null = null;
+  viewMode: 'month' | 'week' | 'day' = 'month';
+  events: CalendarEvent[] = [];
+  timeSlots: TimeSlot[] = [];
 
-  // Static booked slots (for now)
-  staticBookedSlots: string[] = ['10:00', '11:30', '15:00'];
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
+  ) {}
 
-  constructor() {}
-
-  ngOnInit(): void {
-    this.initializeLastSevenDays();
-    this.fetchAppointments();
+  ngOnInit() {
+    this.loadEvents();
+    this.generateTimeSlots();
   }
 
-  initializeLastSevenDays(): void {
-    const today = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      const dayLabel = `${date.getDate()} ${date.toLocaleString('default', { weekday: 'short' })}`;
-      this.lastSevenDays.push({ label: dayLabel, date });
-    }
-  }
-
-  generateTimeSlots(): { time: string; booked: boolean; hasBreak: boolean; patientName?: string; patientContact?: string; patientNotes?: string; patientProfile?: string }[] {
-    const slots = [];
-    const start = 8; // Start time (8 AM)
-    const end = 18; // End time (6 PM)
-
-    for (let hour = start; hour < end; hour++) {
-      slots.push({ time: `${hour}:00`, booked: false, hasBreak: false });
-      slots.push({ time: `${hour}:30`, booked: false, hasBreak: hour === 12 });
-    }
-    return slots;
-  }
-
-  fetchAppointments(): void {
-    this.timeSlots = this.generateTimeSlots();
-
-    // Mark the static booked slots
-    this.timeSlots.forEach((slot) => {
-      if (this.staticBookedSlots.includes(slot.time)) {
-        slot.booked = true;
-        // Example profile details for booked slots
-        slot.patientName = 'John Doe';
-        slot.patientContact = '123-456-7890';
-        slot.patientNotes = 'Follow-up appointment';
-        slot.patientProfile = 'Profile details here';
+  loadEvents() {
+    // TODO: Load from service
+    this.events = [
+      {
+        id: '1',
+        title: 'Check-up',
+        start: new Date(2024, 3, 20, 9, 0),
+        end: new Date(2024, 3, 20, 10, 0),
+        patientName: 'John Doe',
+        type: 'Check-up',
+        status: 'scheduled',
+        doctor: 'Dr. Smith'
+      },
+      {
+        id: '2',
+        title: 'Follow-up',
+        start: new Date(2024, 3, 20, 11, 0),
+        end: new Date(2024, 3, 20, 12, 0),
+        patientName: 'Jane Smith',
+        type: 'Follow-up',
+        status: 'completed',
+        doctor: 'Dr. Johnson'
       }
+    ];
+  }
+
+  generateTimeSlots() {
+    this.timeSlots = [];
+    for (let hour = 0; hour < 24; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const slot: TimeSlot = {
+          hour,
+          minute,
+          hasEvent: false
+        };
+        
+        // Check if there's an event in this time slot
+        const event = this.findEventAtTime(hour, minute);
+        if (event) {
+          slot.hasEvent = true;
+          slot.event = event;
+        }
+        
+        this.timeSlots.push(slot);
+      }
+    }
+  }
+
+  findEventAtTime(hour: number, minute: number): CalendarEvent | undefined {
+    return this.events.find(event => {
+      const eventStart = event.start;
+      const eventEnd = event.end;
+      
+      // Check if the time is within the event's time range
+      const timeInMinutes = hour * 60 + minute;
+      const eventStartMinutes = eventStart.getHours() * 60 + eventStart.getMinutes();
+      const eventEndMinutes = eventEnd.getHours() * 60 + eventEnd.getMinutes();
+      
+      return timeInMinutes >= eventStartMinutes && timeInMinutes < eventEndMinutes;
     });
   }
 
-  filteredSlots() {
-    return this.timeSlots.filter((slot) => {
-      if (this.slotFilter === 'all') return true;
-      const hour = parseInt(slot.time.split(':')[0], 10);
-      if (this.slotFilter === 'morning') return hour >= 8 && hour < 12;
-      if (this.slotFilter === 'afternoon') return hour >= 12 && hour < 16;
-      if (this.slotFilter === 'evening') return hour >= 16 && hour < 18;
-      return false;
+  getEventsForDate(date: Date): CalendarEvent[] {
+    return this.events.filter(event => {
+      const eventDate = new Date(event.start);
+      return eventDate.getDate() === date.getDate() &&
+             eventDate.getMonth() === date.getMonth() &&
+             eventDate.getFullYear() === date.getFullYear();
     });
   }
 
-  selectDay(day: { label: string; date: Date }): void {
-    this.selectedDate = day.date;
-    this.fetchAppointments();
+  getStatusColor(status: string): string {
+    const colors: Record<string, string> = {
+      scheduled: 'primary',
+      completed: 'accent',
+      cancelled: 'warn',
+      'no-show': 'warn'
+    };
+    return colors[status] || 'primary';
   }
 
-  confirmBooking(slot: { time: string; booked: boolean; hasBreak: boolean; patientName?: string; patientContact?: string; patientNotes?: string; patientProfile?: string }): void {
-    if (!slot.booked) {
-      this.selectedSlot = slot;
+  previousPeriod() {
+    const newDate = new Date(this.currentDate);
+    if (this.viewMode === 'month') {
+      newDate.setMonth(newDate.getMonth() - 1);
+    } else if (this.viewMode === 'week') {
+      newDate.setDate(newDate.getDate() - 7);
     } else {
-      alert(`Slot at ${slot.time} is already booked.`);
+      newDate.setDate(newDate.getDate() - 1);
+    }
+    this.currentDate = newDate;
+  }
+
+  nextPeriod() {
+    const newDate = new Date(this.currentDate);
+    if (this.viewMode === 'month') {
+      newDate.setMonth(newDate.getMonth() + 1);
+    } else if (this.viewMode === 'week') {
+      newDate.setDate(newDate.getDate() + 7);
+    } else {
+      newDate.setDate(newDate.getDate() + 1);
+    }
+    this.currentDate = newDate;
+  }
+
+  today() {
+    this.currentDate = new Date();
+    this.selectedDate = new Date();
+  }
+
+  changeView(mode: 'month' | 'week' | 'day') {
+    this.viewMode = mode;
+  }
+
+  selectDate(date: Date) {
+    this.selectedDate = date;
+    if (this.viewMode === 'day') {
+      // When selecting a date in day view, update the current date
+      this.currentDate = new Date(date);
     }
   }
 
-  bookSlot(slot: { time: string; booked: boolean; hasBreak: boolean; patientName?: string; patientContact?: string; patientNotes?: string; patientProfile?: string }): void {
-    if (!slot.booked) {
-      slot.booked = true;
-      alert(`Slot booked for ${this.selectedDate.toDateString()} at ${slot.time}`);
-      this.selectedSlot = null;
+  getDaysInMonth(date: Date): Date[] {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    
+    const days: Date[] = [];
+    
+    // Add days from previous month
+    for (let i = startingDay - 1; i >= 0; i--) {
+      days.push(new Date(year, month, -i));
+    }
+    
+    // Add days from current month
+    for (let i = 1; i <= daysInMonth; i++) {
+      days.push(new Date(year, month, i));
+    }
+    
+    // Add days from next month
+    const remainingDays = 42 - days.length; // 6 rows * 7 days = 42
+    for (let i = 1; i <= remainingDays; i++) {
+      days.push(new Date(year, month + 1, i));
+    }
+    
+    return days;
+  }
+
+  getDaysInWeek(date: Date): Date[] {
+    const days: Date[] = [];
+    const current = new Date(date);
+    current.setDate(current.getDate() - current.getDay()); // Start from Sunday
+    
+    for (let i = 0; i < 7; i++) {
+      days.push(new Date(current));
+      current.setDate(current.getDate() + 1);
+    }
+    
+    return days;
+  }
+
+  getHours(): number[] {
+    return Array.from({ length: 24 }, (_, i) => i);
+  }
+
+  getEventPosition(event: CalendarEvent): number {
+    const startHour = event.start.getHours();
+    const startMinutes = event.start.getMinutes();
+    return (startHour + startMinutes / 60) * (100 / 24);
+  }
+
+  getEventHeight(event: CalendarEvent): number {
+    const startTime = event.start.getHours() + event.start.getMinutes() / 60;
+    const endTime = event.end.getHours() + event.end.getMinutes() / 60;
+    return (endTime - startTime) * (100 / 24);
+  }
+
+  isToday(date: Date): boolean {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+  }
+
+  isSelected(date: Date): boolean {
+    return date.getDate() === this.selectedDate.getDate() &&
+           date.getMonth() === this.selectedDate.getMonth() &&
+           date.getFullYear() === this.selectedDate.getFullYear();
+  }
+
+  clickTimeSlot(hour: number, minute: number) {
+    const slot = this.timeSlots.find(s => s.hour === hour && s.minute === minute);
+    if (slot) {
+      if (slot.hasEvent && slot.event) {
+        // Show event details
+        this.showEventDetails(slot.event);
+      } else {
+        // Create new appointment
+        this.createNewAppointment(hour, minute);
+      }
     }
   }
 
-  cancelBooking(): void {
-    this.selectedSlot = null;
+  showEventDetails(event: CalendarEvent) {
+    // Show a snackbar with event details
+    this.snackBar.open(
+      `${event.title} - ${event.patientName} (${event.start.toLocaleTimeString()} - ${event.end.toLocaleTimeString()})`,
+      'Close',
+      { duration: 3000 }
+    );
+    
+    // TODO: Open a dialog with more details
   }
 
-  openDatePicker(): void {
-    // Logic to open date picker
-    alert('Date picker clicked!');
+  createNewAppointment(hour: number, minute: number) {
+    // Show a snackbar with the selected time
+    this.snackBar.open(
+      `New appointment at ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`,
+      'Close',
+      { duration: 3000 }
+    );
+    
+    // TODO: Open a dialog to create a new appointment
   }
 }

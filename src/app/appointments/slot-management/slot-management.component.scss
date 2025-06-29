@@ -1,0 +1,123 @@
+.slot-management-container {
+  padding: 20px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0;
+      font-size: 20px;
+      color: #333;
+    }
+  }
+
+  .filters {
+    margin-bottom: 24px;
+  }
+
+  .slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+
+    .slot-card {
+      border-radius: 8px;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      &.available {
+        border-left: 4px solid #34a853;
+      }
+
+      &.full {
+        border-left: 4px solid #ea4335;
+      }
+
+      &.closed {
+        border-left: 4px solid #9aa0a6;
+      }
+
+      .slot-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        .time {
+          font-size: 18px;
+          font-weight: 500;
+          color: #333;
+        }
+
+        .status-badge {
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 500;
+
+          &.available {
+            background-color: #e6f4ea;
+            color: #34a853;
+          }
+
+          &.full {
+            background-color: #fce8e6;
+            color: #ea4335;
+          }
+
+          &.closed {
+            background-color: #f1f3f4;
+            color: #5f6368;
+          }
+        }
+      }
+
+      .slot-details {
+        margin-bottom: 16px;
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #5f6368;
+          margin-bottom: 8px;
+
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+
+      .slot-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .slot-management-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .slots-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+} 
