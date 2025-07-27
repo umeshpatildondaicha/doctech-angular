@@ -1,0 +1,143 @@
+<div class="diet-create-dialog" [class.view-mode]="isViewMode">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'people_outline'" class="title-icon"></app-icon>
+        <h2 class="title">{{ dialogTitle }}</h2>
+      </div>
+        <app-icon [fontIcon]="'close'" (iconClick)="onCancel()"></app-icon>
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="section-title-wrapper"><h4 class="section-title">Patient details</h4></div>
+      <div class="form-row">
+        <app-input
+          label="First Name"
+          formControlName="firstName"
+          placeholder="Enter first name"
+          [required]="true"
+          [errorMessage]="getErrorMessage('firstName')"
+          class="form-field">
+        </app-input>
+        <app-input
+          label="Last Name"
+          formControlName="lastName"
+          placeholder="Enter last name"
+          [required]="true"
+          [errorMessage]="getErrorMessage('lastName')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Date of Birth"
+          formControlName="dateOfBirth"
+          placeholder="Enter date of birth"
+          [required]="true"
+          [rows]="3"
+          [errorMessage]="getErrorMessage('dateOfBirth')"
+          class="form-field">
+        </app-input>
+        
+        <app-selectbox
+        label="Gender"
+        formControlName="gender"
+        [options]="genderOptions"
+        placeholder="Select gender"
+        [required]="true"
+        [displayExpr]="'label'"
+        [errorMessage]="getErrorMessage('gender')"
+        class="form-field">
+      </app-selectbox>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Contact"
+          formControlName="contact"
+          placeholder="Enter contact"
+          [required]="true"
+          [errorMessage]="getErrorMessage('contact')"
+          class="form-field">
+        </app-input>
+        <app-input
+          label="Email"
+          formControlName="email"
+          placeholder="Enter email"
+          [required]="true"
+          [errorMessage]="getErrorMessage('email')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+
+        <app-selectbox
+        label="Blood Group"
+        formControlName="bloodGroup"
+        [options]="bloodGroups"
+        placeholder="Select blood group"
+        [required]="true"
+        [displayExpr]="'label'"
+        [errorMessage]="getErrorMessage('bloodGroup')"
+        class="form-field">
+      </app-selectbox>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Address"
+          formControlName="address"
+          placeholder="Enter address"
+          [required]="true"
+          [multiline]="true"
+          [rows]="3"
+          [errorMessage]="getErrorMessage('address')"
+          class="form-field">
+        </app-input>
+      </div>
+      
+
+      
+    </form>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        *ngIf="!isViewMode"
+        appearance="basic"
+        (btnClick)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
+
+      <!-- Edit button for view mode -->
+      <!-- <app-button
+        *ngIf="showEditButton"
+        type="button"
+        appearance="raised"
+        (btnClick)="onEdit()"
+        [text]="'Edit'"
+        class="edit-btn">
+      </app-button> -->
+
+      <!-- Submit button for create/edit mode, Close button for view mode -->
+      <app-button
+        type="button"
+        [appearance]="isViewMode ? 'basic' : 'raised'"
+        [disabled]="patientForm.invalid && !isViewMode"
+        (btnClick)="onSubmit()"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div>

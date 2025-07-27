@@ -1,0 +1,50 @@
+.custom-dialog-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .mat-dialog-container {
+    border-radius: 16px;
+    padding: 0;
+    min-width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    background: #fff;
+  }
+}
+
+.dialogbox-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 12px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background: #fff;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
+
+.dialogbox-title {
+  flex: 1;
+  color: #222;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.close-icon {
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+  margin-left: 16px;
+}
+.close-icon:hover {
+  color: #18b6b2;
+}
+
+.dialogbox-content {
+  padding: 24px;
+  background: #fff;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}

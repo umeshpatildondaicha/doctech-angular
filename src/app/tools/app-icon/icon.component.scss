@@ -1,0 +1,32 @@
+.lucide {
+    display: inline-block;
+    vertical-align: middle;
+  } 
+
+.icon-covered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--primary-icon-width);
+  height: var(--primary-icon-height);
+  border: var(--primary-border);
+  border-radius: var(--button-radius);
+  background: var(--secondary-color);
+  box-shadow: var(--primary-shadow);
+  cursor: pointer;
+} 
+.icon-blink{
+  animation: blink 1s infinite;
+}
+.font-bold{
+  font-weight: 600;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

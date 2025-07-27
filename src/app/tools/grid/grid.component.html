@@ -1,0 +1,40 @@
+<div class="grid-container">
+  <div class="grid-header" *ngIf="showHeader">
+    <div class="search-section">
+      <app-input
+        [placeholder]="searchPlaceholder"
+        [value]="searchText"
+        [prefixIconName]="'search'"
+        (valueChange)="onSearchChange($event)"
+        [search]="true"
+        class="search-input">
+      </app-input>
+    </div>
+    <div class="filter-section">
+      <ng-container *ngTemplateOutlet="rightTooltemplateRef"></ng-container>
+      <button class="filter-btn" (click)="onFilterClick()" title="Filter">
+        <app-icon 
+          fontSet="material-icons-outlined" 
+          fontIcon="filter_list" 
+          [size]="20">
+        </app-icon>
+      </button>
+    </div>
+  </div>
+  
+  <div class="grid-content">
+    <ag-grid-angular
+      *ngIf="isBrowser"
+      [rowData]="filteredRowData"
+      class="ag-theme-alpine"
+      [columnDefs]="processedColumnDefs"
+      [gridOptions]="gridOptions"
+      [domLayout]="domLayout"
+      [animateRows]="animateRows"
+      [class]="class"
+      [style.width]="width"
+      [style.height]="'100%'"
+      >
+    </ag-grid-angular>
+  </div>
+</div>

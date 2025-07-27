@@ -1,0 +1,61 @@
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="greeting">
+      Good Morning, <b>Dr.Chetan!</b>
+    </div>
+  </div>
+  <div class="topbar-center">
+    <div class="search-box">
+      <app-input
+        [search]="true"
+        type="text"
+        placeholder="Search type of Keywords"
+        prefixIconName="search"
+        [(value)]="searchText"
+      ></app-input>
+    </div>
+    <app-icon 
+      fontIcon="notifications" 
+      [isCovered]="true"
+      (iconClick)="onNotificationClick($event)"
+    ></app-icon>
+
+    <app-icon  
+    [isCovered]="true"
+    [counter]="1"
+    [isBlink]="true"
+    [color]="'#10b3b3'"
+    [fontBold]="true"
+    (iconClick)="showPatientQueue($event)"
+  ></app-icon>
+  </div>
+  <div class="topbar-right">
+    <button 
+      type="button"
+      appearance="flat"
+      mat-icon-button 
+      [matMenuTriggerFor]="profileMenu" 
+      class="profile-menu-trigger"
+      (click)="onProfileClick($event)">
+      <div class="profile">
+        <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr.Chetan" />
+        <div class="profile-info">
+          <div class="profile-name">Dr.Chetan</div>
+          <div class="profile-role">Cardiologist</div>
+        </div>
+        <app-icon [fontIcon]="'arrow_drop_down'"></app-icon>
+      </div>
+    </button>
+
+    <mat-menu #profileMenu="matMenu" class="profile-menu">
+      <button mat-menu-item (click)="onProfileMenuClick()">
+        <app-icon [fontIcon]="'person'" class="menu-icon"></app-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item (click)="onSettingsMenuClick()">
+        <app-icon [fontIcon]="'settings'" class="menu-icon"></app-icon>
+        <span>Settings</span>
+      </button>
+    </mat-menu>
+  </div>
+</header>

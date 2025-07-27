@@ -1,0 +1,156 @@
+.exercise-create-container {
+
+  .header {
+    margin-bottom: 32px;
+    text-align: center;
+
+    .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 0;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text-primary);
+
+      .title-icon {
+        font-size: 28px;
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  .form {
+    .form-row {
+      margin-bottom: 24px;
+
+      .form-field {
+        width: 100%;
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+
+      .cancel-btn,
+      .submit-btn {
+        display: flex;
+        align-items: center;
+
+        .btn-icon {
+          font-size: 18px;
+        }
+      }
+
+      .cancel-btn {
+
+        &:hover {
+          background-color: var(--surface-hover);
+        }
+      }
+
+      .submit-btn {
+
+        &:hover:not(:disabled) {
+          background-color: var(--primary-hover);
+        }
+
+        &:disabled {
+          background-color: var(--disabled-color);
+          color: var(--text-disabled);
+        }
+      }
+    }
+  }
+}
+
+// Title section styling
+.title-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .title-icon {
+    font-size: 24px;
+    color: var(--primary-color);
+  }
+}
+
+// Form styling
+.form {
+  .form-row {
+    margin-bottom: 24px;
+
+    .form-field {
+      width: 100%;
+    }
+  }
+}
+
+// Dialog actions styling
+mat-dialog-actions {
+  padding: 16px 0;
+  margin: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+
+    .btn-icon {
+      font-size: 18px;
+    }
+  }
+
+  button[mat-button] {
+    color: var(--text-secondary);
+  }
+
+  button[mat-raised-button] {
+    background-color: var(--primary-color);
+    color: white;
+
+    &:disabled {
+      background-color: var(--disabled-color);
+      color: var(--text-disabled);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .exercise-create-container {
+    .form .form-actions {
+      flex-direction: column-reverse;
+      gap: 12px;
+
+      .cancel-btn,
+      .submit-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  }
+
+  .title-section {
+    .title-icon {
+      font-size: 20px;
+    }
+  }
+
+  mat-dialog-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+
+    button {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+} 

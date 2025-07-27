@@ -1,0 +1,141 @@
+<div class="exercise-set-create-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon fontIcon="fitness_center" class="title-icon"></app-icon>
+        <h2 class="title">{{ mode === 'edit' ? 'Edit Exercise Set' :  mode ==='view' ? 'View Exercise Set' :  ('Create New Exercise Set') }}</h2>
+      </div>
+        <app-icon fontIcon="close" (iconClick)="onCancel()"></app-icon>
+      
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <form [formGroup]="exerciseSetForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="form-row">
+        <app-input
+          label="Set Number"
+          formControlName="setNumber"
+          placeholder="Enter set number"
+          type="number"
+          [required]="true"
+          [errorMessage]="getErrorMessage('setNumber')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-selectbox
+          label="Exercise"
+          formControlName="exerciseId"
+          [options]="exerciseOptions"
+          placeholder="Select exercise"
+          [required]="true"
+          [(data)]="selectedCountry"
+          [valueField]="'value'"
+          [displayExpr]="'label'"
+          [errorMessage]="getErrorMessage('exerciseId')"
+          class="form-field">
+        </app-selectbox>
+        
+
+        <!-- <mat-form-field class="app-selectbox-field" appearance="outline">
+          <mat-label >{{ 'Exercises' }}</mat-label>
+          <mat-select
+            [placeholder]="'Select exercise'"
+            [disabled]="false"
+            [value]="data"
+            (selectionChange)="onExerciseSelectionChange($event.value)"
+            
+          >
+            <mat-option *ngFor="let option of exerciseOptions" [value]="(option.value)">
+              {{ option.label }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="getErrorMessage('exerciseId')">{{ getErrorMessage('exerciseId') }}</mat-error>
+        </mat-form-field> -->
+
+        <!-- <mat-form-field>
+          <mat-select name="countryString" [(value)]="selectedCountry" placeholder="Country">
+            <mat-option [value]="'GB'">Great Britain</mat-option>
+            <mat-option [value]="'US'">United States</mat-option>
+            <mat-option [value]="'CA'">Canada</mat-option>
+          </mat-select>
+        </mat-form-field> -->
+
+      </div>
+
+      <div class="form-row" *ngIf="selectedExercise">
+        <div class="exercise-info">
+          <h4>Selected Exercise:</h4>
+          <p><strong>{{ selectedExercise.name }}</strong></p>
+          <p>{{ selectedExercise.description }}</p>
+          <span class="exercise-type">{{ selectedExercise.exerciseType }}</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Repetitions"
+          formControlName="reps"
+          placeholder="Enter number of reps"
+          type="number"
+          [required]="true"
+          [errorMessage]="getErrorMessage('reps')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Hold Time (seconds)"
+          formControlName="holdTime"
+          placeholder="Enter hold time in seconds"
+          type="number"
+          [required]="true"
+          [errorMessage]="getErrorMessage('holdTime')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Rest Time (seconds)"
+          formControlName="restTime"
+          placeholder="Enter rest time in seconds"
+          type="number"
+          [required]="true"
+          [errorMessage]="getErrorMessage('restTime')"
+          class="form-field">
+        </app-input>
+      </div>
+    </form>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        variant="outline"
+        [appearance]="'stroked'"
+        (click)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+        
+      </app-button>
+
+      <app-button
+        *ngIf="mode !== 'view'"
+        type="button"
+        variant="primary"
+        [appearance]="'flat'"
+        [disabled]="exerciseSetForm.invalid"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div> 

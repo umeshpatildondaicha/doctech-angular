@@ -1,0 +1,51 @@
+<nav class="sidebar" [class.collapsed]="collapsed">
+  <div class="sidebar-header">
+    <span class="logo">
+      @if (!collapsed) {
+        <img src="assets/logo.svg" alt="ShreeClinic" height="32" />
+      }
+    </span>
+    <button class="collapse-btn" (click)="toggle.emit()" [attr.aria-label]="collapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      @if (!collapsed) {
+        <span>&#x25C0;</span>
+      } @else {
+        <span>&#x25B6;</span>
+      }
+    </button>
+  </div>
+  <ul class="sidebar-nav">
+    <ng-container *ngFor="let item of menuList">
+      <li class="nav-item" 
+          [class.active]="item.route && isActive(item.route)" 
+          (click)="item.route && navigateTo(item.route)"
+          *ngIf="item.section === 'main'">
+        <div>
+          <app-icon [fontSet]="'material-icons-outlined'" [color]="item.route && isActive(item.route)?'#fff':'#18b6b2'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+          <ng-container *ngIf="!collapsed">
+            <span class="label">{{ item.label }}</span>
+          </ng-container>
+        </div>
+      </li>
+    </ng-container>
+  </ul>
+  <div class="sidebar-footer">
+    <ng-container *ngIf="!collapsed">
+      <div class="tools-title">Tools</div>
+    </ng-container>
+    <ul class="sidebar-tools">
+      <ng-container *ngFor="let item of menuList">
+        <li class="nav-item" 
+            [class.active]="item.route && isActive(item.route)" 
+            (click)="item.route && navigateTo(item.route)"
+            *ngIf="item.section === 'tools'">
+          <div>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <ng-container *ngIf="!collapsed">
+              <span class="label">{{ item.label }}</span>
+            </ng-container>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+</nav>

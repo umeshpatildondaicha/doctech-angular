@@ -1,0 +1,18 @@
+<div class="doctor-page page-body">
+  <div class="doctor-content">
+    <app-grid 
+      [gridOptions]="gridOptions"
+      [rowData]="doctorData"
+      [columnDefs]="columnDefs"
+      [height]="'600px'"
+      [animateRows]="true"
+      searchPlaceholder="Search Doctors..."
+      [rightTooltemplateRef]="rightTooltemplate"
+      class="doctor-grid">
+    </app-grid>
+  </div>
+</div>
+
+<ng-template #rightTooltemplate>
+  <app-icon [fontIcon]="'add'" [isCovered]="true" (iconClick)="onCreateDoctor()"></app-icon>
+</ng-template>

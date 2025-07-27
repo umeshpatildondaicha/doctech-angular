@@ -1,0 +1,65 @@
+.diet-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+// Grid Section
+.grid-section {
+  flex: 1;
+  background: white;
+  overflow: hidden;
+
+  app-grid {
+    height: 100%;
+  }
+}
+
+// Custom styles for diet type badges
+.diet-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+// Action buttons styling
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  &.edit-btn:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+  }
+
+  &.view-btn:hover {
+    background-color: rgba(46, 204, 113, 0.1);
+  }
+
+  &.delete-btn:hover {
+    background-color: rgba(231, 76, 60, 0.1);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .diet-container {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .grid-section {
+    border-radius: 8px;
+  }
+}
+

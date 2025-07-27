@@ -1,0 +1,62 @@
+<div class="filter-container">
+  <h2>Filter Grid</h2>
+  <div class="filter-controls">
+    <div class="filter-row" *ngFor="let filter of filters; let i = index">
+      <span class="where-label" *ngIf="i === 0">Where</span>
+      <app-selectbox
+        class="filter-field"
+        [options]="fields"
+        displayExpr="label"
+        valueField="value"
+        [(data)]="filter.field"
+        [placeholder]="'Field'"
+        (dataChange)="onFieldChange(filter)"
+      ></app-selectbox>
+      <app-selectbox
+        class="filter-operator"
+        [options]="operators"
+        displayExpr="label"
+        valueField="value"
+        [(data)]="filter.operator"
+        [placeholder]="'Operator'"
+      ></app-selectbox>
+      <ng-container *ngIf="filter.inputType === 'select'; else inputValue">
+        <app-selectbox
+          class="filter-value"
+          [options]="getValues(filter.field)"
+          [(data)]="filter.value"
+          [placeholder]="'Value'"
+        ></app-selectbox>
+      </ng-container>
+      <ng-template #inputValue>
+        <app-input
+          class="filter-value"
+          [(value)]="filter.value"
+          [placeholder]="'Value'"
+        ></app-input>
+      </ng-template>
+      <button class="delete-btn" *ngIf="filters.length > 1" (click)="removeFilter(i)" title="Remove filter">
+        <span>&#128465;</span>
+      </button>
+    </div>
+
+    <div class="logic-row" *ngIf="filters.length > 1">
+      <button class="logic-btn" [class.active]="logic === 'AND'" (click)="setLogic('AND')">AND</button>
+      <button class="logic-btn" [class.active]="logic === 'OR'" (click)="setLogic('OR')">OR</button>
+    </div>
+
+    <div class="add-filter-row">
+      <button class="add-filter-btn" (click)="addFilter()">+ Add filters</button>
+    </div>
+  </div>
+
+  <div class="filter-footer">
+    <button class="footer-btn basic-btn">Basic</button>
+    <div class="footer-actions">
+      <button class="footer-btn reset-btn" (click)="reset()">Reset to default</button>
+      <button class="footer-btn apply-btn" (click)="apply()">
+        <span class="apply-icon">&#128269;</span> Apply
+      </button>
+    </div>
+  </div>
+</div> 

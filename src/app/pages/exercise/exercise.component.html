@@ -1,0 +1,54 @@
+<div class="exercise-container">
+
+  <mat-tab-group 
+    [selectedIndex]="selectedTabIndex"
+    (selectedIndexChange)="onTabChange($event)"
+    class="exercise-tabs"
+  >
+    <!-- Exercise Sets Tab -->
+    <mat-tab label="Exercise Sets">
+      <div class="tab-content">
+        
+        <app-grid
+          [rowData]="exerciseSets"
+          [columnDefs]="exerciseSetColumns"
+          [gridOptions]="exerciseSetGridOptions"
+          [height]="'500px'"
+          [showHeader]="true"
+          [rightTooltemplateRef]="rightTooltemplateSet"
+          [searchPlaceholder]="'Search exercise sets...'"
+          (rowClicked)="onExerciseSetRowClick($event)"
+        ></app-grid>
+      </div>
+    </mat-tab>
+
+    <!-- Exercises Tab -->
+    <mat-tab label="Exercises">
+      <div class="tab-content">
+        
+        <app-grid
+          [rowData]="exercises"
+          [gridOptions]="exerciseGridOptions"
+          [columnDefs]="exerciseColumns"
+          [height]="'500px'"
+          [showHeader]="true"
+          [rightTooltemplateRef]="rightTooltemplate"
+          [searchPlaceholder]="'Search exercises...'"
+          (rowClicked)="onExerciseRowClick($event)"
+        ></app-grid>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+
+<ng-template #rightTooltemplate>
+    <div class="grid-actions">
+        <app-icon [fontSet]="'material-icons-outlined'" [isCovered]="true" [fontIcon]="'add'" (click)="onAddExercise()"></app-icon>
+    </div>
+</ng-template>
+<ng-template #rightTooltemplateSet>
+    <div class="grid-actions">
+        <app-icon [fontSet]="'material-icons-outlined'" [isCovered]="true" [fontIcon]="'add'" (click)="onAddExerciseSet()"></app-icon>
+    </div>
+</ng-template>

@@ -1,0 +1,26 @@
+<!-- <mat-form-field class="app-selectbox-field" appearance="outline">
+  
+  <mat-select
+    [formControl]="control"
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [value]="data"
+    (selectionChange)="onSelectionChange($event.value)"
+    [required]="required"
+  >
+    <mat-option *ngFor="let option of options" [value]="getValue(option)">
+      {{ getDisplay(option) }}
+    </mat-option>
+  </mat-select>
+  <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+</mat-form-field> -->
+
+
+<mat-form-field>
+  <mat-label *ngIf="label">{{ label }}</mat-label>
+  <mat-select name="countryString" [(value)]="data" placeholder="Country">
+    @for (option of options; track option.value) {
+      <mat-option [value]="getValue(option)">{{ getDisplay(option) }}</mat-option>
+    }
+  </mat-select>
+</mat-form-field>

@@ -1,0 +1,17 @@
+export const CHIP_COLORS = {
+  ACTIVE: '#149d14d4',
+  INACTIVE: '#f23a3ae6',
+  ON_LEAVE: '#ff9800',
+  RETIRED: '#607d8b',
+  SCHEDULED: '#149d14d4',
+  CANCELED: '#f23a3ae6',
+  COMPLETED: '#ff9800',
+  A_POSITIVE: '#149d14d4',
+  A_NEGATIVE: '#f23a3ae6',
+  B_POSITIVE: '#ff9800',
+  B_NEGATIVE: '#607d8b',
+  AB_POSITIVE: '#149d14d4',
+  AB_NEGATIVE: '#f23a3ae6',
+  O_POSITIVE: '#ff9800',
+  O_NEGATIVE: '#607d8b',
+};

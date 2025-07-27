@@ -1,0 +1,247 @@
+<div class="settings-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'settings'" class="title-icon"></app-icon>
+        <h1 class="page-title">Settings</h1>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Content -->
+  <div class="settings-content">
+    <div class="settings-card">
+      <!-- Settings Tabs -->
+      <div class="settings-tabs">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'general'"
+          (click)="onTabChange('general')">
+          <app-icon [fontIcon]="'tune'" class="tab-icon"></app-icon>
+          General
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'notifications'"
+          (click)="onTabChange('notifications')">
+          <app-icon [fontIcon]="'notifications'" class="tab-icon"></app-icon>
+          Notifications
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- General Settings Tab -->
+        <div class="tab-panel" *ngIf="activeTab === 'general'">
+          <form [formGroup]="settingsForm" class="settings-form">
+            <div class="form-section">
+              <h3 class="section-title">Appearance</h3>
+              <div class="form-grid">
+                <div class="form-row">
+                  <app-selectbox
+                    label="Theme"
+                    formControlName="theme"
+                    [options]="themeOptions"
+                    placeholder="Select theme"
+                    [required]="true"
+                    [errorMessage]="getErrorMessage(settingsForm, 'theme')"
+                    class="form-field">
+                  </app-selectbox>
+                </div>
+
+                <div class="form-row">
+                  <app-selectbox
+                    label="Language"
+                    formControlName="language"
+                    [options]="languageOptions"
+                    placeholder="Select language"
+                    [required]="true"
+                    [errorMessage]="getErrorMessage(settingsForm, 'language')"
+                    class="form-field">
+                  </app-selectbox>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3 class="section-title">Date & Time</h3>
+              <div class="form-grid">
+                <div class="form-row">
+                  <app-input
+                    label="Timezone"
+                    formControlName="timezone"
+                    placeholder="Enter timezone"
+                    [required]="true"
+                    [errorMessage]="getErrorMessage(settingsForm, 'timezone')"
+                    class="form-field">
+                  </app-input>
+                </div>
+
+                <div class="form-row">
+                  <app-input
+                    label="Date Format"
+                    formControlName="dateFormat"
+                    placeholder="Enter date format"
+                    [required]="true"
+                    [errorMessage]="getErrorMessage(settingsForm, 'dateFormat')"
+                    class="form-field">
+                  </app-input>
+                </div>
+
+                <div class="form-row">
+                  <app-input
+                    label="Time Format"
+                    formControlName="timeFormat"
+                    placeholder="Enter time format"
+                    [required]="true"
+                    [errorMessage]="getErrorMessage(settingsForm, 'timeFormat')"
+                    class="form-field">
+                  </app-input>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <app-button
+                type="button"
+                variant="outline"
+                (click)="onResetSettings()"
+                [text]="'Reset to Default'"
+                class="reset-btn">
+              </app-button>
+
+              <app-button
+                type="button"
+                variant="primary"
+                (click)="onSaveSettings()"
+                [disabled]="settingsForm.invalid"
+                [text]="'Save Settings'"
+                class="save-btn">
+              </app-button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Notifications Tab -->
+        <div class="tab-panel" *ngIf="activeTab === 'notifications'">
+          <form [formGroup]="notificationForm" class="settings-form">
+            <div class="form-section">
+              <h3 class="section-title">Notification Channels</h3>
+              <div class="notification-options">
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>Email Notifications</h4>
+                    <p>Receive notifications via email</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="emailNotifications"
+                      id="emailNotifications">
+                    <label for="emailNotifications" class="toggle-switch"></label>
+                  </div>
+                </div>
+
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>SMS Notifications</h4>
+                    <p>Receive notifications via SMS</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="smsNotifications"
+                      id="smsNotifications">
+                    <label for="smsNotifications" class="toggle-switch"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3 class="section-title">Notification Types</h3>
+              <div class="notification-options">
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>Appointment Reminders</h4>
+                    <p>Get reminded about upcoming appointments</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="appointmentReminders"
+                      id="appointmentReminders">
+                    <label for="appointmentReminders" class="toggle-switch"></label>
+                  </div>
+                </div>
+
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>New Patient Alerts</h4>
+                    <p>Get notified when new patients register</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="newPatientAlerts"
+                      id="newPatientAlerts">
+                    <label for="newPatientAlerts" class="toggle-switch"></label>
+                  </div>
+                </div>
+
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>System Updates</h4>
+                    <p>Receive notifications about system updates</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="systemUpdates"
+                      id="systemUpdates">
+                    <label for="systemUpdates" class="toggle-switch"></label>
+                  </div>
+                </div>
+
+                <div class="notification-option">
+                  <div class="option-info">
+                    <h4>Marketing Emails</h4>
+                    <p>Receive promotional and marketing emails</p>
+                  </div>
+                  <div class="option-control">
+                    <input 
+                      type="checkbox" 
+                      formControlName="marketingEmails"
+                      id="marketingEmails">
+                    <label for="marketingEmails" class="toggle-switch"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="form-actions">
+              <app-button
+                type="button"
+                variant="outline"
+                (click)="onResetNotifications()"
+                [text]="'Reset to Default'"
+                class="reset-btn">
+              </app-button>
+
+              <app-button
+                type="button"
+                variant="primary"
+                (click)="onSaveNotifications()"
+                [text]="'Save Notifications'"
+                class="save-btn">
+              </app-button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

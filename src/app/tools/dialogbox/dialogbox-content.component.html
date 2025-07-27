@@ -1,0 +1,17 @@
+<div class="dialogbox-header">
+  <div class="dialogbox-title">{{ data?.title }}</div>
+  <app-icon fontIcon="close" [size]="22" (iconClick)="close()" class="close-icon"></app-icon>
+</div>
+<div class="dialogbox-content">
+  <ng-container *ngIf="data?.component">
+    <ng-container *ngComponentOutlet="data.component; injector: createInjector(data.componentData)"></ng-container>
+  </ng-container>
+  <ng-container *ngIf="!data?.component">
+    <ng-container *ngIf="data?.content; else projected">
+      {{ data.content }}
+    </ng-container>
+    <ng-template #projected>
+      <ng-content></ng-content>
+    </ng-template>
+  </ng-container>
+</div> 

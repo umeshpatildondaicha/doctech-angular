@@ -1,0 +1,18 @@
+<div class="appointment-page">
+  <div class="appointment-content">
+    <app-grid 
+      [gridOptions]="gridOptions"
+      [rowData]="rowData"
+      [columnDefs]="columnDefs"
+      [height]="'600px'"
+      [animateRows]="true"
+      searchPlaceholder="Search Appointments..."
+      [rightTooltemplateRef]="rightTooltemplate"
+      class="appointment-grid">
+    </app-grid>
+  </div>
+</div>
+
+<ng-template #rightTooltemplate>
+  <app-icon [fontIcon]="'add'" [isCovered]="true" (iconClick)="createAppointment()"></app-icon>
+</ng-template>

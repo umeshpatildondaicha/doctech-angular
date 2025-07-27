@@ -1,0 +1,22 @@
+<button
+  mat-button
+  [color]="color"
+  [type]="type"
+  [disabled]="disabled"
+  [ngClass]="class"
+  [attr.mat-flat-button]="appearance === 'flat' ? '' : null"
+  [attr.mat-raised-button]="appearance === 'raised' ? '' : null"
+  [attr.mat-stroked-button]="appearance === 'stroked' ? '' : null"
+  [attr.mat-icon-button]="appearance === 'icon' ? '' : null"
+  [attr.mat-fab]="appearance === 'fab' ? '' : null"
+  [attr.mat-mini-fab]="appearance === 'mini-fab' ? '' : null"
+  (click)="onClick($event)"
+>
+   @if(appearance === 'icon') {
+    <app-icon [fontIcon]="fontIcon"></app-icon>
+   }
+   @if(text) {
+    <span>{{ text }}</span>
+   }
+  <ng-content></ng-content>
+</button>

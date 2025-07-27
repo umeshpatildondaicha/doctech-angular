@@ -1,0 +1,18 @@
+<div class="diet-container">
+  <!-- Grid Section -->
+  <div class="grid-section">
+    <app-grid
+      [rowData]="dietList"
+      [columnDefs]="columnDefs"
+      [gridOptions]="gridOptions"
+      [showHeader]="true"
+      searchPlaceholder="Search diets..."
+      [rightTooltemplateRef]="rightTooltemplate"
+      (searchChange)="onSearchChange($event)">
+    </app-grid>
+  </div>
+</div>
+
+<ng-template #rightTooltemplate>
+    <app-icon [fontIcon]="'add'" [isCovered]="true" (iconClick)="onCreateDiet()"></app-icon>
+</ng-template>

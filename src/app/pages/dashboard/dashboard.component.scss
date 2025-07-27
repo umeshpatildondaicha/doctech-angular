@@ -1,0 +1,382 @@
+$teal: #10b3b3;
+$gray-bg: #f8fafc;
+$card-radius: 16px;
+$card-shadow: 0 2px 8px rgba(16, 179, 179, 0.04);
+
+.dashboard-page {
+  width: 100%;
+  min-height: 100vh;
+  background: $gray-bg;
+  padding-bottom: 32px;
+}
+
+.dashboard-header {
+  margin-bottom: 16px;
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #222;
+  }
+  .subtitle {
+    color: #888;
+    font-size: 1rem;
+    margin-top: 4px;
+  }
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: #fff;
+  border-radius: $card-radius;
+  box-shadow: $card-shadow;
+  padding: 24px 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.stat-title {
+  color: #888;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-growth {
+  color: $teal;
+  font-size: 1rem;
+  font-weight: 600;
+  background: #e6f9f9;
+  border-radius: 8px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+
+.stat-secondary {
+  color: #888;
+  font-size: 1.2rem;
+}
+
+.stat-desc {
+  color: #888;
+  font-size: 0.95rem;
+}
+
+.stat-btn {
+  margin-top: 8px;
+  background: $teal;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.stat-btn:hover {
+  background: darken($teal, 8%);
+}
+
+.dashboard-main {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.main-left {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.main-right {
+  flex: 1;
+  min-width: 320px;
+}
+
+.card {
+  background: #fff;
+  border-radius: $card-radius;
+  box-shadow: $card-shadow;
+  padding: 24px 20px 20px 24px;
+  margin-bottom: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.sort-by {
+  color: #888;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.chart-placeholder {
+  width: 100%;
+  height: 120px;
+  background: linear-gradient(180deg, #f8fafc 80%, #e6f9f9 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 8px;
+}
+
+.patient-appointment-card {
+  margin-top: 24px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 24px;
+  padding: 0 12px;
+  height: 36px;
+  border: 1px solid #e0e0e0;
+  min-width: 180px;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  width: 100%;
+  color: #222;
+}
+
+.search-icon {
+  color: $teal;
+  font-size: 1.1rem;
+  margin-right: 8px;
+}
+
+.appointment-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  margin-top: 8px;
+}
+
+.appointment-table th {
+  color: #888;
+  font-size: 0.98rem;
+  font-weight: 600;
+  text-align: left;
+  padding-bottom: 6px;
+}
+
+.appointment-table td {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  color: #222;
+  vertical-align: middle;
+}
+
+.appointment-table .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.status {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  &.confirmed {
+    background: #e6f9f9;
+    color: $teal;
+  }
+  &.pending {
+    background: #fffbe6;
+    color: #e6a100;
+  }
+  &.cancelled {
+    background: #ffeaea;
+    color: #e01010;
+  }
+}
+
+.doctor-schedule-card {
+  min-width: 320px;
+}
+
+.schedule-stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 16px 0 12px 0;
+  font-size: 1.1rem;
+  color: #222;
+  .stat-label {
+    color: #888;
+    font-size: 0.95rem;
+    font-weight: 400;
+  }
+}
+
+.doctor-list-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+
+.doctor-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doctor-list li {
+  display: flex;
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  gap: 12px;
+}
+
+.doctor-list .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.doctor-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.doctor-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.doctor-specialty {
+  font-size: 0.92rem;
+  color: #888;
+}
+
+.doctor-status {
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 2px 14px;
+  &.available {
+    background: #e6f9f9;
+    color: $teal;
+  }
+  &.unavailable {
+    background: #ffeaea;
+    color: #e01010;
+  }
+}
+
+.more {
+  font-size: 1.5rem;
+  color: #888;
+  cursor: pointer;
+}
+
+.arrow {
+  font-size: 1.1rem;
+  color: #888;
+  margin-left: 4px;
+}
+
+@media (max-width: 1200px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-main {
+    flex-direction: column;
+  }
+  .main-right {
+    min-width: 0;
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .dashboard-main {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .main-right {
+    min-width: 0;
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-page {
+    padding: 0 2px;
+  }
+  .dashboard-header {
+    margin-bottom: 8px;
+  }
+  .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .dashboard-main {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .main-left {
+    gap: 10px;
+  }
+  .main-right {
+    margin-top: 10px;
+  }
+  .card {
+    padding: 12px 6px 10px 10px;
+  }
+}

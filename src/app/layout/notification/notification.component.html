@@ -1,0 +1,74 @@
+<div class="notification-panel">
+  <div class="notification-header">
+    <div class="header-left">
+      <h3>Notifications</h3>
+      <span class="unread-count" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+    </div>
+    <div class="header-right">
+      <button 
+        class="mark-all-read-btn" 
+        *ngIf="getUnreadCount() > 0"
+        (click)="onMarkAllAsRead()"
+      >
+        Mark all as read
+      </button>
+      <app-icon 
+        fontIcon="close" 
+        [size]="20"
+        (iconClick)="onClose()"
+        class="close-icon"
+      ></app-icon>
+    </div>
+  </div>
+
+  <div class="notification-content">
+    <div 
+      *ngFor="let notification of notifications" 
+      class="notification-item"
+      [class.unread]="!notification.isRead"
+      (click)="onMarkAsRead(notification.id)"
+    >
+      <div class="notification-avatar">
+        <img 
+          *ngIf="notification.avatar" 
+          [src]="notification.avatar" 
+          [alt]="notification.title"
+          class="avatar-img"
+        />
+        <app-icon 
+          *ngIf="!notification.avatar"
+          [fontIcon]="getTypeIcon(notification.type)"
+          [color]="getTypeColor(notification.type)"
+          [size]="24"
+          class="type-icon"
+        ></app-icon>
+      </div>
+      
+      <div class="notification-details">
+        <div class="notification-title">{{ notification.title }}</div>
+        <div class="notification-message">{{ notification.message }}</div>
+        <div class="notification-time">{{ formatTime(notification.timestamp) }}</div>
+      </div>
+
+      <div class="notification-status">
+        <div 
+          *ngIf="!notification.isRead" 
+          class="unread-indicator"
+        ></div>
+      </div>
+    </div>
+
+    <div 
+      *ngIf="notifications.length === 0" 
+      class="empty-state"
+    >
+      <app-icon 
+        fontIcon="notifications_none" 
+        [size]="48"
+        color="#ccc"
+      ></app-icon>
+      <p>No notifications</p>
+      <span>You're all caught up!</span>
+    </div>
+  </div>
+</div> 

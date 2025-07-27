@@ -1,0 +1,54 @@
+import { Component, EventEmitter, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { AppInputComponent } from '../../tools/app-input/app-input.component';
+import { IconComponent } from '../../tools/app-icon/icon.component';
+import { NotificationService } from '../notification/notification.service';
+
+@Component({
+  selector: 'app-topbar',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatMenuModule,
+    MatButtonModule,
+    AppInputComponent,
+    IconComponent
+  ],
+  templateUrl: './topbar.component.html',
+  styleUrl: './topbar.component.scss'
+})
+export class TopbarComponent {
+  searchText: string = '';
+  @Output() openPatientQueue = new EventEmitter<any>();
+
+  constructor(
+    private notificationService: NotificationService,
+    private router: Router
+  ) {}
+
+  onNotificationClick(event: Event) {
+    const targetElement = event.currentTarget as HTMLElement;
+    const notifications = this.notificationService.getSampleNotifications();
+    this.notificationService.openNotificationPanel(notifications, targetElement);
+  }
+
+  showPatientQueue(event: Event) {
+    this.openPatientQueue.emit(event);
+  }
+
+  onProfileClick(event: Event) {
+    // This method is now handled by the mat-menu trigger
+    console.log('Profile menu opened');
+  }
+
+  onProfileMenuClick() {
+    this.router.navigate(['/profile']);
+  }
+
+  onSettingsMenuClick() {
+    this.router.navigate(['/settings']);
+  }
+}

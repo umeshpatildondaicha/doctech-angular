@@ -1,0 +1,59 @@
+@if(search && !multiline) {
+  <mat-form-field [appearance]="appearance" class="app-search-input-field" hideRequiredMarker="true">
+    <mat-label *ngIf="label">{{ label }}</mat-label>
+    @if(prefixIconName) {
+      <mat-icon matPrefix [style.fontSize]="prefixIconSize">{{ prefixIconName }}</mat-icon>
+    }
+    <input
+      matInput
+      [type]="type"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      [required]="required"
+      [value]="value"
+      (input)="onInput($event)"
+      [matAutocomplete]="auto"
+    />
+    <ng-container *ngIf="suffixIconName">
+      <mat-icon matSuffix [style.fontSize]="suffixIconSize">{{ suffixIconName }}</mat-icon>
+    </ng-container>
+    <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+    <mat-autocomplete #auto="matAutocomplete">
+      <mat-option *ngFor="let option of searchOptions" [value]="option">
+        {{ option }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+} @else {
+  <mat-form-field [appearance]="appearance" class="app-input-field" hideRequiredMarker="true">
+    <mat-label *ngIf="label">{{ label }}</mat-label>
+    @if(prefixIconName) {
+      <mat-icon matPrefix [style.fontSize]="prefixIconSize">{{ prefixIconName }}</mat-icon>
+    }
+    @if(multiline) {
+      <textarea
+        matInput
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [required]="required"
+        [value]="value"
+        (input)="onInput($event)"
+        [rows]="rows">
+      </textarea>
+    } @else {
+      <input
+        matInput
+        [type]="type"
+        [placeholder]="placeholder"
+        [disabled]="disabled"
+        [required]="required"
+        [value]="value"
+        (input)="onInput($event)"
+      />
+    }
+    <ng-container *ngIf="suffixIconName">
+      <mat-icon matSuffix [style.fontSize]="suffixIconSize">{{ suffixIconName }}</mat-icon>
+    </ng-container>
+    <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+  </mat-form-field>
+}

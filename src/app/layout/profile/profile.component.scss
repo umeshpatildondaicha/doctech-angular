@@ -1,0 +1,267 @@
+.profile-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// Page Header
+.page-header {
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+
+    .title-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .title-icon {
+        font-size: 32px;
+        color: var(--primary-color);
+      }
+
+      .page-title {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+    }
+
+    .header-actions {
+      .edit-btn {
+        padding: 12px 24px;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Profile Content
+.profile-content {
+  flex: 1;
+  overflow-y: auto;
+
+  .profile-card {
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+  }
+
+  .profile-header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    // color: white;
+
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      .avatar {
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+
+        .avatar-icon {
+          font-size: 40px;
+          color: white;
+        }
+      }
+
+      .profile-info {
+        .profile-name {
+          margin: 0 0 8px 0;
+          font-size: 24px;
+          font-weight: 600;
+        }
+
+        .profile-role {
+          margin: 0 0 4px 0;
+          font-size: 16px;
+          opacity: 0.9;
+        }
+
+        .profile-experience {
+          margin: 0;
+          font-size: 14px;
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  .profile-form {
+    padding: 1.5em 0em;
+
+    .form-section {
+      margin-bottom: 32px;
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        margin: 0 0 20px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        &::before {
+          content: '';
+          width: 4px;
+          height: 18px;
+          background-color: var(--primary-color);
+          border-radius: 2px;
+        }
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+
+        .form-row {
+          .form-field {
+            width: 100%;
+          }
+        }
+      }
+
+      .form-row {
+        margin-bottom: 20px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        .form-field {
+          width: 100%;
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: flex-end;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
+
+      .cancel-btn,
+      .save-btn {
+        min-width: 120px;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .profile-container {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .page-header {
+    .header-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+
+      .title-section {
+        .title-icon {
+          font-size: 24px;
+        }
+
+        .page-title {
+          font-size: 24px;
+        }
+      }
+
+      .header-actions {
+        width: 100%;
+
+        .edit-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .profile-content {
+    .profile-card {
+      border-radius: 8px;
+    }
+
+    .profile-header {
+      padding: 24px 16px;
+
+      .avatar-section {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+
+        .avatar {
+          width: 60px;
+          height: 60px;
+
+          .avatar-icon {
+            font-size: 30px;
+          }
+        }
+
+        .profile-info {
+          .profile-name {
+            font-size: 20px;
+          }
+        }
+      }
+    }
+
+    .profile-form {
+      padding: 1.5em 0em;
+
+      .form-section {
+        .form-grid {
+          grid-template-columns: 1fr;
+          gap: 16px;
+        }
+      }
+
+      .form-actions {
+        flex-direction: column-reverse;
+        gap: 12px;
+
+        .cancel-btn,
+        .save-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .profile-container {
+    background-color: var(--surface-color);
+  }
+
+  .profile-content {
+    .profile-card {
+      background: var(--surface-color);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+  }
+}

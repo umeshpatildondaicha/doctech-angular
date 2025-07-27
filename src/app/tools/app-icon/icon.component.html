@@ -1,0 +1,27 @@
+@if(isCovered && !counter){ 
+  <div class="icon-covered">
+    <mat-icon
+      [fontIcon]="fontIcon"
+      [ngClass]="class"
+      [style.fontSize.px]="size"
+      [style.color]="color"
+      (click)="onClick($event)"
+      style="vertical-align: middle; cursor: pointer;"
+    ></mat-icon>
+  </div>
+}
+@else if(counter){
+  <div class="icon-covered" (click)="onClick($event)" [class]="{'icon-blink': isBlink, 'font-bold': fontBold}">
+    <span class="counter" [style.color]="color">{{counter}}</span>
+  </div>
+}
+@else{
+    <mat-icon
+    [fontIcon]="fontIcon"
+    [ngClass]="class"
+    [style.fontSize.px]="size"
+    [style.color]="color"
+    (click)="onClick($event)"
+    style="vertical-align: middle; cursor: pointer;"
+  ></mat-icon>
+}

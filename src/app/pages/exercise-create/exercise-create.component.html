@@ -1,0 +1,77 @@
+<div class="exercise-create-container">
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon fontIcon="fitness_center" class="title-icon"></app-icon>
+        <h2 class="title">{{ mode === 'edit' ? 'Edit Exercise' : mode === 'view' ? 'View Exercise' : 'Create New Exercise' }}</h2>
+      </div>
+        <app-icon fontIcon="close" (iconClick)="onCancel()"></app-icon>
+      
+    </div>
+  </div>
+
+  <div class="dialog-content">
+    <form [formGroup]="exerciseForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="form-row">
+        <app-input
+          label="Exercise Name"
+          formControlName="name"
+          placeholder="Enter exercise name"
+          [required]="true"
+          [errorMessage]="getErrorMessage('name')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-input
+          label="Description"
+          formControlName="description"
+          placeholder="Enter exercise description"
+          [required]="true"
+          [multiline]="true"
+          [rows]="3"
+          [errorMessage]="getErrorMessage('description')"
+          class="form-field">
+        </app-input>
+      </div>
+
+      <div class="form-row">
+        <app-selectbox
+          label="Exercise Type"
+          formControlName="exerciseType"
+          [options]="exerciseTypes"
+          placeholder="Select exercise type"
+          [required]="true"
+          [displayExpr]="'label'"
+          [valueField]="'value'"
+          [errorMessage]="getErrorMessage('exerciseType')"
+          class="form-field">
+        </app-selectbox>
+      </div>
+
+      
+    </form>
+  </div>
+
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        variant="outline"
+        (click)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
+
+      <app-button
+        *ngIf="mode !== 'view'"
+        type="submit"
+        variant="primary"
+        [disabled]="exerciseForm.invalid"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div> 

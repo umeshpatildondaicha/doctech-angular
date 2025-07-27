@@ -1,0 +1,135 @@
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  ::ng-deep{
+    ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+  }
+}
+
+.grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 8px;
+  height: 4em;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  border-radius: 8px 8px 0 0;
+}
+
+.search-section {
+  flex: 1;
+  max-width: 18em;
+  height: 2.5em;
+  max-height: 3em;
+  min-height: 2em;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.filter-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  max-width: 50%;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #f0f0f0;
+    border-color: #18b6b2;
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.grid-content {
+  height: calc(100% - 4em);
+}
+
+::ng-deep{
+  .ag-header{
+
+  }
+
+  .ag-viewport{
+    background-color: #f7f8fa !important;
+  }
+  .ag-row{
+    border-bottom:0.1px solid #e1e6eb !important;
+    background-color: #f7f8fa !important;
+  }
+  .ag-cell-value{
+    display: flex !important;
+        flex-direction: row !important;
+        place-content: start !important;
+        align-items: center !important;
+  }
+  
+  .mat-mdc-tab-body-content{
+        overflow: hidden !important;
+  }
+
+  .ag-root-wrapper{
+    margin-right: -0.5em !important;
+
+    border: var(--primary-color) !important;
+
+      ::-webkit-scrollbar {
+      width: 0px !important;
+      height: 0px !important;
+    }
+    ::-webkit-scrollbar-thumb{
+      width: 0px;
+      height: 0px !important;
+    }
+  }
+
+  .ag-body{
+    overflow-y: scroll !important;
+    ::-webkit-scrollbar {
+      width: 0px !important;
+      background: transparent !important;
+      border: none !important;
+    }
+    ::-webkit-scrollbar-thumb{
+      width: 0px;
+    }
+  }
+  .ag-root-wrapper{
+    height: 100% !important;
+  }
+  .ag-root-wrapper-body{
+    height: 100% !important;
+  }
+  .ag-layout-auto-height{
+    overflow-y: scroll !important;
+  }
+
+  .ag-grid-container{
+    height: calc(100% - 4em);
+  }
+}
+

@@ -1,0 +1,169 @@
+<div class="profile-container">
+
+  <!-- Profile Content -->
+  <div class="profile-content">
+    <div class="profile-card">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar">
+            <app-icon [fontIcon]="'person'" [isCovered]="true" class="avatar-icon"></app-icon>
+          </div>
+          <div class="profile-info">
+            <h2 class="profile-name">{{ profileForm.get('firstName')?.value }} {{ profileForm.get('lastName')?.value }}</h2>
+            <p class="profile-role">{{ profileForm.get('specialization')?.value }}</p>
+            <p class="profile-experience">{{ profileForm.get('experience')?.value }} years of experience</p>
+          </div>
+
+          <div>
+            @if(!isEditing) {
+            <app-button
+            type="button"
+            [appearance]="'basic'"
+            (btnClick)="onEdit()"
+            [text]="'Edit Profile'"
+            class="edit-btn">
+          </app-button>
+          }
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Form -->
+      <form [formGroup]="profileForm" class="profile-form">
+        <div class="form-section">
+          <h3 class="section-title">Personal Information</h3>
+          <div class="form-grid">
+            <div class="form-row">
+              <app-input
+                label="First Name"
+                formControlName="firstName"
+                placeholder="Enter first name"
+                [required]="true"
+                [errorMessage]="getErrorMessage('firstName')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+
+            <div class="form-row">
+              <app-input
+                label="Last Name"
+                formControlName="lastName"
+                placeholder="Enter last name"
+                [required]="true"
+                [errorMessage]="getErrorMessage('lastName')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+
+            <div class="form-row">
+              <app-input
+                label="Email"
+                formControlName="email"
+                placeholder="Enter email address"
+                type="email"
+                [required]="true"
+                [errorMessage]="getErrorMessage('email')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+
+            <div class="form-row">
+              <app-input
+                label="Phone"
+                formControlName="phone"
+                placeholder="Enter phone number"
+                [required]="true"
+                [errorMessage]="getErrorMessage('phone')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Professional Information</h3>
+          <div class="form-grid">
+            <div class="form-row">
+              <app-input
+                label="Specialization"
+                formControlName="specialization"
+                placeholder="Enter specialization"
+                [required]="true"
+                [errorMessage]="getErrorMessage('specialization')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+
+            <div class="form-row">
+              <app-input
+                label="License Number"
+                formControlName="licenseNumber"
+                placeholder="Enter license number"
+                [required]="true"
+                [errorMessage]="getErrorMessage('licenseNumber')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+
+            <div class="form-row">
+              <app-input
+                label="Years of Experience"
+                formControlName="experience"
+                placeholder="Enter years of experience"
+                type="number"
+                [required]="true"
+                [errorMessage]="getErrorMessage('experience')"
+                [disabled]="!isEditing"
+                class="form-field">
+              </app-input>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3 class="section-title">Bio</h3>
+          <div class="form-row">
+            <app-input
+              label="Professional Bio"
+              formControlName="bio"
+              placeholder="Enter your professional bio"
+              [required]="true"
+              [multiline]="true"
+              [rows]="4"
+              [errorMessage]="getErrorMessage('bio')"
+              [disabled]="!isEditing"
+              class="form-field">
+            </app-input>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="form-actions" *ngIf="isEditing">
+          <app-button
+            type="button"
+            variant="outline"
+            (click)="onCancel()"
+            [text]="'Cancel'"
+            class="cancel-btn">
+          </app-button>
+
+          <app-button
+            type="button"
+            variant="primary"
+            (click)="onSave()"
+            [disabled]="profileForm.invalid"
+            [text]="'Save Changes'"
+            class="save-btn">
+          </app-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

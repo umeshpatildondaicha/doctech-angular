@@ -1,0 +1,14 @@
+.doctor-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.doctor-content {
+  flex: 1;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.doctor-grid {
+  width: 100%;
+}
