@@ -1,116 +1,181 @@
-<div class="exercise-set-create-dialog">
+<div class="exercise-group-dialog">
   <!-- Dialog Header -->
   <div class="dialog-header">
     <div class="header-content">
       <div class="title-section">
-        <app-icon fontIcon="fitness_center" class="title-icon"></app-icon>
-        <h2 class="title">{{ mode === 'edit' ? 'Edit Exercise Set' :  mode ==='view' ? 'View Exercise Set' :  ('Create New Exercise Set') }}</h2>
+        <app-icon fontIcon="group_work" class="title-icon"></app-icon>
+        <h2 class="title">{{ mode === 'edit' ? 'Edit Exercise Group' : mode === 'view' ? 'View Exercise Group' : 'Create Exercise Group' }}</h2>
       </div>
-        <app-icon fontIcon="close" (iconClick)="onCancel()"></app-icon>
-      
+      <div class="header-actions">
+        <button mat-icon-button *ngIf="mode === 'view' && data?.exerciseGroup" (click)="onDuplicate()" matTooltip="Duplicate Exercise Group">
+          <mat-icon>content_copy</mat-icon>
+        </button>
+        <button mat-icon-button (click)="onCancel()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- Dialog Content -->
   <div class="dialog-content">
-    <form [formGroup]="exerciseSetForm" (ngSubmit)="onSubmit()" class="form">
-      <div class="form-row">
-        <app-input
-          label="Set Number"
-          formControlName="setNumber"
-          placeholder="Enter set number"
-          type="number"
-          [required]="true"
-          [errorMessage]="getErrorMessage('setNumber')"
-          class="form-field">
-        </app-input>
-      </div>
+    <form [formGroup]="exerciseGroupForm" (ngSubmit)="onSubmit()" class="form">
+      
+      <!-- Group Information -->
+      <div class="form-section">
+        <h3 class="section-title">Group Information</h3>
+        <div class="form-row">
+          <app-input
+            label="Group Name *"
+            formControlName="groupName"
+            placeholder="Enter group name (e.g., Upper Body Workout)"
+            [required]="true"
+            [errorMessage]="getErrorMessage('groupName')"
+            class="form-field">
+          </app-input>
+        </div>
 
-      <div class="form-row">
-        <app-selectbox
-          label="Exercise"
-          formControlName="exerciseId"
-          [options]="exerciseOptions"
-          placeholder="Select exercise"
-          [required]="true"
-          [(data)]="selectedCountry"
-          [valueField]="'value'"
-          [displayExpr]="'label'"
-          [errorMessage]="getErrorMessage('exerciseId')"
-          class="form-field">
-        </app-selectbox>
-        
+        <div class="form-row">
+          <app-input
+            label="Description"
+            formControlName="description"
+            placeholder="Describe this exercise group"
+            [multiline]="true"
+            [rows]="3"
+            class="form-field full-width">
+          </app-input>
+        </div>
 
-        <!-- <mat-form-field class="app-selectbox-field" appearance="outline">
-          <mat-label >{{ 'Exercises' }}</mat-label>
-          <mat-select
-            [placeholder]="'Select exercise'"
-            [disabled]="false"
-            [value]="data"
-            (selectionChange)="onExerciseSelectionChange($event.value)"
-            
-          >
-            <mat-option *ngFor="let option of exerciseOptions" [value]="(option.value)">
-              {{ option.label }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="getErrorMessage('exerciseId')">{{ getErrorMessage('exerciseId') }}</mat-error>
-        </mat-form-field> -->
+        <div class="form-row">
+          <app-selectbox
+            label="Category"
+            formControlName="category"
+            [options]="groupCategories"
+            placeholder="Select category"
+            [displayExpr]="'label'"
+            [valueField]="'value'"
+            class="form-field">
+          </app-selectbox>
 
-        <!-- <mat-form-field>
-          <mat-select name="countryString" [(value)]="selectedCountry" placeholder="Country">
-            <mat-option [value]="'GB'">Great Britain</mat-option>
-            <mat-option [value]="'US'">United States</mat-option>
-            <mat-option [value]="'CA'">Canada</mat-option>
-          </mat-select>
-        </mat-form-field> -->
-
-      </div>
-
-      <div class="form-row" *ngIf="selectedExercise">
-        <div class="exercise-info">
-          <h4>Selected Exercise:</h4>
-          <p><strong>{{ selectedExercise.name }}</strong></p>
-          <p>{{ selectedExercise.description }}</p>
-          <span class="exercise-type">{{ selectedExercise.exerciseType }}</span>
+          <app-selectbox
+            label="Difficulty Level"
+            formControlName="difficulty"
+            [options]="difficultyLevels"
+            placeholder="Select difficulty"
+            [displayExpr]="'label'"
+            [valueField]="'value'"
+            class="form-field">
+          </app-selectbox>
         </div>
       </div>
 
-      <div class="form-row">
-        <app-input
-          label="Repetitions"
-          formControlName="reps"
-          placeholder="Enter number of reps"
-          type="number"
-          [required]="true"
-          [errorMessage]="getErrorMessage('reps')"
-          class="form-field">
-        </app-input>
+      <!-- Exercise Selection -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3 class="section-title">Exercises in Group</h3>
+        </div>
+
+        <!-- Exercise Search and Filter -->
+        <div class="exercise-search">
+          <div class="search-container">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>Search exercises...</mat-label>
+              <input matInput [(ngModel)]="searchQuery" placeholder="Search by name, category, or muscles">
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+          </div>
+          
+          <div class="filter-container">
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Category</mat-label>
+              <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryFilterChange()">
+                <mat-option value="">All Categories</mat-option>
+                <mat-option *ngFor="let category of categories" [value]="category.value">
+                  {{ category.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="filter-field">
+              <mat-label>Difficulty</mat-label>
+              <mat-select [(ngModel)]="selectedDifficulty" (selectionChange)="onDifficultyFilterChange()">
+                <mat-option value="">All Difficulties</mat-option>
+                <mat-option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
+                  {{ difficulty.label }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- Selected Exercises -->
+        <div class="selected-exercises" *ngIf="selectedExercises.length > 0">
+          <h4 class="subsection-title">Selected Exercises ({{ selectedExercises.length }})</h4>
+          <div class="selected-exercises-list">
+            <div class="selected-exercise-item" *ngFor="let exercise of selectedExercises; let i = index">
+              <div class="exercise-info">
+                <div class="exercise-header">
+                  <h5 class="exercise-name">{{ exercise.name }}</h5>
+                  <div class="exercise-meta">
+                    <span class="category-badge">{{ exercise.category }}</span>
+                    <span class="difficulty-badge" [class]="'difficulty-' + exercise.difficulty.toLowerCase()">
+                      {{ exercise.difficulty }}
+                    </span>
+                  </div>
+                </div>
+                <p class="exercise-description">{{ exercise.description }}</p>
+                <div class="exercise-details">
+                  <span class="detail-item">
+                    <mat-icon>fitness_center</mat-icon>
+                    {{ exercise.targetMuscles.join(', ') }}
+                  </span>
+                  <span class="detail-item" *ngIf="exercise.equipment && exercise.equipment.length > 0">
+                    <mat-icon>build</mat-icon>
+                    {{ exercise.equipment.join(', ') }}
+                  </span>
+                </div>
+              </div>
+              <div class="exercise-actions">
+                <button type="button" mat-icon-button (click)="removeExerciseFromGroup(i)" class="remove-btn">
+                  <mat-icon>remove_circle</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available Exercises -->
+        <div class="available-exercises">
+          <h4 class="subsection-title">Available Exercises</h4>
+          <div class="exercises-grid" *ngIf="getFilteredExercises().length > 0; else noExercises">
+            <div class="exercise-card" 
+                 *ngFor="let exercise of getFilteredExercises()" 
+                 [class.selected]="isExerciseSelected(exercise)"
+                 (click)="toggleExerciseSelection(exercise)">
+              <div class="card-header">
+                <h5 class="exercise-name">{{ exercise.name }}</h5>
+                <div class="exercise-badges">
+                  <span class="category-badge">{{ exercise.category }}</span>
+                  <span class="difficulty-badge" [class]="'difficulty-' + exercise.difficulty.toLowerCase()">
+                    {{ exercise.difficulty }}
+                  </span>
+                </div>
+              </div>
+              <p class="exercise-description">{{ exercise.description }}</p>
+              <div class="exercise-muscles">
+                <mat-icon>fitness_center</mat-icon>
+                <span>{{ exercise.targetMuscles.join(', ') }}</span>
+              </div>
+              <div class="selection-indicator">
+                <mat-icon *ngIf="isExerciseSelected(exercise)">check_circle</mat-icon>
+                <mat-icon *ngIf="!isExerciseSelected(exercise)">radio_button_unchecked</mat-icon>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="form-row">
-        <app-input
-          label="Hold Time (seconds)"
-          formControlName="holdTime"
-          placeholder="Enter hold time in seconds"
-          type="number"
-          [required]="true"
-          [errorMessage]="getErrorMessage('holdTime')"
-          class="form-field">
-        </app-input>
-      </div>
 
-      <div class="form-row">
-        <app-input
-          label="Rest Time (seconds)"
-          formControlName="restTime"
-          placeholder="Enter rest time in seconds"
-          type="number"
-          [required]="true"
-          [errorMessage]="getErrorMessage('restTime')"
-          class="form-field">
-        </app-input>
-      </div>
     </form>
   </div>
 
@@ -120,22 +185,29 @@
       <app-button
         type="button"
         variant="outline"
-        [appearance]="'stroked'"
         (click)="onCancel()"
         [text]="'Cancel'"
         class="cancel-btn">
-        
       </app-button>
 
       <app-button
         *ngIf="mode !== 'view'"
-        type="button"
+        type="submit"
         variant="primary"
-        [appearance]="'flat'"
-        [disabled]="exerciseSetForm.invalid"
+        [disabled]="exerciseGroupForm.invalid || selectedExercises.length === 0"
         [text]="submitButtonText"
+        (click)="onSubmit()"
         class="submit-btn">
       </app-button>
     </div>
   </div>
-</div> 
+</div>
+
+<!-- No Exercises Template -->
+<ng-template #noExercises>
+  <div class="no-exercises">
+    <mat-icon class="no-exercises-icon">fitness_center</mat-icon>
+    <h4>No exercises found</h4>
+    <p>Try adjusting your search criteria or create some exercises first.</p>
+  </div>
+</ng-template> 

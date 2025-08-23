@@ -7,11 +7,24 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../tools/app-selectbox/app-selectbox.component';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { ExerciseSet, Exercise } from '../../interfaces/exercise.interface';
+
+interface ExerciseGroup {
+  groupId: string;
+  groupName: string;
+  description?: string;
+  category?: string;
+  difficulty?: string;
+  exercises: Exercise[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 @Component({
   selector: 'app-exercise-set-create',
@@ -26,6 +39,8 @@ import { ExerciseSet, Exercise } from '../../interfaces/exercise.interface';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
+    MatChipsModule,
+    MatTooltipModule,
     AppButtonComponent,
     AppInputComponent,
     AppSelectboxComponent,
@@ -35,18 +50,55 @@ import { ExerciseSet, Exercise } from '../../interfaces/exercise.interface';
   styleUrl: './exercise-set-create.component.scss'
 })
 export class ExerciseSetCreateComponent {
-  exerciseSetForm: FormGroup;
+  exerciseGroupForm: FormGroup;
   exercises: Exercise[] = [];
-  selectedCountry: string = '';
-  selectedCountryControl = new FormControl(this.selectedCountry);
+  selectedExercises: Exercise[] = [];
+  searchQuery: string = '';
+  selectedCategory: string = '';
+  selectedDifficulty: string = '';
   mode: string = 'create';
-  submitButtonText: string = 'Create Exercise Set';
+  submitButtonText: string = 'Create Exercise Group';
+
+  // Options for dropdowns
+  groupCategories = [
+    { label: 'Strength Training', value: 'strength' },
+    { label: 'Cardio', value: 'cardio' },
+    { label: 'Flexibility', value: 'flexibility' },
+    { label: 'Balance', value: 'balance' },
+    { label: 'Functional', value: 'functional' },
+    { label: 'Sports Specific', value: 'sports' },
+    { label: 'Rehabilitation', value: 'rehabilitation' }
+  ];
+
+  difficultyLevels = [
+    { label: 'Beginner', value: 'beginner' },
+    { label: 'Intermediate', value: 'intermediate' },
+    { label: 'Advanced', value: 'advanced' },
+    { label: 'Expert', value: 'expert' }
+  ];
+
+  categories = [
+    { label: 'Strength', value: 'strength' },
+    { label: 'Cardio', value: 'cardio' },
+    { label: 'Flexibility', value: 'flexibility' },
+    { label: 'Balance', value: 'balance' },
+    { label: 'Functional', value: 'functional' },
+    { label: 'Sports', value: 'sports' },
+    { label: 'Rehabilitation', value: 'rehabilitation' }
+  ];
+
+  difficulties = [
+    { label: 'Beginner', value: 'beginner' },
+    { label: 'Intermediate', value: 'intermediate' },
+    { label: 'Advanced', value: 'advanced' },
+    { label: 'Expert', value: 'expert' }
+  ];
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<ExerciseSetCreateComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { 
-      exerciseSet?: ExerciseSet;
+      exerciseGroup?: ExerciseGroup;
       availableExercises?: Exercise[];
       mode?: string;
     }
@@ -54,43 +106,106 @@ export class ExerciseSetCreateComponent {
     this.exercises = data?.availableExercises || this.getDefaultExercises();
     this.mode = data?.mode || 'create';
     this.submitButtonText = this.getsubmitButtonText();
-    this.exerciseSetForm = this.fb.group({
-      setNumber: ['', [Validators.required, Validators.min(1)]],
-      exerciseId: ['', Validators.required],
-      reps: ['', [Validators.required, Validators.min(1)]],
-      holdTime: ['', [Validators.required, Validators.min(0)]],
-      restTime: ['', [Validators.required, Validators.min(0)]]
+    
+    this.exerciseGroupForm = this.fb.group({
+      groupName: ['', [Validators.required, Validators.minLength(3)]],
+      description: [''],
+      category: [''],
+      difficulty: ['']
     });
 
-    // If editing existing exercise set, populate form
-    if (data?.exerciseSet) {
-      this.exerciseSetForm.patchValue({
-        setNumber: data.exerciseSet.setNumber,
-        exerciseId: data.exerciseSet.exerciseId,
-        reps: data.exerciseSet.reps,
-        holdTime: data.exerciseSet.holdTime,
-        restTime: data.exerciseSet.restTime
+    // If editing existing exercise group, populate form
+    if (data?.exerciseGroup) {
+      this.exerciseGroupForm.patchValue({
+        groupName: data.exerciseGroup.groupName,
+        description: data.exerciseGroup.description,
+        category: data.exerciseGroup.category,
+        difficulty: data.exerciseGroup.difficulty
       });
+      this.selectedExercises = [...data.exerciseGroup.exercises];
     }
 
     if(this.mode === 'view'){
-      this.exerciseSetForm.disable();
+      this.exerciseGroupForm.disable();
     }
   }
 
   getsubmitButtonText(){
-    return this.mode === 'edit' ? 'Update Exercise Set' : 'Create Exercise Set';
+    return this.mode === 'edit' ? 'Update Exercise Group' : 'Create Exercise Group';
   }
 
+  getErrorMessage(fieldName: string): string {
+    const field = this.exerciseGroupForm.get(fieldName);
+    if (field?.hasError('required')) {
+      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} is required`;
+    }
+    if (field?.hasError('minlength')) {
+      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors?.['minlength'].requiredLength} characters`;
+    }
+    if (field?.hasError('min')) {
+      return `${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)} must be at least ${field.errors?.['min'].min}`;
+    }
+    return '';
+  }
+
+  getFilteredExercises(): Exercise[] {
+    return this.exercises.filter(exercise => {
+      const matchesSearch = !this.searchQuery || 
+        exercise.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        exercise.description.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        exercise.category.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        exercise.targetMuscles.some(muscle => muscle.toLowerCase().includes(this.searchQuery.toLowerCase()));
+
+      const matchesCategory = !this.selectedCategory || exercise.category === this.selectedCategory;
+      const matchesDifficulty = !this.selectedDifficulty || exercise.difficulty === this.selectedDifficulty;
+
+      return matchesSearch && matchesCategory && matchesDifficulty;
+    });
+  }
+
+  isExerciseSelected(exercise: Exercise): boolean {
+    return this.selectedExercises.some(selected => selected.exerciseId === exercise.exerciseId);
+  }
+
+    toggleExerciseSelection(exercise: Exercise): void {
+    if (this.isExerciseSelected(exercise)) {
+      this.removeExerciseFromGroup(this.selectedExercises.findIndex(e => e.exerciseId === exercise.exerciseId));
+    } else {
+      this.addExerciseToGroup(exercise);
+    }
+  }
+
+  addExerciseToGroup(exercise?: Exercise): void {
+    if (exercise && !this.isExerciseSelected(exercise)) {
+      this.selectedExercises.push(exercise);
+    }
+  }
+
+  removeExerciseFromGroup(index: number): void {
+    if (index >= 0 && index < this.selectedExercises.length) {
+      this.selectedExercises.splice(index, 1);
+    }
+  }
+
+  onCategoryFilterChange(): void {
+    // Filter will be applied automatically in getFilteredExercises()
+  }
+
+  onDifficultyFilterChange(): void {
+    // Filter will be applied automatically in getFilteredExercises()
+  }
 
   onSubmit() {
-    if (this.exerciseSetForm.valid) {
-      const exerciseSetData: Partial<ExerciseSet> = {
-        ...this.exerciseSetForm.value,
-        setId: this.data?.exerciseSet?.setId || this.generateSetId()
+    if (this.exerciseGroupForm.valid && this.selectedExercises.length > 0) {
+      const exerciseGroupData: Partial<ExerciseGroup> = {
+        ...this.exerciseGroupForm.value,
+        groupId: this.data?.exerciseGroup?.groupId || this.generateGroupId(),
+        exercises: this.selectedExercises,
+        createdAt: this.data?.exerciseGroup?.createdAt || new Date(),
+        updatedAt: new Date()
       };
 
-      this.dialogRef.close(exerciseSetData);
+      this.dialogRef.close(exerciseGroupData);
     } else {
       this.markFormGroupTouched();
     }
@@ -100,13 +215,18 @@ export class ExerciseSetCreateComponent {
     this.dialogRef.close();
   }
 
-  private generateSetId(): string {
-    return 'SET' + Date.now().toString().slice(-6);
+  onDuplicate() {
+    // Implement duplicate functionality
+    console.log('Duplicate exercise group');
+  }
+
+  private generateGroupId(): string {
+    return 'GROUP_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   private markFormGroupTouched() {
-    Object.keys(this.exerciseSetForm.controls).forEach(key => {
-      const control = this.exerciseSetForm.get(key);
+    Object.keys(this.exerciseGroupForm.controls).forEach(key => {
+      const control = this.exerciseGroupForm.get(key);
       control?.markAsTouched();
     });
   }
@@ -116,69 +236,57 @@ export class ExerciseSetCreateComponent {
       {
         exerciseId: 'EX001',
         name: 'Push-ups',
-        description: 'Standard push-ups to strengthen chest and arms',
+        description: 'Classic bodyweight exercise for chest, shoulders, and triceps',
         createdByDoctorId: 'DOC001',
-        exerciseType: 'Strength'
+        exerciseType: 'Strength',
+        category: 'strength',
+        difficulty: 'beginner',
+        targetMuscles: ['Chest', 'Shoulders', 'Triceps'],
+        equipment: ['Bodyweight'],
+        tags: ['bodyweight', 'chest', 'upper body'],
+        coachingCues: 'Keep your body in a straight line, lower your chest to the ground',
+        contraindications: 'Avoid if you have shoulder or wrist injuries',
+        sets: [],
+        media: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         exerciseId: 'EX002',
         name: 'Squats',
-        description: 'Basic squats for leg strength',
+        description: 'Fundamental lower body exercise for legs and glutes',
         createdByDoctorId: 'DOC001',
-        exerciseType: 'Strength'
+        exerciseType: 'Strength',
+        category: 'strength',
+        difficulty: 'beginner',
+        targetMuscles: ['Quads', 'Glutes', 'Hamstrings'],
+        equipment: ['Bodyweight'],
+        tags: ['bodyweight', 'legs', 'lower body'],
+        coachingCues: 'Keep your chest up, knees behind toes, weight in heels',
+        contraindications: 'Avoid if you have knee or back injuries',
+        sets: [],
+        media: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       },
       {
         exerciseId: 'EX003',
         name: 'Plank',
-        description: 'Core strengthening exercise',
+        description: 'Core stability exercise for abdominal and back muscles',
         createdByDoctorId: 'DOC001',
-        exerciseType: 'Core'
-      },
-      {
-        exerciseId: 'EX004',
-        name: 'Stretching',
-        description: 'Basic stretching exercises',
-        createdByDoctorId: 'DOC001',
-        exerciseType: 'Flexibility'
+        exerciseType: 'Core',
+        category: 'strength',
+        difficulty: 'beginner',
+        targetMuscles: ['Core', 'Shoulders', 'Back'],
+        equipment: ['Bodyweight'],
+        tags: ['bodyweight', 'core', 'stability'],
+        coachingCues: 'Keep your body straight, engage your core, breathe steadily',
+        contraindications: 'Avoid if you have shoulder or back injuries',
+        sets: [],
+        media: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
     ];
-  }
-
-  get exerciseOptions() {
-    return this.exercises.map(exercise => ({
-      value: exercise.exerciseId,
-      label: exercise.name
-    }));
-  }
-
-
-  get selectedExercise(): Exercise | undefined {
-    const exerciseId = this.exerciseSetForm.get('exerciseId')?.value;
-    return this.exercises.find(ex => ex.exerciseId === exerciseId);
-  }
-
-  getErrorMessage(fieldName: string): string {
-    const control = this.exerciseSetForm.get(fieldName);
-    if (control?.invalid && control?.touched) {
-      switch (fieldName) {
-        case 'setNumber':
-          return 'Set number is required and must be at least 1';
-        case 'exerciseId':
-          return 'Please select an exercise';
-        case 'reps':
-          return 'Repetitions is required and must be at least 1';
-        case 'holdTime':
-          return 'Hold time is required and must be at least 0';
-        case 'restTime':
-          return 'Rest time is required and must be at least 0';
-        default:
-          return 'This field is required';
-      }
-    }
-    return '';
-  }
-
-  onExerciseSelectionChange(event: any) {
-    console.log(event);
   }
 } 

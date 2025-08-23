@@ -631,100 +631,117 @@
       </div>
     </div>
 
-    <!-- Profile Tab -->
+        <!-- Profile Tab -->
     <div *ngIf="selectedTab === 'profile'" class="profile-tab">
-      <!-- Patient Info Card -->
-      <div class="info-section">
-        <mat-card class="patient-info-card">
+      <div class="profile-grid">
+        <!-- Personal Information -->
+        <mat-card class="profile-card personal-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="person" [size]="24"></app-icon>
-              Patient Information
+              <app-icon fontIcon="person" [size]="20"></app-icon>
+              Personal Information
             </mat-card-title>
-  
           </mat-card-header>
           <mat-card-content>
-            <div class="info-grid">
-              <div class="info-item">
-                <label>Full Name</label>
-                <span>{{ patientInfo.name }}</span>
+            <div class="compact-info-grid">
+              <div class="info-row">
+                <div class="info-item">
+                  <label>Full Name</label>
+                  <span>{{ patientInfo.name }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Age</label>
+                  <span>{{ patientInfo.age }} years</span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Age</label>
-                <span>{{ patientInfo.age }} years</span>
+              <div class="info-row">
+                <div class="info-item">
+                  <label>Gender</label>
+                  <span>{{ patientInfo.gender }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Blood Group</label>
+                  <span>{{ patientInfo.bloodGroup }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Gender</label>
-                <span>{{ patientInfo.gender }}</span>
+              <div class="info-row">
+                <div class="info-item">
+                  <label>Contact</label>
+                  <span>{{ patientInfo.contactNumber }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Email</label>
+                  <span>{{ patientInfo.email }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Blood Group</label>
-                <span>{{ patientInfo.bloodGroup }}</span>
+              <div class="info-row full-width">
+                <div class="info-item">
+                  <label>Address</label>
+                  <span>{{ patientInfo.address }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Contact Number</label>
-                <span>{{ patientInfo.contactNumber }}</span>
+              <div class="info-row">
+                <div class="info-item">
+                  <label>Emergency Contact</label>
+                  <span>{{ patientInfo.emergencyContact }} ({{ patientInfo.emergencyContactRelation }})</span>
+                </div>
+                <div class="info-item">
+                  <label>Next of Kin</label>
+                  <span>{{ patientInfo.nextOfKin || 'Not specified' }}</span>
+                </div>
               </div>
-              <div class="info-item">
-                <label>Email Address</label>
-                <span>{{ patientInfo.email }}</span>
-              </div>
-              <div class="info-item">
-                <label>Address</label>
-                <span>{{ patientInfo.address }}</span>
-              </div>
-              <div class="info-item">
-                <label>Emergency Contact</label>
-                <span>{{ patientInfo.emergencyContact }} ({{ patientInfo.emergencyContactRelation }})</span>
-              </div>
-              <div class="info-item">
-                <label>Occupation</label>
-                <span>{{ patientInfo.occupation || 'Not specified' }}</span>
-              </div>
-              <div class="info-item">
-                <label>Marital Status</label>
-                <span>{{ patientInfo.maritalStatus || 'Not specified' }}</span>
-              </div>
-              <div class="info-item">
-                <label>Next of Kin</label>
-                <span>{{ patientInfo.nextOfKin || 'Not specified' }}</span>
+              <div class="info-row">
+                <div class="info-item">
+                  <label>Occupation</label>
+                  <span>{{ patientInfo.occupation || 'Not specified' }}</span>
+                </div>
+                <div class="info-item">
+                  <label>Marital Status</label>
+                  <span>{{ patientInfo.maritalStatus || 'Not specified' }}</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
 
         <!-- Medical Information -->
-        <mat-card class="medical-info-card">
+        <mat-card class="profile-card medical-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="medical_services" [size]="24"></app-icon>
+              <app-icon fontIcon="medical_services" [size]="20"></app-icon>
               Medical Information
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div class="medical-grid">
-              <div class="medical-section">
-                <h4>Primary Doctor</h4>
-                <p>{{ patientInfo.primaryDoctor }}</p>
-              </div>
-              <div class="medical-section">
-                <h4>Department</h4>
-                <p>{{ patientInfo.department }}</p>
-              </div>
-              <div class="medical-section">
-                <h4>Diagnosis</h4>
-                <div class="diagnosis-list">
-                  <span *ngFor="let diagnosis of patientInfo.diagnosis" class="diagnosis-tag">
-                    {{ diagnosis }}
-                  </span>
+            <div class="compact-medical-grid">
+              <div class="medical-row">
+                <div class="medical-item">
+                  <label>Primary Doctor</label>
+                  <span>{{ patientInfo.primaryDoctor }}</span>
+                </div>
+                <div class="medical-item">
+                  <label>Department</label>
+                  <span>{{ patientInfo.department }}</span>
                 </div>
               </div>
-              <div class="medical-section">
-                <h4>Allergies</h4>
-                <div class="allergies-list">
-                  <span *ngFor="let allergy of patientInfo.allergies" class="allergy-tag">
-                    {{ allergy }}
-                  </span>
+              <div class="medical-row">
+                <div class="medical-item full-width">
+                  <label>Diagnosis</label>
+                  <div class="diagnosis-tags">
+                    <span *ngFor="let diagnosis of patientInfo.diagnosis" class="diagnosis-tag">
+                      {{ diagnosis }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="medical-row">
+                <div class="medical-item full-width">
+                  <label>Allergies</label>
+                  <div class="allergy-tags">
+                    <span *ngFor="let allergy of patientInfo.allergies" class="allergy-tag">
+                      {{ allergy }}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -732,122 +749,25 @@
         </mat-card>
 
         <!-- Insurance Information -->
-        <mat-card class="insurance-card">
+        <mat-card class="profile-card insurance-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="security" [size]="24"></app-icon>
+              <app-icon fontIcon="security" [size]="20"></app-icon>
               Insurance Information
             </mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <div class="insurance-grid">
-              <div class="insurance-item">
-                <label>Provider</label>
-                <span>{{ patientInfo.insuranceProvider || 'Not specified' }}</span>
-              </div>
-              <div class="insurance-item">
-                <label>Policy Number</label>
-                <span>{{ patientInfo.insuranceNumber || 'Not specified' }}</span>
-              </div>
-              <div class="insurance-item">
-                <label>Expiry Date</label>
-                <span>{{ patientInfo.insuranceExpiry | date:'mediumDate' || 'Not specified' }}</span>
+            <div class="compact-insurance-grid">
+              <div class="insurance-row">
+                <div class="insurance-item">
+                  <label>Provider</label>
+                  <span>{{ patientInfo.insuranceProvider || 'Not specified' }}</span>
+                </div>
               </div>
             </div>
           </mat-card-content>
         </mat-card>
       </div>
-
-      <!-- Patient Statistics -->
-      <mat-card class="stats-card">
-        <mat-card-header>
-          <mat-card-title>
-            <app-icon fontIcon="analytics" [size]="24"></app-icon>
-            Patient Statistics
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.totalAppointments }}</div>
-              <div class="stat-label">Total Appointments</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.completedAppointments }}</div>
-              <div class="stat-label">Completed</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.pendingAppointments }}</div>
-              <div class="stat-label">Pending</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.totalPrescriptions }}</div>
-              <div class="stat-label">Prescriptions</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.activeMedications }}</div>
-              <div class="stat-label">Active Medications</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.labReports }}</div>
-              <div class="stat-label">Lab Reports</div>
-            </div>
-            <div class="stat-item" *ngIf="patientInfo.admissionStatus === 'IPD'">
-              <div class="stat-value">{{ getDaysInHospital() }}</div>
-              <div class="stat-label">Days in Hospital</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value">{{ patientStats.readmissionCount }}</div>
-              <div class="stat-label">Readmissions</div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Admission Status Toggle -->
-      <mat-card class="admission-card">
-        <mat-card-header>
-          <mat-card-title>
-            <app-icon fontIcon="local_hospital" [size]="24"></app-icon>
-            Admission Status
-          </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="admission-toggle">
-            <span class="toggle-label">Current Status:</span>
-            <mat-slide-toggle 
-              [checked]="patientInfo.admissionStatus === 'IPD'"
-              (change)="toggleAdmissionStatus()"
-              [disabled]="patientInfo.admissionStatus === 'DISCHARGED'">
-              {{ patientInfo.admissionStatus }}
-            </mat-slide-toggle>
-          </div>
-          <div *ngIf="patientInfo.admissionStatus === 'IPD'" class="ipd-details">
-            <div class="ipd-item">
-              <label>Admission Date:</label>
-              <span>{{ patientInfo.admissionDate | date:'mediumDate' }}</span>
-            </div>
-            <div class="ipd-item">
-              <label>Room Number:</label>
-              <span>{{ patientInfo.roomNumber }}</span>
-            </div>
-            <div class="ipd-item">
-              <label>Bed Number:</label>
-              <span>{{ patientInfo.bedNumber }}</span>
-            </div>
-            <div class="ipd-item">
-              <label>Days in Hospital:</label>
-              <span>{{ getDaysInHospital() }} days</span>
-            </div>
-          </div>
-          <div *ngIf="patientInfo.admissionStatus === 'DISCHARGED'" class="discharge-details">
-            <div class="discharge-item">
-              <label>Discharge Date:</label>
-              <span>{{ patientInfo.dischargeDate | date:'mediumDate' }}</span>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
     </div>
 
     <!-- Vitals Tab -->
@@ -1095,8 +1015,8 @@
           <div class="notes-list">
             <div *ngFor="let note of clinicalNotes" class="note-item">
               <div class="note-header">
-                <span class="note-type">{{ note.type }}</span>
-                <span class="note-date">{{ note.date | date:'mediumDate' }}</span>
+                  <span class="note-type">{{ note.type }}</span>
+                  <span class="note-date">{{ note.date | date:'mediumDate' }}</span>
               </div>
               <div class="note-title">{{ note.title }}</div>
               <div class="note-content">{{ note.content }}</div>
@@ -1158,32 +1078,60 @@
         <app-icon fontIcon="close" [size]="24" (click)="cancelAdmission()"></app-icon>
       </div>
       <div class="dialog-content">
-        <p>Are you sure you want to admit {{ patientInfo.name }} to inpatient care?</p>
-        <p>This will change the patient status to IPD and switch to inpatient management view.</p>
-        <div class="admission-details">
-          <div class="detail-item">
-            <span class="label">Ward:</span>
-            <span class="value">General Ward</span>
+        <p>Please fill in the admission details for {{ patientInfo.name }}:</p>
+        
+        <form [formGroup]="admissionForm" class="admission-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="ward">Ward:</label>
+              <app-selectbox 
+                id="ward"
+                formControlName="ward"
+                [options]="wardOptions"
+                placeholder="Select Ward">
+              </app-selectbox>
+            </div>
+            <div class="form-group">
+              <label for="room">Room Number:</label>
+              <app-input 
+                id="room"
+                formControlName="room"
+                placeholder="Enter room number">
+              </app-input>
+            </div>
           </div>
-          <div class="detail-item">
-            <span class="label">Room:</span>
-            <span class="value">301</span>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bed">Bed:</label>
+              <app-selectbox 
+                id="bed"
+                formControlName="bed"
+                [options]="bedOptions"
+                placeholder="Select Bed">
+              </app-selectbox>
+            </div>
+            <div class="form-group">
+              <label for="attendingDoctor">Attending Doctor:</label>
+              <app-selectbox 
+                id="attendingDoctor"
+                formControlName="attendingDoctor"
+                [options]="doctorOptions"
+                placeholder="Select Doctor">
+              </app-selectbox>
+            </div>
           </div>
-          <div class="detail-item">
-            <span class="label">Bed:</span>
-            <span class="value">A</span>
-          </div>
-          <div class="detail-item">
-            <span class="label">Attending Doctor:</span>
-            <span class="value">{{ patientInfo.primaryDoctor }}</span>
-          </div>
-        </div>
+        </form>
       </div>
       <div class="dialog-actions">
         <app-button appearance="stroked" color="primary" (btnClick)="cancelAdmission()">
           Cancel
         </app-button>
-        <app-button appearance="raised" color="primary" (btnClick)="confirmAdmission()">
+        <app-button 
+          appearance="raised" 
+          color="primary" 
+          (btnClick)="confirmAdmission()"
+          [disabled]="!admissionForm.valid">
           Confirm Admission
         </app-button>
       </div>
@@ -1199,7 +1147,7 @@
       </div>
       <div class="dialog-content">
         <p>Are you sure you want to discharge {{ patientInfo.name }}?</p>
-        <p>This action will change the patient status to DISCHARGED and return to profile view.</p>
+        <p>This action will change the patient status to OPD and return to profile view.</p>
         <div class="discharge-details">
           <div class="detail-item">
             <span class="label">Length of Stay:</span>

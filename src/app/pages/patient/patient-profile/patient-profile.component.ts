@@ -168,6 +168,8 @@ interface QuickAction {
 // IPD Management Interfaces
 interface IPDAdmissionDetails {
   ward: string;
+  room: string;
+  bed: string;
   admissionDate: Date;
   attendingDoctor: string;
   expectedDischarge?: Date;
@@ -344,13 +346,43 @@ export class PatientProfileComponent implements OnInit {
 
   // IPD Management Data
   ipdAdmissionDetails: IPDAdmissionDetails = {
-    ward: 'General Ward',
-    admissionDate: new Date('2024-01-15'),
-    attendingDoctor: 'Dr. Sarah Johnson',
-    expectedDischarge: new Date('2024-01-25'),
-    lengthOfStay: 774,
-    daysLeft: 769
+    ward: '',
+    room: '',
+    bed: '',
+    admissionDate: new Date(),
+    attendingDoctor: '',
+    expectedDischarge: new Date(),
+    lengthOfStay: 0,
+    daysLeft: 0
   };
+
+  // Admission Form
+  admissionForm!: FormGroup;
+
+  // Form Options
+  wardOptions = [
+    'General Ward',
+    'ICU',
+    'Cardiac Ward',
+    'Pediatric Ward',
+    'Maternity Ward',
+    'Surgical Ward'
+  ];
+
+  bedOptions = [
+    'Bed A',
+    'Bed B',
+    'Bed C',
+    'Bed D'
+  ];
+
+  doctorOptions = [
+    'Dr. Michael Chen',
+    'Dr. Sarah Smith',
+    'Dr. Robert Johnson',
+    'Dr. Emily Wilson',
+    'Dr. David Brown'
+  ];
 
   ipdVitalSigns: IPDVitalSigns = {
     pulse: 98,
@@ -422,6 +454,13 @@ export class PatientProfileComponent implements OnInit {
       icon: 'restaurant',
       color: '#f59e0b',
       action: () => this.orderDiet()
+    },
+    {
+      id: 'discharge-patient',
+      label: 'Discharge Patient',
+      icon: 'exit_to_app',
+      color: '#dc2626',
+      action: () => this.dischargePatient()
     },
     {
       id: 'discharge-summary',
@@ -682,14 +721,6 @@ export class PatientProfileComponent implements OnInit {
       disabled: this.patientInfo.admissionStatus === 'IPD'
     },
     {
-      id: 'discharge-patient',
-      label: 'Discharge Patient',
-      icon: 'exit_to_app',
-      action: () => this.dischargePatient(),
-      color: 'warn',
-      disabled: this.patientInfo.admissionStatus !== 'IPD'
-    },
-    {
       id: 'add-note',
       label: 'Add Note',
       icon: 'note_add',
@@ -788,6 +819,7 @@ export class PatientProfileComponent implements OnInit {
     });
 
     this.initializeForm();
+    this.initializeAdmissionForm();
     this.updateTabBadges();
     this.initializeSearchData();
     this.initializeNotifications();
@@ -816,6 +848,15 @@ export class PatientProfileComponent implements OnInit {
       occupation: this.patientInfo.occupation,
       maritalStatus: this.patientInfo.maritalStatus,
       nextOfKin: this.patientInfo.nextOfKin
+    });
+  }
+
+  initializeAdmissionForm(): void {
+    this.admissionForm = this.fb.group({
+      ward: ['General Ward', Validators.required],
+      room: ['301', Validators.required],
+      bed: ['Bed A', Validators.required],
+      attendingDoctor: ['Dr. Michael Chen', Validators.required]
     });
   }
 
@@ -1013,25 +1054,32 @@ export class PatientProfileComponent implements OnInit {
   // Admission and Discharge Methods
   admitPatient(): void {
     this.showAdmissionDialog = true;
+    this.initializeAdmissionForm();
   }
 
   confirmAdmission(): void {
-    this.patientInfo.admissionStatus = 'IPD';
-    this.patientInfo.admissionDate = new Date();
-    this.patientInfo.roomNumber = '301';
-    this.patientInfo.bedNumber = 'A';
-    this.viewMode = 'ipd';
-    this.showAdmissionDialog = false;
-    
-    // Update IPD admission details
-    this.ipdAdmissionDetails = {
-      ward: 'General Ward',
-      admissionDate: new Date(),
-      attendingDoctor: this.patientInfo.primaryDoctor,
-      expectedDischarge: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
-      lengthOfStay: 1,
-      daysLeft: 10
-    };
+    if (this.admissionForm.valid) {
+      const formValue = this.admissionForm.value;
+      
+      this.patientInfo.admissionStatus = 'IPD';
+      this.patientInfo.admissionDate = new Date();
+      this.patientInfo.roomNumber = formValue.room;
+      this.patientInfo.bedNumber = formValue.bed;
+      this.viewMode = 'ipd';
+      this.showAdmissionDialog = false;
+      
+      // Update IPD admission details with form data
+      this.ipdAdmissionDetails = {
+        admissionDate: new Date(),
+        ward: formValue.ward,
+        room: formValue.room,
+        bed: formValue.bed,
+        attendingDoctor: formValue.attendingDoctor,
+        expectedDischarge: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        lengthOfStay: 0,
+        daysLeft: 7
+      };
+    }
   }
 
   cancelAdmission(): void {
@@ -1043,10 +1091,22 @@ export class PatientProfileComponent implements OnInit {
   }
 
   confirmDischarge(): void {
-    this.patientInfo.admissionStatus = 'DISCHARGED';
+    this.patientInfo.admissionStatus = 'OPD';
     this.patientInfo.dischargeDate = new Date();
     this.viewMode = 'profile';
     this.showDischargeDialog = false;
+    
+    // Reset IPD admission details
+    this.ipdAdmissionDetails = {
+      ward: '',
+      room: '',
+      bed: '',
+      admissionDate: new Date(),
+      attendingDoctor: '',
+      expectedDischarge: new Date(),
+      lengthOfStay: 0,
+      daysLeft: 0
+    };
   }
 
   cancelDischarge(): void {
