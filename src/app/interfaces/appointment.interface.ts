@@ -7,7 +7,7 @@ export interface Appointment {
   updated_at: string;
   doctor_id: number;
   slot_id: number;
-  status: 'SCHEDULED' | 'CANCELED' | 'COMPLETED';
+  status: 'SCHEDULED' | 'CANCELED' | 'COMPLETED' | 'PENDING';
   
   // Additional display fields for UI
   patientName?: string;

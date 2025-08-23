@@ -1,0 +1,136 @@
+<div class="uploadbox-container">
+  <!-- Drag and Drop Area -->
+  <div 
+    class="upload-area"
+    [class.drag-over]="isDragOver"
+    [class.disabled]="!dragDropEnabled"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()">
+    
+    <div class="upload-content">
+      <app-icon 
+        [fontIcon]="'cloud_upload'" 
+        class="upload-icon">
+      </app-icon>
+      
+      <h3 class="upload-title">{{ placeholder }}</h3>
+      
+      <p class="upload-subtitle">
+        Maximum file size: {{ formatFileSize(maxFileSize) }} | 
+        Max files: {{ maxFiles }}
+      </p>
+      
+      <app-button
+        type="button"
+        appearance="raised"
+        [text]="buttonText"
+        (btnClick)="fileInput.click(); $event.stopPropagation()"
+        class="upload-button">
+        <app-icon [fontIcon]="'add'" class="button-icon"></app-icon>
+      </app-button>
+      
+      <input 
+        #fileInput
+        type="file"
+        [multiple]="multiple"
+        [accept]="accept"
+        (change)="onFileSelected($event)"
+        style="display: none;">
+    </div>
+  </div>
+
+  <!-- File List -->
+  <div class="file-list" *ngIf="uploadedFiles.length > 0">
+    <h4 class="file-list-title">Uploaded Files ({{ uploadedFiles.length }}/{{ maxFiles }})</h4>
+    
+    <div class="file-items">
+      <mat-card 
+        *ngFor="let file of uploadedFiles" 
+        class="file-item"
+        [class.uploading]="file.status === 'uploading'"
+        [class.completed]="file.status === 'completed'"
+        [class.error]="file.status === 'error'">
+        
+        <div class="file-content">
+          <!-- File Icon -->
+          <div class="file-icon">
+            <app-icon 
+              [fontIcon]="getFileIcon(file.type)" 
+              class="file-type-icon">
+            </app-icon>
+          </div>
+          
+          <!-- File Info -->
+          <div class="file-info">
+            <div class="file-name">{{ file.name }}</div>
+            <div class="file-details">
+              <span class="file-size">{{ formatFileSize(file.size) }}</span>
+              <span class="file-type">{{ file.type }}</span>
+            </div>
+            
+            <!-- Progress Bar -->
+            <mat-progress-bar 
+              *ngIf="file.status === 'uploading'"
+              [value]="file.progress || 0"
+              class="upload-progress">
+            </mat-progress-bar>
+            
+            <!-- Status -->
+            <div class="file-status">
+              <span 
+                class="status-indicator"
+                [style.background-color]="getFileStatusColor(file.status)">
+              </span>
+              <span class="status-text">{{ file.status | titlecase }}</span>
+              <span *ngIf="file.progress && file.status === 'uploading'" class="progress-text">
+                {{ file.progress | number:'1.0-0' }}%
+              </span>
+            </div>
+            
+            <!-- Error Message -->
+            <div *ngIf="file.error" class="error-message">
+              {{ file.error }}
+            </div>
+          </div>
+          
+          <!-- Actions -->
+          <div class="file-actions">
+            <!-- Preview Button -->
+            <app-button
+              *ngIf="showPreview && file.url && file.status === 'completed'"
+              type="button"
+              appearance="icon"
+              fontIcon="visibility"
+              (btnClick)="previewFile(file)"
+              class="preview-button">
+            </app-button>
+            
+            <!-- Remove Button -->
+            <app-button
+              type="button"
+              appearance="icon"
+              fontIcon="delete"
+              (btnClick)="removeFile(file)"
+              class="remove-button">
+            </app-button>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+    
+    <!-- Upload All Button -->
+    <div class="upload-actions" *ngIf="hasPendingFiles()">
+      <app-button
+        type="button"
+        appearance="raised"
+        text="Upload All Files"
+        [disabled]="isUploading"
+        (btnClick)="uploadAll()"
+        class="upload-all-button">
+        <app-icon [fontIcon]="'cloud_upload'" class="button-icon"></app-icon>
+      </app-button>
+    </div>
+  </div>
+</div> 

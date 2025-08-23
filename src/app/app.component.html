@@ -1,4 +1,10 @@
-<div class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
+<!-- Show login page without sidebar and header -->
+<div *ngIf="!isAuthenticated">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Show main app layout with sidebar and header for authenticated users -->
+<div *ngIf="isAuthenticated" class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
   <app-sidebar [collapsed]="sidebarCollapsed" (toggle)="toggleSidebar()"></app-sidebar>
   <div class="main-section">
     <app-topbar (openPatientQueue)="openPatientQueue($event)"></app-topbar>

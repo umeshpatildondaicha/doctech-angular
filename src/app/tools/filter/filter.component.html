@@ -1,62 +1,222 @@
 <div class="filter-container">
-  <h2>Filter Grid</h2>
+  <!-- Filter Info Header -->
+  <div class="filter-info">
+    <div class="info-content">
+      <h3>Filters for: {{ getDataTitle() }}</h3>
+      <p class="info-subtitle">See results in your view based on the filters you select here.</p>
+    </div>
+    <div class="filter-count-badge" *ngIf="getActiveFiltersCount() > 0">
+      {{ getActiveFiltersCount() }} applied
+    </div>
+  </div>
+
+  <!-- Main Content -->
   <div class="filter-controls">
-    <div class="filter-row" *ngFor="let filter of filters; let i = index">
-      <span class="where-label" *ngIf="i === 0">Where</span>
-      <app-selectbox
-        class="filter-field"
-        [options]="fields"
-        displayExpr="label"
-        valueField="value"
-        [(data)]="filter.field"
-        [placeholder]="'Field'"
-        (dataChange)="onFieldChange(filter)"
-      ></app-selectbox>
-      <app-selectbox
-        class="filter-operator"
-        [options]="operators"
-        displayExpr="label"
-        valueField="value"
-        [(data)]="filter.operator"
-        [placeholder]="'Operator'"
-      ></app-selectbox>
-      <ng-container *ngIf="filter.inputType === 'select'; else inputValue">
-        <app-selectbox
-          class="filter-value"
-          [options]="getValues(filter.field)"
-          [(data)]="filter.value"
-          [placeholder]="'Value'"
-        ></app-selectbox>
-      </ng-container>
-      <ng-template #inputValue>
-        <app-input
-          class="filter-value"
-          [(value)]="filter.value"
-          [placeholder]="'Value'"
-        ></app-input>
-      </ng-template>
-      <button class="delete-btn" *ngIf="filters.length > 1" (click)="removeFilter(i)" title="Remove filter">
-        <span>&#128465;</span>
-      </button>
+    <!-- Left Sidebar -->
+    <div class="filter-sidebar">
+      <div class="sidebar-section">
+        <div class="section-header">Filters</div>
+        <ul class="filter-category">
+          <li class="category-item" *ngFor="let field of fields; let i = index">
+            <button 
+              class="category-button" 
+              [class.active]="selectedField === field.value"
+              (click)="selectField(field)">
+              <span class="category-icon">{{ getFieldIcon(field.inputType) }}</span>
+              <span class="category-label">{{ field.label }}</span>
+              <span class="category-arrow">›</span>
+            </button>
+            <div class="applied-filters" *ngIf="getFieldFilters(field.value).length > 0">
+              <button 
+                class="applied-tag" 
+                *ngFor="let filter of getFieldFilters(field.value)"
+                (click)="removeFieldFilter(field.value, filter)"
+                type="button">
+                {{ getFilterDisplayText(filter) }}
+                <span class="tag-remove">×</span>
+              </button>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <div class="logic-row" *ngIf="filters.length > 1">
-      <button class="logic-btn" [class.active]="logic === 'AND'" (click)="setLogic('AND')">AND</button>
-      <button class="logic-btn" [class.active]="logic === 'OR'" (click)="setLogic('OR')">OR</button>
-    </div>
+    <!-- Right Content -->
+    <div class="filter-content">
+      <!-- Active Filters Summary -->
+      <div class="active-filters-summary" *ngIf="getActiveFiltersCount() > 0">
+        <div class="summary-header">
+          <h3>Active Filters ({{ getActiveFiltersCount() }})</h3>
+          <button class="clear-all-btn" (click)="clearAllFilters()" type="button">Clear All</button>
+        </div>
+        <div class="active-filters-list">
+          <div class="active-filter-item" *ngFor="let fieldName of getActiveFilterFields()">
+            <div class="filter-field-name">{{ getFieldLabel(fieldName) }}</div>
+            <div class="filter-values">
+              <button 
+                class="filter-value-tag"
+                *ngFor="let value of getFieldFilters(fieldName)"
+                (click)="removeFieldFilter(fieldName, value)"
+                type="button">
+                {{ getFilterDisplayText(value) }}
+                <span class="value-remove">×</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <div class="add-filter-row">
-      <button class="add-filter-btn" (click)="addFilter()">+ Add filters</button>
+      <!-- Field Configuration -->
+      <div class="field-configuration" *ngIf="selectedFieldObj">
+        <div class="content-header">
+          <h3>{{ selectedFieldObj.label }}</h3>
+          <p class="content-subtitle">{{ getFieldDescription(selectedFieldObj) }}</p>
+        </div>
+
+        <!-- Select Type Configuration -->
+        <div class="filter-section" *ngIf="selectedFieldObj.inputType === 'select'">
+          <div class="section-title">Available Options</div>
+          <div class="options-grid">
+            <label 
+              class="option-checkbox"
+              *ngFor="let option of getValues(selectedFieldObj.value)"
+              [class.selected]="isOptionSelected(selectedFieldObj.value, option)">
+              <input 
+                type="checkbox"
+                [checked]="isOptionSelected(selectedFieldObj.value, option)"
+                (change)="toggleOption(selectedFieldObj.value, option)"
+                class="checkbox-input">
+              <span class="checkbox-custom"></span>
+              <span class="option-label">{{ option }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Boolean Type Configuration -->
+        <div class="filter-section" *ngIf="selectedFieldObj.inputType === 'boolean'">
+          <div class="section-title">Select Value</div>
+          <div class="boolean-options">
+            <label class="boolean-option" [class.selected]="isBooleanSelected(selectedFieldObj.value, true)">
+              <input 
+                type="radio" 
+                [name]="'boolean-' + selectedFieldObj.value"
+                [checked]="isBooleanSelected(selectedFieldObj.value, true)"
+                (change)="setBooleanValue(selectedFieldObj.value, true)"
+                class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="option-label">True</span>
+            </label>
+            <label class="boolean-option" [class.selected]="isBooleanSelected(selectedFieldObj.value, false)">
+              <input 
+                type="radio" 
+                [name]="'boolean-' + selectedFieldObj.value"
+                [checked]="isBooleanSelected(selectedFieldObj.value, false)"
+                (change)="setBooleanValue(selectedFieldObj.value, false)"
+                class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="option-label">False</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Number/Date Range Configuration -->
+        <div class="filter-section" *ngIf="selectedFieldObj.inputType === 'number' || selectedFieldObj.inputType === 'date'">
+          <div class="section-title">Set Range</div>
+          <div class="range-inputs">
+            <div class="range-field-group">
+              <label class="range-label" [for]="'min-' + selectedFieldObj.value">
+                {{ selectedFieldObj.inputType === 'date' ? 'From Date' : 'Minimum Value' }}
+              </label>
+              <input 
+                *ngIf="selectedFieldObj.inputType === 'number'"
+                type="number" 
+                class="range-input"
+                [id]="'min-' + selectedFieldObj.value"
+                [value]="getRangeValue(selectedFieldObj.value, 'min')"
+                (input)="setRangeMinValue(selectedFieldObj.value, $event)"
+                placeholder="Enter minimum">
+              <input 
+                *ngIf="selectedFieldObj.inputType === 'date'"
+                type="date" 
+                class="range-input"
+                [id]="'min-' + selectedFieldObj.value"
+                [value]="getRangeValue(selectedFieldObj.value, 'min')"
+                (input)="setRangeMinValue(selectedFieldObj.value, $event)">
+            </div>
+            <div class="range-separator">to</div>
+            <div class="range-field-group">
+              <label class="range-label" [for]="'max-' + selectedFieldObj.value">
+                {{ selectedFieldObj.inputType === 'date' ? 'To Date' : 'Maximum Value' }}
+              </label>
+              <input 
+                *ngIf="selectedFieldObj.inputType === 'number'"
+                type="number" 
+                class="range-input"
+                [id]="'max-' + selectedFieldObj.value"
+                [value]="getRangeValue(selectedFieldObj.value, 'max')"
+                (input)="setRangeMaxValue(selectedFieldObj.value, $event)"
+                placeholder="Enter maximum">
+              <input 
+                *ngIf="selectedFieldObj.inputType === 'date'"
+                type="date" 
+                class="range-input"
+                [id]="'max-' + selectedFieldObj.value"
+                [value]="getRangeValue(selectedFieldObj.value, 'max')"
+                (input)="setRangeMaxValue(selectedFieldObj.value, $event)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Text Input Configuration -->
+        <div class="filter-section" *ngIf="selectedFieldObj.inputType === 'input'">
+          <div class="section-title">Search Text</div>
+          <div class="text-input-group">
+            <label class="text-label" [for]="'text-' + selectedFieldObj.value">
+              Enter search term for {{ selectedFieldObj.label.toLowerCase() }}
+            </label>
+            <input 
+              type="text" 
+              class="text-input"
+              [id]="'text-' + selectedFieldObj.value"
+              [value]="getTextValue(selectedFieldObj.value)"
+              (input)="setTextValue(selectedFieldObj.value, $event)"
+              placeholder="Type to search...">
+            <small class="input-hint">Search will match any part of the text</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Field Selected State -->
+      <div class="no-field-selected" *ngIf="!selectedFieldObj">
+        <div class="empty-state">
+          <div class="empty-icon">🎯</div>
+          <h3>Select a Filter</h3>
+          <p>Choose a field from the sidebar to configure your filters. You can apply multiple filters to narrow down your results.</p>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Footer -->
   <div class="filter-footer">
-    <button class="footer-btn basic-btn">Basic</button>
+    <div class="footer-left">
+      <div class="results-preview" *ngIf="getActiveFiltersCount() > 0">
+        <span class="results-label">Results:</span>
+        <span class="results-count">{{ getEstimatedResults() }}</span>
+      </div>
+      <div class="filter-summary" *ngIf="getActiveFiltersCount() === 0">
+        No filters applied - showing all results
+      </div>
+    </div>
     <div class="footer-actions">
-      <button class="footer-btn reset-btn" (click)="reset()">Reset to default</button>
-      <button class="footer-btn apply-btn" (click)="apply()">
-        <span class="apply-icon">&#128269;</span> Apply
+      <button class="footer-btn cancel-btn" (click)="cancel()" type="button">
+        Cancel
+      </button>
+      <button class="footer-btn apply-btn" (click)="apply()" type="button" [disabled]="getActiveFiltersCount() === 0">
+        <span class="btn-icon">🔍</span>
+        Apply Filters
+        <span class="apply-count" *ngIf="getActiveFiltersCount() > 0">({{ getActiveFiltersCount() }})</span>
       </button>
     </div>
   </div>
-</div> 
+</div>

@@ -16,20 +16,20 @@
       <div class="section-title-wrapper"><h4 class="section-title">Appointment Details</h4></div>
       <div class="form-row">
           <app-selectbox label="Patient" formControlName="patient_id" [options]="patientOptions" placeholder="Select patient" [required]="true" [displayExpr]="'label'"></app-selectbox>
-          
         </div>
       <div class="form-row">
-        <app-selectbox label="Doctor" formControlName="doctor_id" [options]="doctorOptions" placeholder="Select doctor" [required]="true" [displayExpr]="'label'"></app-selectbox>
+        <!-- <app-date-picker label="Appointment Date & Time" formControlName="appointment_date_time" placeholder="Select date and time" [required]="true"></app-date-picker> -->
+        <app-calendar 
+          class="calendar-container" 
+          [showNavigation]="true" 
+          [showToday]="true"
+          [events]="calendarEvents"
+          (dateSelected)="onDateSelected($event)"
+          (eventClicked)="onEventClicked($event)">
+        </app-calendar>
       </div>
       <div class="form-row">
-        <app-date-picker label="Appointment Date & Time" formControlName="appointment_date_time" placeholder="Select date and time" [required]="true"></app-date-picker>
-      </div>
-      <div class="form-row">
-        
-        <app-selectbox label="Time Slot" formControlName="slot_id" [options]="slotOptions" placeholder="Select time slot" [required]="true" [displayExpr]="'label'"></app-selectbox>
-      </div>
-      <div class="form-row">
-        <app-input label="Notes" formControlName="notes" placeholder="Enter appointment notes"></app-input>
+        <app-input class="notes-input" [rows]="3" [multiline]="true" label="Notes" formControlName="notes" placeholder="Enter appointment notes"></app-input>
       </div>
     </form>
   </div>

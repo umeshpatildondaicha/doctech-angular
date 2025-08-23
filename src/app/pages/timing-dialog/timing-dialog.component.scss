@@ -1,0 +1,228 @@
+.timing-dialog {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &.view-mode {
+    .form-control {
+      pointer-events: none;
+    }
+  }
+}
+
+
+.form-row {
+  &.time-row {
+    .form-control {
+      flex: 1;
+    }
+  }
+}
+
+
+.appointment-time-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 2em;
+
+  .section-header {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+
+    .section-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .time-range {
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+  }
+
+  .breaks-section {
+    padding: 16px;
+    background: white;
+
+    .break-item {
+      margin-bottom: 16px;
+
+      .break-row {
+        display: flex;
+        gap: 1em;
+        flex-wrap: wrap;
+        align-items: center;
+
+        .break-time {
+          flex: 1;
+
+          .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+          }
+
+          .time-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .time-separator {
+              color: #666;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+    }
+
+    .add-break-btn {
+      background: none;
+      border: none;
+      color: #1976d2;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 8px 0;
+      text-decoration: underline;
+
+      &:hover {
+        color: #1565c0;
+      }
+    }
+  }
+}
+
+.advanced-options-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  overflow: hidden;
+
+  .section-header {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 1px solid #e0e0e0;
+
+    .section-title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .expand-icon {
+      color: #666;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  .advanced-content {
+    padding: 16px;
+    background: white;
+  }
+}
+
+
+.leave-reason-input{
+  width: 100%;
+}
+
+// Form control styles
+::ng-deep {
+  .form-control {
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #fafafa;
+
+      &:focus {
+        outline: none;
+        border-color: #1976d2;
+        background: white;
+      }
+
+      &:disabled {
+        background: #f5f5f5;
+        color: #666;
+      }
+    }
+  }
+}
+
+.leave-form-section {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 16px;
+  background: #f9f9f9;
+  margin-bottom: 20px;
+
+  .form-row {
+    margin-bottom: 1em;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.regular-timing-section {
+  .form-row {
+    margin-bottom: 16px;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .timing-dialog {
+    margin: 10px;
+  }
+
+  .dialog-content {
+    padding: 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 12px;
+
+    &.time-row {
+      flex-direction: row;
+    }
+  }
+
+  .break-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+} 

@@ -2,5 +2,7 @@ export interface SidebarMenuItem {
     label: string;
     icon: string;
     route?: string;
-    section?: 'main' | 'tools';
+    section?: 'main' | 'tools' | 'management' | 'services' | 'administration';
+    userTypes?: ('doctor' | 'admin')[];
+    children?: SidebarMenuItem[];
   }

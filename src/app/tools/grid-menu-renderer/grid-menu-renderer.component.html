@@ -1,10 +1,10 @@
-<button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
-    <app-icon 
+<button class="menu-trigger" mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()" aria-label="Row actions">
+  <app-icon 
     fontSet="material-icons-outlined" 
     fontIcon="more_vert" 
-    [size]="20">
+    [size]="18">
   </app-icon>
-  </button>
+</button>
   <mat-menu #menu="matMenu">
     <button 
       mat-menu-item 

@@ -1,7 +1,7 @@
 <header class="topbar">
   <div class="topbar-left">
     <div class="greeting">
-      Good Morning, <b>Dr.Chetan!</b>
+      Good Morning, <b>Dr.Umesh!</b>
     </div>
   </div>
   <div class="topbar-center">
@@ -38,9 +38,9 @@
       class="profile-menu-trigger"
       (click)="onProfileClick($event)">
       <div class="profile">
-        <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr.Chetan" />
+        <img class="avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="" />
         <div class="profile-info">
-          <div class="profile-name">Dr.Chetan</div>
+          <div class="profile-name">Dr.Umesh</div>
           <div class="profile-role">Cardiologist</div>
         </div>
         <app-icon [fontIcon]="'arrow_drop_down'"></app-icon>
@@ -55,6 +55,10 @@
       <button mat-menu-item (click)="onSettingsMenuClick()">
         <app-icon [fontIcon]="'settings'" class="menu-icon"></app-icon>
         <span>Settings</span>
+      </button>
+      <button mat-menu-item (click)="onLogoutClick()">
+        <app-icon [fontIcon]="'logout'" class="menu-icon"></app-icon>
+        <span>Logout</span>
       </button>
     </mat-menu>
   </div>

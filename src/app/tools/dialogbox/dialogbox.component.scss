@@ -43,8 +43,23 @@
 }
 
 .dialogbox-content {
-  padding: 24px;
+  padding: 20px;
   background: #fff;
   border-bottom-left-radius: 16px;
   border-bottom-right-radius: 16px;
+  max-height: 75vh;
+  overflow: hidden;
+  
+  // Special handling for filter component
+  app-filter {
+    display: block;
+    width: 100%;
+    height: 600px;
+    max-height: 70vh;
+    
+    .filter-container {
+      height: 100%;
+      max-height: 100%;
+    }
+  }
 }

@@ -13,31 +13,98 @@
       }
     </button>
   </div>
-  <ul class="sidebar-nav">
-    <ng-container *ngFor="let item of menuList">
-      <li class="nav-item" 
-          [class.active]="item.route && isActive(item.route)" 
-          (click)="item.route && navigateTo(item.route)"
-          *ngIf="item.section === 'main'">
-        <div>
-          <app-icon [fontSet]="'material-icons-outlined'" [color]="item.route && isActive(item.route)?'#fff':'#18b6b2'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
-          <ng-container *ngIf="!collapsed">
-            <span class="label">{{ item.label }}</span>
-          </ng-container>
-        </div>
-      </li>
-    </ng-container>
-  </ul>
-  <div class="sidebar-footer">
-    <ng-container *ngIf="!collapsed">
-      <div class="tools-title">Tools</div>
-    </ng-container>
-    <ul class="sidebar-tools">
-      <ng-container *ngFor="let item of menuList">
+  
+  <!-- Main Navigation -->
+  <div class="sidebar-section">
+    <ul class="sidebar-nav">
+      <ng-container *ngFor="let item of getMenuItemsBySection('main')">
         <li class="nav-item" 
             [class.active]="item.route && isActive(item.route)" 
-            (click)="item.route && navigateTo(item.route)"
-            *ngIf="item.section === 'tools'">
+            (click)="item.route && navigateTo(item.route)">
+          <div>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <ng-container *ngIf="!collapsed">
+              <span class="label">{{ item.label }}</span>
+            </ng-container>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+
+  <!-- Management Section (Admin Only) -->
+  <div class="sidebar-section" *ngIf="getMenuItemsBySection('management').length > 0">
+    <ng-container *ngIf="!collapsed">
+      <div class="section-title">{{ getSectionTitle('management') }}</div>
+    </ng-container>
+    <ul class="sidebar-nav">
+      <ng-container *ngFor="let item of getMenuItemsBySection('management')">
+        <li class="nav-item" 
+            [class.active]="item.route && isActive(item.route)" 
+            (click)="item.route && navigateTo(item.route)">
+          <div>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <ng-container *ngIf="!collapsed">
+              <span class="label">{{ item.label }}</span>
+            </ng-container>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+
+  <!-- Services Section (Admin Only) -->
+  <div class="sidebar-section" *ngIf="getMenuItemsBySection('services').length > 0">
+    <ng-container *ngIf="!collapsed">
+      <div class="section-title">{{ getSectionTitle('services') }}</div>
+    </ng-container>
+    <ul class="sidebar-nav">
+      <ng-container *ngFor="let item of getMenuItemsBySection('services')">
+        <li class="nav-item" 
+            [class.active]="item.route && isActive(item.route)" 
+            (click)="item.route && navigateTo(item.route)">
+          <div>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <ng-container *ngIf="!collapsed">
+              <span class="label">{{ item.label }}</span>
+            </ng-container>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+
+  <!-- Administration Section (Admin Only) -->
+  <div class="sidebar-section" *ngIf="getMenuItemsBySection('administration').length > 0">
+    <ng-container *ngIf="!collapsed">
+      <div class="section-title">{{ getSectionTitle('administration') }}</div>
+    </ng-container>
+    <ul class="sidebar-nav">
+      <ng-container *ngFor="let item of getMenuItemsBySection('administration')">
+        <li class="nav-item" 
+            [class.active]="item.route && isActive(item.route)" 
+            (click)="item.route && navigateTo(item.route)">
+          <div>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <ng-container *ngIf="!collapsed">
+              <span class="label">{{ item.label }}</span>
+            </ng-container>
+          </div>
+        </li>
+      </ng-container>
+    </ul>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="sidebar-footer">
+    <ng-container *ngIf="!collapsed">
+      <div class="tools-title">{{ getSectionTitle('tools') }}</div>
+    </ng-container>
+    <ul class="sidebar-tools">
+      <ng-container *ngFor="let item of getMenuItemsBySection('tools')">
+        <li class="nav-item" 
+            [class.active]="item.route && isActive(item.route)" 
+            (click)="item.route && navigateTo(item.route)">
           <div>
             <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
             <ng-container *ngIf="!collapsed">

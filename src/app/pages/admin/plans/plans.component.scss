@@ -1,0 +1,24 @@
+.plans-page {
+  padding: var(--spacing-xl);
+  background-color: var(--page-background-color);
+  min-height: 100vh;
+
+  .grid-section {
+    background: var(--admin-card-bg);
+    border-radius: var(--input-radius);
+    box-shadow: var(--primary-shadow);
+    border: var(--admin-border);
+    overflow: hidden;
+
+    .plans-grid {
+      width: 100%;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .plans-page {
+    padding: var(--spacing-md);
+  }
+} 

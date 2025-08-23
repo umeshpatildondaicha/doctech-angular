@@ -1,0 +1,1292 @@
+<div class="patient-profile-container">
+  <!-- Search and Quick Actions Bar -->
+  <div class="search-actions-bar">
+    <div class="search-container">
+      <div class="search-input-wrapper">
+        <app-icon fontIcon="search" [size]="20" class="search-icon"></app-icon>
+        <input 
+          type="text" 
+          placeholder="Search patient data, medications, notes..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          class="search-input">
+        <button 
+          *ngIf="searchQuery" 
+          (click)="clearSearch()" 
+          class="clear-search-btn">
+          <app-icon fontIcon="close" [size]="16"></app-icon>
+        </button>
+      </div>
+      <div *ngIf="searchResults.length > 0" class="search-results">
+        <div *ngFor="let result of searchResults" 
+             class="search-result-item"
+             (click)="navigateToSearchResult(result)">
+          <app-icon [fontIcon]="result.icon" [size]="16"></app-icon>
+          <span class="result-text">{{ result.text }}</span>
+          <span class="result-category">{{ result.category }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="quick-actions-bar">
+      <app-button 
+        appearance="stroked" 
+        color="primary" 
+        (btnClick)="toggleNotifications()"
+        class="notification-btn">
+        <app-icon fontIcon="notifications" [size]="18"></app-icon>
+        <span class="notification-badge" *ngIf="unreadNotifications > 0">{{ unreadNotifications }}</span>
+      </app-button>
+      
+      <app-button 
+        appearance="stroked" 
+        color="primary" 
+        (btnClick)="exportPatientData()"
+        class="export-btn">
+        <app-icon fontIcon="download" [size]="18"></app-icon>
+        <span>Export</span>
+      </app-button>
+      
+      <app-button 
+        appearance="stroked" 
+        color="primary" 
+        (btnClick)="toggleFullscreen()"
+        class="fullscreen-btn">
+        <app-icon [fontIcon]="isFullscreen ? 'fullscreen_exit' : 'fullscreen'" [size]="18"></app-icon>
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Breadcrumb -->
+  <app-breadcrumb 
+    [customBreadcrumbs]="[
+      { label: 'Patients', path: '/patients' },
+      { label: patientInfo.name, path: '/patient-profile' }
+    ]"
+    (breadcrumbClick)="onBreadcrumbClick()">
+  </app-breadcrumb>
+
+  <!-- IPD Management Header -->
+  <div *ngIf="viewMode === 'ipd'" class="ipd-header">
+    <div class="ipd-header-content">
+      <div class="ipd-title">
+        <h1>Inpatient Management</h1>
+        <div class="ipd-status">
+          <span class="days-left">{{ ipdAdmissionDetails.daysLeft }} Days Left</span>
+        </div>
+      </div>
+      
+      <!-- Care Team Quick Access -->
+      <div class="care-team-quick">
+        <div class="team-member" *ngFor="let member of careTeam.slice(0, 3)">
+          <div class="member-avatar" [style.background-color]="member.color">
+            {{ member.name.charAt(0) }}
+          </div>
+          <span class="member-role">{{ member.role }}</span>
+        </div>
+        <app-button 
+          appearance="stroked" 
+          color="primary" 
+          (btnClick)="viewFullCareTeam()"
+          class="view-team-btn">
+          <app-icon fontIcon="people" [size]="16"></app-icon>
+          <span>View Team</span>
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Header with Quick Actions -->
+  <div class="page-header" [class.ipd-mode]="viewMode === 'ipd'">
+    <div class="header-background">
+      <div class="header-pattern"></div>
+      <div class="header-overlay"></div>
+    </div>
+    
+    <div class="header-content">
+      <!-- Patient Avatar and Name -->
+      <div class="patient-header">
+        <div class="patient-avatar-container">
+          <div class="patient-avatar">
+            <div class="avatar-placeholder">
+              <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" 
+                   alt="Patient Profile" 
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <app-icon fontIcon="person" [size]="40" style="display: none;"></app-icon>
+            </div>
+            <div class="status-indicator" [class]="patientInfo.admissionStatus.toLowerCase()">
+              <app-icon fontIcon="circle" [size]="12"></app-icon>
+            </div>
+          </div>
+          <div class="avatar-badge" *ngIf="getAbnormalVitalSigns().length > 0">
+            <app-icon fontIcon="warning" [size]="14"></app-icon>
+            <span>{{ getAbnormalVitalSigns().length }}</span>
+          </div>
+        </div>
+
+        <div class="patient-name-section">
+          <h1 class="patient-name">{{ patientInfo.name }}</h1>
+          <div class="patient-id-badge">
+            <app-icon fontIcon="badge" [size]="14"></app-icon>
+            <span>{{ patientInfo.id }}</span>
+          </div>
+        </div>
+        
+        <div class="patient-badges">
+          <span class="badge admission-status" [class]="patientInfo.admissionStatus.toLowerCase()">
+            <app-icon fontIcon="medical_services" [size]="12"></app-icon>
+            {{ patientInfo.admissionStatus }}
+          </span>
+          <span class="badge department">
+            <app-icon fontIcon="business" [size]="12"></app-icon>
+            {{ patientInfo.department }}
+          </span>
+          <span class="badge priority" *ngIf="getAbnormalVitalSigns().length > 0">
+            <app-icon fontIcon="warning" [size]="12"></app-icon>
+            {{ getAbnormalVitalSigns().length }} Abnormal Vitals
+          </span>
+          <span class="badge days-in-hospital" *ngIf="patientInfo.admissionStatus === 'IPD'">
+            <app-icon fontIcon="schedule" [size]="12"></app-icon>
+            {{ getDaysInHospital() }} Days
+          </span>
+        </div>
+      </div>
+
+      <!-- IPD Management Content -->
+      <div *ngIf="viewMode === 'ipd'" class="ipd-content">
+        <div class="ipd-grid">
+          <!-- Admission Details -->
+          <div class="ipd-section admission-details">
+            <h3>Admission Details</h3>
+            <div class="ipd-details-grid">
+              <div class="ipd-detail-item">
+                <span class="label">Ward:</span>
+                <span class="value">{{ ipdAdmissionDetails.ward }}</span>
+              </div>
+              <div class="ipd-detail-item">
+                <span class="label">Admission Date:</span>
+                <span class="value">{{ ipdAdmissionDetails.admissionDate | date:'MMM dd, yyyy' }}</span>
+              </div>
+              <div class="ipd-detail-item">
+                <span class="label">Attending Doctor:</span>
+                <span class="value">{{ ipdAdmissionDetails.attendingDoctor }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Patient Specifics -->
+          <div class="ipd-section patient-specifics">
+            <h3>Patient Specifics</h3>
+            <div class="ipd-details-grid">
+              <div class="ipd-detail-item">
+                <span class="label">Bed Number:</span>
+                <span class="value">Bed-{{ patientInfo.bedNumber }}</span>
+              </div>
+              <div class="ipd-detail-item">
+                <span class="label">Expected Discharge:</span>
+                <span class="value">{{ ipdAdmissionDetails.expectedDischarge | date:'MMM dd, yyyy' }}</span>
+              </div>
+              <div class="ipd-detail-item">
+                <span class="label">Length of Stay:</span>
+                <span class="value">{{ ipdAdmissionDetails.lengthOfStay }} Days</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="ipd-section quick-actions-section">
+            <h3>Quick Actions</h3>
+            <div class="ipd-quick-actions">
+              <app-button 
+                *ngFor="let action of ipdQuickActions"
+                [appearance]="'raised'"
+                [color]="'primary'"
+                (btnClick)="action.action()"
+                [matTooltip]="action.label"
+                class="ipd-action-btn"
+                [style.background-color]="action.color">
+                <app-icon [fontIcon]="action.icon" [size]="16"></app-icon>
+                <span>{{ action.label }}</span>
+              </app-button>
+            </div>
+          </div>
+
+          <!-- Latest Vitals with Real-time Updates -->
+          <div class="ipd-section latest-vitals">
+            <div class="vitals-header">
+              <h3>Latest Vitals</h3>
+              <div class="vitals-controls">
+                <span class="vitals-timestamp">Today, {{ ipdVitalSigns.lastUpdated | date:'hh:mm a' }}</span>
+                <button class="refresh-vitals-btn" (click)="refreshVitals()">
+                  <app-icon fontIcon="refresh" [size]="16"></app-icon>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Real-time Vital Signs -->
+            <div class="vitals-grid">
+              <div class="vital-item" [class.abnormal]="isVitalAbnormal('pulse', ipdVitalSigns.pulse)">
+                <app-icon fontIcon="favorite" [size]="20"></app-icon>
+                <div class="vital-info">
+                  <span class="vital-value">{{ ipdVitalSigns.pulse }} bpm</span>
+                  <span class="vital-label">Pulse</span>
+                  <span class="vital-trend" *ngIf="getVitalTrend('pulse')">
+                    <app-icon [fontIcon]="getVitalTrendIcon('pulse')" [size]="12"></app-icon>
+                    {{ getVitalTrend('pulse') }}
+                  </span>
+                </div>
+                <div class="vital-alert" *ngIf="isVitalAbnormal('pulse', ipdVitalSigns.pulse)">
+                  <app-icon fontIcon="warning" [size]="16"></app-icon>
+                </div>
+              </div>
+              
+              <div class="vital-item" [class.abnormal]="isVitalAbnormal('temperature', ipdVitalSigns.temperature)">
+                <app-icon fontIcon="thermostat" [size]="20"></app-icon>
+                <div class="vital-info">
+                  <span class="vital-value">{{ ipdVitalSigns.temperature }}°C</span>
+                  <span class="vital-label">Temperature</span>
+                  <span class="vital-trend" *ngIf="getVitalTrend('temperature')">
+                    <app-icon [fontIcon]="getVitalTrendIcon('temperature')" [size]="12"></app-icon>
+                    {{ getVitalTrend('temperature') }}
+                  </span>
+                </div>
+                <div class="vital-alert" *ngIf="isVitalAbnormal('temperature', ipdVitalSigns.temperature)">
+                  <app-icon fontIcon="warning" [size]="16"></app-icon>
+                </div>
+              </div>
+              
+              <div class="vital-item" [class.abnormal]="isVitalAbnormal('bp', ipdVitalSigns.bloodPressure)">
+                <app-icon fontIcon="show_chart" [size]="20"></app-icon>
+                <div class="vital-info">
+                  <span class="vital-value">{{ ipdVitalSigns.bloodPressure }}</span>
+                  <span class="vital-label">BP</span>
+                  <span class="vital-trend" *ngIf="getVitalTrend('bp')">
+                    <app-icon [fontIcon]="getVitalTrendIcon('bp')" [size]="12"></app-icon>
+                    {{ getVitalTrend('bp') }}
+                  </span>
+                </div>
+                <div class="vital-alert" *ngIf="isVitalAbnormal('bp', ipdVitalSigns.bloodPressure)">
+                  <app-icon fontIcon="warning" [size]="16"></app-icon>
+                </div>
+              </div>
+              
+              <div class="vital-item" [class.abnormal]="isVitalAbnormal('spO2', ipdVitalSigns.spO2)">
+                <app-icon fontIcon="air" [size]="20"></app-icon>
+                <div class="vital-info">
+                  <span class="vital-value">{{ ipdVitalSigns.spO2 }}%</span>
+                  <span class="vital-label">SpO2</span>
+                  <span class="vital-trend" *ngIf="getVitalTrend('spO2')">
+                    <app-icon [fontIcon]="getVitalTrendIcon('spO2')" [size]="12"></app-icon>
+                    {{ getVitalTrend('spO2') }}
+                  </span>
+                </div>
+                <div class="vital-alert" *ngIf="isVitalAbnormal('spO2', ipdVitalSigns.spO2)">
+                  <app-icon fontIcon="warning" [size]="16"></app-icon>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Vital Signs Trend Chart -->
+            <div class="vitals-chart-container">
+              <div class="chart-header">
+                <h4>24-Hour Trend</h4>
+                <div class="chart-controls">
+                  <button class="chart-period-btn" [class.active]="chartPeriod === '24h'" (click)="setChartPeriod('24h')">24H</button>
+                  <button class="chart-period-btn" [class.active]="chartPeriod === '7d'" (click)="setChartPeriod('7d')">7D</button>
+                </div>
+              </div>
+              <div class="vitals-chart">
+                <!-- Chart placeholder - would integrate with Chart.js or similar -->
+                <div class="chart-placeholder">
+                  <app-icon fontIcon="show_chart" [size]="48"></app-icon>
+                  <p>Vital Signs Trend Chart</p>
+                  <small>Real-time data visualization</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient Information and Actions (Profile Mode) -->
+      <div *ngIf="viewMode === 'profile'" class="patient-content">
+        <div class="patient-info-grid">
+          <div class="meta-cards">
+            <div class="meta-card">
+              <span class="meta-label">Age & Gender</span>
+              <span class="meta-value">{{ patientInfo.age }} years, {{ patientInfo.gender }}</span>
+            </div>
+            
+            <div class="meta-card">
+              <span class="meta-label">Blood Group</span>
+              <span class="meta-value">{{ patientInfo.bloodGroup }}</span>
+            </div>
+            
+            <div class="meta-card">
+              <span class="meta-label">Contact</span>
+              <span class="meta-value">{{ patientInfo.contactNumber }}</span>
+            </div>
+            
+            <div class="meta-card" *ngIf="patientInfo.admissionStatus === 'IPD'">
+              <span class="meta-label">Room & Bed</span>
+              <span class="meta-value">Room {{ patientInfo.roomNumber }}, Bed {{ patientInfo.bedNumber }}</span>
+            </div>
+
+            <div class="meta-card">
+              <span class="meta-label">Primary Doctor</span>
+              <span class="meta-value">{{ patientInfo.primaryDoctor }}</span>
+            </div>
+
+            <div class="meta-card">
+              <span class="meta-label">Emergency Contact</span>
+              <span class="meta-value">{{ patientInfo.emergencyContact }}</span>
+            </div>
+          </div>
+
+          <div class="stats-cards">
+            <div class="stat-card">
+              <div class="stat-number">{{ patientStats.totalAppointments }}</div>
+              <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{ patientStats.activeMedications }}</div>
+              <div class="stat-label">Active Medications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{ patientStats.labReports }}</div>
+              <div class="stat-label">Lab Reports</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">{{ patientStats.clinicalNotes }}</div>
+              <div class="stat-label">Clinical Notes</div>
+            </div>
+          </div>
+
+          <div class="quick-actions-panel">
+            <h3 class="actions-title">Quick Actions</h3>
+            <div class="quick-actions-grid">
+              <app-button 
+                *ngFor="let action of quickActions"
+                [appearance]="action.disabled ? 'basic' : 'raised'"
+                [color]="action.color"
+                [disabled]="action.disabled || false"
+                (btnClick)="action.action()"
+                [matTooltip]="action.label"
+                class="quick-action-btn">
+                <app-icon [fontIcon]="action.icon" [size]="16"></app-icon>
+                <span>{{ action.label }}</span>
+              </app-button>
+            </div>
+          </div>
+
+          <div class="edit-actions-panel">
+            <div class="edit-buttons">
+              <app-button 
+                appearance="stroked" 
+                color="primary"
+                (btnClick)="toggleEditMode()"
+                [disabled]="isLoading"
+                class="edit-btn">
+                <app-icon fontIcon="edit" [size]="16"></app-icon>
+                <span>{{ isEditing ? 'Cancel Edit' : 'Edit Profile' }}</span>
+              </app-button>
+              <app-button 
+                appearance="raised" 
+                color="primary"
+                (btnClick)="saveChanges()"
+                [disabled]="!isEditing || isLoading"
+                class="save-btn">
+                <app-icon fontIcon="save" [size]="16"></app-icon>
+                <span>Save Changes</span>
+              </app-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IPD Care Schedule -->
+  <div *ngIf="viewMode === 'ipd'" class="ipd-care-schedule">
+    <div class="care-schedule-header">
+      <h2>Care Schedule</h2>
+      <div class="schedule-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="addSchedule()">
+          <app-icon fontIcon="add" [size]="16"></app-icon>
+          <span>Add Schedule</span>
+        </app-button>
+        <app-button appearance="basic" color="primary" (btnClick)="viewFullSchedule()">
+          <app-icon fontIcon="list" [size]="16"></app-icon>
+          <span>View Full Schedule</span>
+        </app-button>
+      </div>
+    </div>
+    
+    <div class="care-schedule-cards">
+      <div *ngFor="let item of ipdCareSchedule" class="care-schedule-card">
+        <div class="schedule-time">{{ item.time }}</div>
+        <div class="schedule-content">
+          <div class="schedule-activity">{{ item.activity }}</div>
+          <div class="schedule-description">{{ item.description }}</div>
+          <div class="schedule-meta">
+            <span class="schedule-type" [style.background-color]="getTypeColor(item.type)">
+              <app-icon [fontIcon]="getTypeIcon(item.type)" [size]="12"></app-icon>
+              {{ item.type }}
+            </span>
+            <span class="schedule-assignee">{{ item.assignedTo }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs-container">
+    <mat-tab-group (selectedIndexChange)="onTabChange(tabs[$event].id)">
+      <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
+        <ng-template mat-tab-label>
+          <div class="tab-label">
+            <app-icon [fontIcon]="tab.icon" [size]="18"></app-icon>
+            {{ tab.label }}
+            <span class="tab-badge" *ngIf="tab.badge > 0">{{ tab.badge }}</span>
+          </div>
+        </ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    <!-- Overview Tab -->
+    <div *ngIf="selectedTab === 'overview'" class="overview-tab">
+      <!-- Key Metrics Dashboard -->
+      <div class="metrics-dashboard">
+        <div class="metric-card primary">
+          <div class="metric-icon">
+            <app-icon fontIcon="event" [size]="24"></app-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ patientStats.pendingAppointments }}</div>
+            <div class="metric-label">Upcoming Appointments</div>
+          </div>
+        </div>
+        <div class="metric-card warning">
+          <div class="metric-icon">
+            <app-icon fontIcon="favorite" [size]="24"></app-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ getAbnormalVitalSigns().length }}</div>
+            <div class="metric-label">Abnormal Vitals</div>
+          </div>
+        </div>
+        <div class="metric-card danger">
+          <div class="metric-icon">
+            <app-icon fontIcon="science" [size]="24"></app-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ patientStats.abnormalLabReports }}</div>
+            <div class="metric-label">Abnormal Lab Results</div>
+          </div>
+        </div>
+        <div class="metric-card success">
+          <div class="metric-icon">
+            <app-icon fontIcon="local_pharmacy" [size]="24"></app-icon>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{ patientStats.activeMedications }}</div>
+            <div class="metric-label">Active Medications</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div class="overview-layout">
+        <!-- Left Column -->
+        <div class="left-column">
+          <!-- Vital Signs Summary -->
+          <mat-card class="vitals-summary-card">
+            <mat-card-header>
+              <mat-card-title>
+                <app-icon fontIcon="favorite" [size]="24"></app-icon>
+                Latest Vital Signs
+              </mat-card-title>
+    
+            </mat-card-header>
+            <mat-card-content>
+              <div class="vitals-grid">
+                <div *ngFor="let vital of vitalSigns" class="vital-item" [class.abnormal]="!vital.isNormal">
+                  <div class="vital-header">
+                    <span class="vital-type">{{ vital.type }}</span>
+                    <span class="vital-status" [class]="vital.isNormal ? 'normal' : 'abnormal'">
+                      <app-icon [fontIcon]="vital.isNormal ? 'check_circle' : 'warning'" [size]="16"></app-icon>
+                    </span>
+                  </div>
+                  <div class="vital-value">
+                    {{ vital.value }} {{ vital.unit }}
+                  </div>
+                  <div class="vital-time">{{ vital.time | date:'shortTime' }}</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Upcoming Appointments -->
+          <mat-card class="appointments-card">
+            <mat-card-header>
+              <mat-card-title>
+                <app-icon fontIcon="event" [size]="24"></app-icon>
+                Upcoming Appointments
+              </mat-card-title>
+    
+            </mat-card-header>
+            <mat-card-content>
+              <div class="appointments-list">
+                <div *ngFor="let appointment of getUpcomingAppointments()" class="appointment-item">
+                  <div class="appointment-date">
+                    <div class="date">{{ appointment.date | date:'MMM dd' }}</div>
+                    <div class="time">{{ appointment.time | date:'shortTime' }}</div>
+                  </div>
+                  <div class="appointment-details">
+                    <div class="appointment-type">{{ appointment.type }}</div>
+                    <div class="appointment-doctor">{{ appointment.doctor }}</div>
+                    <div class="appointment-department">{{ appointment.department }}</div>
+                  </div>
+                  <div class="appointment-status" [class]="appointment.status">
+                    {{ appointment.status }}
+                  </div>
+                </div>
+                <div *ngIf="getUpcomingAppointments().length === 0" class="no-appointments">
+                  <app-icon fontIcon="event_busy" [size]="48"></app-icon>
+                  <p>No upcoming appointments</p>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+          <!-- Care Schedule Timeline -->
+          <mat-card class="care-schedule-card">
+            <mat-card-header>
+              <mat-card-title>
+                <app-icon fontIcon="schedule" [size]="24"></app-icon>
+                Today's Care Schedule
+              </mat-card-title>
+    
+            </mat-card-header>
+            <mat-card-content>
+              <div class="care-timeline">
+                <div *ngFor="let item of careSchedule" class="timeline-item">
+                  <div class="timeline-marker" [style.background-color]="getStatusColor(item.status)">
+                    <app-icon [fontIcon]="getStatusIcon(item.status)" [size]="16" color="white"></app-icon>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <h4>{{ item.title }}</h4>
+                      <div class="timeline-meta">
+                        <span class="time">{{ item.startTime | date:'shortTime' }}</span>
+                        <span class="priority" [style.background-color]="getPriorityColor(item.priority)">
+                          {{ item.priority }}
+                        </span>
+                      </div>
+                    </div>
+                    <p>{{ item.description }}</p>
+                    <div class="timeline-footer">
+                      <span class="assignee">{{ item.assignee }}</span>
+                      <span class="status" [style.color]="getStatusColor(item.status)">
+                        {{ item.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Recent Clinical Notes -->
+          <mat-card class="clinical-notes-card">
+            <mat-card-header>
+              <mat-card-title>
+                <app-icon fontIcon="note" [size]="24"></app-icon>
+                Recent Clinical Notes
+              </mat-card-title>
+    
+            </mat-card-header>
+            <mat-card-content>
+              <div class="notes-list">
+                <div *ngFor="let note of clinicalNotes.slice(0, 3)" class="note-item">
+                  <div class="note-header">
+                    <span class="note-type">{{ note.type }}</span>
+                    <span class="note-date">{{ note.date | date:'shortDate' }}</span>
+                  </div>
+                  <div class="note-title">{{ note.title }}</div>
+                  <div class="note-content">{{ note.content | slice:0:100 }}...</div>
+                  <div class="note-author">{{ note.author }}</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div *ngIf="selectedTab === 'profile'" class="profile-tab">
+      <!-- Patient Info Card -->
+      <div class="info-section">
+        <mat-card class="patient-info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <app-icon fontIcon="person" [size]="24"></app-icon>
+              Patient Information
+            </mat-card-title>
+  
+          </mat-card-header>
+          <mat-card-content>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Full Name</label>
+                <span>{{ patientInfo.name }}</span>
+              </div>
+              <div class="info-item">
+                <label>Age</label>
+                <span>{{ patientInfo.age }} years</span>
+              </div>
+              <div class="info-item">
+                <label>Gender</label>
+                <span>{{ patientInfo.gender }}</span>
+              </div>
+              <div class="info-item">
+                <label>Blood Group</label>
+                <span>{{ patientInfo.bloodGroup }}</span>
+              </div>
+              <div class="info-item">
+                <label>Contact Number</label>
+                <span>{{ patientInfo.contactNumber }}</span>
+              </div>
+              <div class="info-item">
+                <label>Email Address</label>
+                <span>{{ patientInfo.email }}</span>
+              </div>
+              <div class="info-item">
+                <label>Address</label>
+                <span>{{ patientInfo.address }}</span>
+              </div>
+              <div class="info-item">
+                <label>Emergency Contact</label>
+                <span>{{ patientInfo.emergencyContact }} ({{ patientInfo.emergencyContactRelation }})</span>
+              </div>
+              <div class="info-item">
+                <label>Occupation</label>
+                <span>{{ patientInfo.occupation || 'Not specified' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Marital Status</label>
+                <span>{{ patientInfo.maritalStatus || 'Not specified' }}</span>
+              </div>
+              <div class="info-item">
+                <label>Next of Kin</label>
+                <span>{{ patientInfo.nextOfKin || 'Not specified' }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Medical Information -->
+        <mat-card class="medical-info-card">
+          <mat-card-header>
+            <mat-card-title>
+              <app-icon fontIcon="medical_services" [size]="24"></app-icon>
+              Medical Information
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="medical-grid">
+              <div class="medical-section">
+                <h4>Primary Doctor</h4>
+                <p>{{ patientInfo.primaryDoctor }}</p>
+              </div>
+              <div class="medical-section">
+                <h4>Department</h4>
+                <p>{{ patientInfo.department }}</p>
+              </div>
+              <div class="medical-section">
+                <h4>Diagnosis</h4>
+                <div class="diagnosis-list">
+                  <span *ngFor="let diagnosis of patientInfo.diagnosis" class="diagnosis-tag">
+                    {{ diagnosis }}
+                  </span>
+                </div>
+              </div>
+              <div class="medical-section">
+                <h4>Allergies</h4>
+                <div class="allergies-list">
+                  <span *ngFor="let allergy of patientInfo.allergies" class="allergy-tag">
+                    {{ allergy }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Insurance Information -->
+        <mat-card class="insurance-card">
+          <mat-card-header>
+            <mat-card-title>
+              <app-icon fontIcon="security" [size]="24"></app-icon>
+              Insurance Information
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="insurance-grid">
+              <div class="insurance-item">
+                <label>Provider</label>
+                <span>{{ patientInfo.insuranceProvider || 'Not specified' }}</span>
+              </div>
+              <div class="insurance-item">
+                <label>Policy Number</label>
+                <span>{{ patientInfo.insuranceNumber || 'Not specified' }}</span>
+              </div>
+              <div class="insurance-item">
+                <label>Expiry Date</label>
+                <span>{{ patientInfo.insuranceExpiry | date:'mediumDate' || 'Not specified' }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Patient Statistics -->
+      <mat-card class="stats-card">
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="analytics" [size]="24"></app-icon>
+            Patient Statistics
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.totalAppointments }}</div>
+              <div class="stat-label">Total Appointments</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.completedAppointments }}</div>
+              <div class="stat-label">Completed</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.pendingAppointments }}</div>
+              <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.totalPrescriptions }}</div>
+              <div class="stat-label">Prescriptions</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.activeMedications }}</div>
+              <div class="stat-label">Active Medications</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.labReports }}</div>
+              <div class="stat-label">Lab Reports</div>
+            </div>
+            <div class="stat-item" *ngIf="patientInfo.admissionStatus === 'IPD'">
+              <div class="stat-value">{{ getDaysInHospital() }}</div>
+              <div class="stat-label">Days in Hospital</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">{{ patientStats.readmissionCount }}</div>
+              <div class="stat-label">Readmissions</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Admission Status Toggle -->
+      <mat-card class="admission-card">
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="local_hospital" [size]="24"></app-icon>
+            Admission Status
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="admission-toggle">
+            <span class="toggle-label">Current Status:</span>
+            <mat-slide-toggle 
+              [checked]="patientInfo.admissionStatus === 'IPD'"
+              (change)="toggleAdmissionStatus()"
+              [disabled]="patientInfo.admissionStatus === 'DISCHARGED'">
+              {{ patientInfo.admissionStatus }}
+            </mat-slide-toggle>
+          </div>
+          <div *ngIf="patientInfo.admissionStatus === 'IPD'" class="ipd-details">
+            <div class="ipd-item">
+              <label>Admission Date:</label>
+              <span>{{ patientInfo.admissionDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="ipd-item">
+              <label>Room Number:</label>
+              <span>{{ patientInfo.roomNumber }}</span>
+            </div>
+            <div class="ipd-item">
+              <label>Bed Number:</label>
+              <span>{{ patientInfo.bedNumber }}</span>
+            </div>
+            <div class="ipd-item">
+              <label>Days in Hospital:</label>
+              <span>{{ getDaysInHospital() }} days</span>
+            </div>
+          </div>
+          <div *ngIf="patientInfo.admissionStatus === 'DISCHARGED'" class="discharge-details">
+            <div class="discharge-item">
+              <label>Discharge Date:</label>
+              <span>{{ patientInfo.dischargeDate | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Vitals Tab -->
+    <div *ngIf="selectedTab === 'vitals'" class="vitals-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="favorite" [size]="24"></app-icon>
+            Vital Signs History
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="vitalSigns" class="vitals-table">
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Vital Sign</th>
+              <td mat-cell *matCellDef="let vital">{{ vital.type }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="value">
+              <th mat-header-cell *matHeaderCellDef>Value</th>
+              <td mat-cell *matCellDef="let vital">
+                <span [class.abnormal]="!vital.isNormal">
+                  {{ vital.value }} {{ vital.unit }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let vital">
+                <span class="status-badge" [class]="vital.isNormal ? 'normal' : 'abnormal'">
+                  <app-icon [fontIcon]="vital.isNormal ? 'check_circle' : 'warning'" [size]="16"></app-icon>
+                  {{ vital.isNormal ? 'Normal' : 'Abnormal' }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let vital">{{ vital.date | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="time">
+              <th mat-header-cell *matHeaderCellDef>Time</th>
+              <td mat-cell *matCellDef="let vital">{{ vital.time | date:'shortTime' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="recordedBy">
+              <th mat-header-cell *matHeaderCellDef>Recorded By</th>
+              <td mat-cell *matCellDef="let vital">{{ vital.recordedBy }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['type', 'value', 'status', 'date', 'time', 'recordedBy']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['type', 'value', 'status', 'date', 'time', 'recordedBy'];"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Medications Tab -->
+    <div *ngIf="selectedTab === 'medications'" class="medications-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="local_pharmacy" [size]="24"></app-icon>
+            Current Medications
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="medications" class="medications-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>Medication Name</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="dosage">
+              <th mat-header-cell *matHeaderCellDef>Dosage</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.dosage }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="frequency">
+              <th mat-header-cell *matHeaderCellDef>Frequency</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.frequency }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="route">
+              <th mat-header-cell *matHeaderCellDef>Route</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.route }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let medication">
+                <span class="status-badge" [class]="medication.status">
+                  {{ medication.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="prescribedBy">
+              <th mat-header-cell *matHeaderCellDef>Prescribed By</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.prescribedBy }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="startDate">
+              <th mat-header-cell *matHeaderCellDef>Start Date</th>
+              <td mat-cell *matCellDef="let medication">{{ medication.startDate | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['name', 'dosage', 'frequency', 'route', 'status', 'prescribedBy', 'startDate']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['name', 'dosage', 'frequency', 'route', 'status', 'prescribedBy', 'startDate'];"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Appointments Tab -->
+    <div *ngIf="selectedTab === 'appointments'" class="appointments-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="event" [size]="24"></app-icon>
+            Appointment History
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="appointments" class="appointments-table">
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let appointment">{{ appointment.date | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="time">
+              <th mat-header-cell *matHeaderCellDef>Time</th>
+              <td mat-cell *matCellDef="let appointment">{{ appointment.time | date:'shortTime' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="type">
+              <th mat-header-cell *matHeaderCellDef>Type</th>
+              <td mat-cell *matCellDef="let appointment">{{ appointment.type }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="doctor">
+              <th mat-header-cell *matHeaderCellDef>Doctor</th>
+              <td mat-cell *matCellDef="let appointment">{{ appointment.doctor }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="department">
+              <th mat-header-cell *matHeaderCellDef>Department</th>
+              <td mat-cell *matCellDef="let appointment">{{ appointment.department }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let appointment">
+                <span class="status-badge" [class]="appointment.status">
+                  {{ appointment.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['date', 'time', 'type', 'doctor', 'department', 'status']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['date', 'time', 'type', 'doctor', 'department', 'status'];"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Lab Reports Tab -->
+    <div *ngIf="selectedTab === 'lab-reports'" class="lab-reports-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="science" [size]="24"></app-icon>
+            Laboratory Reports
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <table mat-table [dataSource]="labReports" class="lab-reports-table">
+            <ng-container matColumnDef="testName">
+              <th mat-header-cell *matHeaderCellDef>Test Name</th>
+              <td mat-cell *matCellDef="let report">{{ report.testName }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="category">
+              <th mat-header-cell *matHeaderCellDef>Category</th>
+              <td mat-cell *matCellDef="let report">{{ report.category }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="result">
+              <th mat-header-cell *matHeaderCellDef>Result</th>
+              <td mat-cell *matCellDef="let report">
+                <span [class.abnormal]="report.status === 'abnormal'">
+                  {{ report.result }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="normalRange">
+              <th mat-header-cell *matHeaderCellDef>Normal Range</th>
+              <td mat-cell *matCellDef="let report">{{ report.normalRange }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let report">
+                <span class="status-badge" [class]="report.status">
+                  {{ report.status }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef>Date</th>
+              <td mat-cell *matCellDef="let report">{{ report.date | date:'mediumDate' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="orderedBy">
+              <th mat-header-cell *matHeaderCellDef>Ordered By</th>
+              <td mat-cell *matCellDef="let report">{{ report.orderedBy }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="['testName', 'category', 'result', 'normalRange', 'status', 'date', 'orderedBy']"></tr>
+            <tr mat-row *matRowDef="let row; columns: ['testName', 'category', 'result', 'normalRange', 'status', 'date', 'orderedBy'];"></tr>
+          </table>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Clinical Notes Tab -->
+    <div *ngIf="selectedTab === 'clinical-notes'" class="clinical-notes-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="note" [size]="24"></app-icon>
+            Clinical Notes
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <div class="notes-list">
+            <div *ngFor="let note of clinicalNotes" class="note-item">
+              <div class="note-header">
+                <span class="note-type">{{ note.type }}</span>
+                <span class="note-date">{{ note.date | date:'mediumDate' }}</span>
+              </div>
+              <div class="note-title">{{ note.title }}</div>
+              <div class="note-content">{{ note.content }}</div>
+              <div class="note-author">{{ note.author }}</div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Care Plan Tab -->
+    <div *ngIf="selectedTab === 'care-plan'" class="care-plan-tab">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <app-icon fontIcon="medical_services" [size]="24"></app-icon>
+            Care Plan & Schedule
+          </mat-card-title>
+
+        </mat-card-header>
+        <mat-card-content>
+          <div class="care-plan-container">
+            <div class="care-timeline">
+              <div *ngFor="let item of careSchedule" class="timeline-item">
+                <div class="timeline-marker" [style.background-color]="getStatusColor(item.status)">
+                  <app-icon [fontIcon]="getStatusIcon(item.status)" [size]="16" color="white"></app-icon>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <h4>{{ item.title }}</h4>
+                    <div class="timeline-meta">
+                      <span class="time">{{ item.startTime | date:'shortTime' }} - {{ item.endTime | date:'shortTime' }}</span>
+                      <span class="priority" [style.background-color]="getPriorityColor(item.priority)">
+                        {{ item.priority }}
+                      </span>
+                    </div>
+                  </div>
+                  <p>{{ item.description }}</p>
+                  <div class="timeline-footer">
+                    <span class="assignee">{{ item.assignee }}</span>
+                    <span class="status" [style.color]="getStatusColor(item.status)">
+                      {{ item.status }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+
+  <!-- Admission Dialog -->
+  <div *ngIf="showAdmissionDialog" class="dialog-overlay">
+    <div class="admission-dialog">
+      <div class="dialog-header">
+        <h3>Admit Patient</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelAdmission()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <p>Are you sure you want to admit {{ patientInfo.name }} to inpatient care?</p>
+        <p>This will change the patient status to IPD and switch to inpatient management view.</p>
+        <div class="admission-details">
+          <div class="detail-item">
+            <span class="label">Ward:</span>
+            <span class="value">General Ward</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Room:</span>
+            <span class="value">301</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Bed:</span>
+            <span class="value">A</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Attending Doctor:</span>
+            <span class="value">{{ patientInfo.primaryDoctor }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="cancelAdmission()">
+          Cancel
+        </app-button>
+        <app-button appearance="raised" color="primary" (btnClick)="confirmAdmission()">
+          Confirm Admission
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discharge Dialog -->
+  <div *ngIf="showDischargeDialog" class="dialog-overlay">
+    <div class="discharge-dialog">
+      <div class="dialog-header">
+        <h3>Discharge Patient</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelDischarge()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <p>Are you sure you want to discharge {{ patientInfo.name }}?</p>
+        <p>This action will change the patient status to DISCHARGED and return to profile view.</p>
+        <div class="discharge-details">
+          <div class="detail-item">
+            <span class="label">Length of Stay:</span>
+            <span class="value">{{ getDaysInHospital() }} days</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Discharge Date:</span>
+            <span class="value">{{ getCurrentDate() | date:'mediumDate' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="cancelDischarge()">
+          Cancel
+        </app-button>
+        <app-button appearance="raised" color="warn" (btnClick)="confirmDischarge()">
+          Confirm Discharge
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Panel -->
+  <div *ngIf="showNotifications" class="notification-panel">
+    <div class="notification-header">
+      <h3>Notifications ({{ notifications.length }})</h3>
+      <button class="close-notifications" (click)="toggleNotifications()">
+        <app-icon fontIcon="close" [size]="20"></app-icon>
+      </button>
+    </div>
+    <div class="notification-list">
+      <div *ngFor="let notification of notifications" 
+           class="notification-item"
+           [class.unread]="!notification.read"
+           (click)="markNotificationRead(notification)">
+        <div class="notification-icon" [style.background-color]="notification.color">
+          <app-icon [fontIcon]="notification.icon" [size]="16"></app-icon>
+        </div>
+        <div class="notification-content">
+          <div class="notification-title">{{ notification.title }}</div>
+          <div class="notification-message">{{ notification.message }}</div>
+          <div class="notification-time">{{ notification.time | date:'shortTime' }}</div>
+        </div>
+        <div class="notification-actions">
+          <button class="action-btn" (click)="handleNotificationAction(notification)">
+            <app-icon fontIcon="arrow_forward" [size]="16"></app-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Care Team Dialog -->
+  <div *ngIf="showCareTeamDialog" class="dialog-overlay">
+    <div class="care-team-dialog">
+      <div class="dialog-header">
+        <h3>Care Team</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="closeCareTeamDialog()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <div class="care-team-grid">
+          <div *ngFor="let member of careTeam" class="team-member-card">
+            <div class="member-avatar" [style.background-color]="member.color">
+              {{ member.name.charAt(0) }}
+            </div>
+            <div class="member-info">
+              <div class="member-name">{{ member.name }}</div>
+              <div class="member-role">{{ member.role }}</div>
+              <div class="member-department">{{ member.department }}</div>
+            </div>
+            <div class="member-actions">
+              <button class="contact-btn" (click)="contactTeamMember(member)">
+                <app-icon fontIcon="phone" [size]="16"></app-icon>
+              </button>
+              <button class="message-btn" (click)="messageTeamMember(member)">
+                <app-icon fontIcon="message" [size]="16"></app-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Saving changes...</p>
+  </div>
+</div>

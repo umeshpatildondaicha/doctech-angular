@@ -13,6 +13,8 @@ import { AppSelectboxComponent } from '../../tools/app-selectbox/app-selectbox.c
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { Diet } from '../../interfaces/diet.interface';
 import { Mode } from '../../types/mode.type';
+import { UploadboxComponent } from '../../tools';
+import { UploadedFile } from '../../interfaces/uploaded-file.interface';
 
 
 export interface DialogData {
@@ -35,7 +37,8 @@ export interface DialogData {
     AppButtonComponent,
     AppInputComponent,
     AppSelectboxComponent,
-    IconComponent
+    IconComponent,
+    UploadboxComponent
   ],
   templateUrl: './diet-create.component.html',
   styleUrl: './diet-create.component.scss'
@@ -198,5 +201,13 @@ export class DietCreateComponent {
       }
     }
     return '';
+  }
+
+  onFilesSelected(files: File[]): void {
+    console.log('Selected files:', files);
+  }
+
+  onFileUploaded(file: UploadedFile): void {
+    console.log('Uploaded file:', file);
   }
 }

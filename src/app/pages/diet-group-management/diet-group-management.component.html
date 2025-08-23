@@ -1,0 +1,109 @@
+<div class="diet-group-management-container">
+
+  <!-- Tabs -->
+  <mat-tab-group (selectedTabChange)="onTabChange($event)" [selectedIndex]="selectedTabIndex">
+    
+    <!-- Diet Groups Tab -->
+    <mat-tab label="Diet Groups">
+      <div class="tab-content">
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <h3>Diet Groups</h3>
+            <p>Create and manage diet plan groups for different categories and audiences</p>
+          </div>
+          <div class="toolbar-right">
+            <app-button
+              appearance="raised"
+              [text]="'Create Diet Group'"
+              (btnClick)="onCreateDietGroup()"
+              class="create-btn">
+            </app-button>
+            <app-button
+              appearance="basic"
+              [text]="'Refresh'"
+              (btnClick)="onRefresh()"
+              class="refresh-btn">
+            </app-button>
+            <!-- Test button for quick testing -->
+            <app-button
+              appearance="basic"
+              [text]="'Test Dialog'"
+              (btnClick)="testDialog()"
+              class="test-btn">
+            </app-button>
+          </div>
+        </div>
+
+        <div class="grid-container">
+          <app-grid
+            [columnDefs]="columnDefs"
+            [gridOptions]="gridOptions"
+            [rowData]="dietGroups">
+          </app-grid>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Statistics Tab -->
+    <mat-tab label="Statistics">
+      <div class="tab-content">
+        <div class="stats-container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon">📊</div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ dietGroups.length }}</h3>
+                <p class="stat-label">Total Diet Groups</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ getActiveGroupsCount() }}</h3>
+                <p class="stat-label">Active Groups</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">🎯</div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ getTotalDietsCount() }}</h3>
+                <p class="stat-label">Total Diets</p>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon">📈</div>
+              <div class="stat-content">
+                <h3 class="stat-number">{{ getAverageDuration() }}</h3>
+                <p class="stat-label">Avg Duration (weeks)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Categories Tab -->
+    <mat-tab label="Categories">
+      <div class="tab-content">
+        <div class="categories-container">
+          <h3>Diet Group Categories</h3>
+          <div class="categories-grid">
+            <div class="category-card" *ngFor="let category of getCategories()">
+              <div class="category-header">
+                <h4>{{ category.name }}</h4>
+                <span class="category-count">{{ category.count }} groups</span>
+              </div>
+              <div class="category-description">
+                {{ getCategoryDescription(category.name) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+</div> 

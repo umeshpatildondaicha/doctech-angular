@@ -3,28 +3,88 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { AppointmentComponent } from './pages/appointment/appointment.component';
 import { DoctorComponent } from './pages/doctor/doctor.component';
 import { PatientComponent } from './pages/patient/patient.component';
+import { PatientProfileComponent } from './pages/patient/patient-profile/patient-profile.component';
 import { BillingComponent } from './pages/billing/billing.component';
 import { HelpComponent } from './pages/help/help.component';
 import { PatientListComponent } from './components/patient-list/patient-list.component';
 import { PatientFormComponent } from './components/patient-form/patient-form.component';
-import { ExerciseComponent } from './pages/exercise/exercise.component';
-import { DietComponent } from './pages/diet/diet.component';
+import { ExerciseComponent } from './pages/exercise copy/exercise.component';
+import { DietComponent } from './pages/diet copy/diet.component';
+import { DietGroupManagementComponent } from './pages/diet-group-management/diet-group-management.component';
 import { ProfileComponent } from './layout/profile/profile.component';
 import { SettingsComponent } from './layout/settings/settings.component';
+import { LoginComponent } from './pages/login/login.component';
+import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
+import { DoctorsComponent } from './pages/admin/doctors/doctors.component';
+import { ServicesComponent } from './pages/admin/services/services.component';
+import { ServiceFormComponent } from './pages/admin/services/service-form/service-form.component';
+import { ServiceDetailsComponent } from './pages/admin/services/service-details/service-details.component';
+import { RolesComponent } from './pages/admin/roles/roles.component';
+import { PlansComponent } from './pages/admin/plans/plans.component';
+import { RoomsComponent } from './pages/admin/rooms/rooms.component';
+import { RoomDetailsComponent } from './pages/admin/rooms/room-details/room-details.component';
+import { RoomFormComponent } from './pages/admin/rooms/room-form/room-form.component';
+import { RoomsManagementComponent } from './pages/admin/rooms/rooms-management/rooms-management.component';
+import { SchemesComponent } from './pages/admin/schemes/schemes.component';
+import { ExerciseCreateComponent } from './pages/exercise-create/exercise-create.component';
+import { ExerciseSetCreateComponent } from './pages/exercise-set-create/exercise-set-create.component';
+import { DietCreateComponent } from './pages/diet-create/diet-create.component';
+import { DoctorCreateComponent } from './pages/docter-create/doctor-create.component';
+import { PatientCreateComponent } from './pages/patient-create/patient-create.component';
+import { AuthGuard } from './guards/auth.guard';
+import { LoginGuard } from './guards/login.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'appointment', component: AppointmentComponent },
-  { path: 'doctor', component: DoctorComponent },
-  { path: 'patient', component: PatientComponent },
-  { path: 'exercises', component: ExerciseComponent },
-  { path: 'diet', component: DietComponent },
-  { path: 'billing', component: BillingComponent },
-  { path: 'help', component: HelpComponent },
-  { path: 'patients', component: PatientListComponent },
-  { path: 'add-patient', component: PatientFormComponent },
-  { path: 'edit-patient/:id', component: PatientFormComponent },
-  { path: 'profile', component: ProfileComponent },
-  { path: 'settings', component: SettingsComponent }
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },
+  { path: 'doctor', component: DoctorComponent, canActivate: [AuthGuard] },
+  { path: 'patient', component: PatientComponent, canActivate: [AuthGuard] },
+  { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard] },
+  { path: 'exercises', component: ExerciseComponent, canActivate: [AuthGuard] },
+  { path: 'diet', component: DietComponent, canActivate: [AuthGuard] },
+  { path: 'diet-groups', component: DietGroupManagementComponent, canActivate: [AuthGuard] },
+  { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
+  { path: 'help', component: HelpComponent, canActivate: [AuthGuard] },
+  { path: 'patients', component: PatientListComponent, canActivate: [AuthGuard] },
+  { path: 'add-patient', component: PatientFormComponent, canActivate: [AuthGuard] },
+  { path: 'edit-patient/:id', component: PatientFormComponent, canActivate: [AuthGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'settings', component: SettingsComponent, canActivate: [AuthGuard] },
+  { 
+    path: 'admin-dashboard', 
+    component: AdminDashboardComponent, 
+    canActivate: [AuthGuard],
+    data: { breadcrumb: 'Admin Dashboard', breadcrumbIcon: 'admin_panel_settings' }
+  },
+  { path: 'admin/doctors', component: DoctorsComponent, canActivate: [AuthGuard] },
+  { 
+    path: 'admin/services', 
+    component: ServicesComponent, 
+    canActivate: [AuthGuard],
+    data: { breadcrumb: 'Services', breadcrumbIcon: 'medical_services' }
+  },
+  { 
+    path: 'admin/services/:id', 
+    component: ServiceDetailsComponent, 
+    canActivate: [AuthGuard],
+    data: { breadcrumb: 'Service Details', breadcrumbIcon: 'medical_services' }
+  },
+  { path: 'admin/services/add', component: ServiceFormComponent, canActivate: [AuthGuard] },
+  { path: 'admin/services/edit/:id', component: ServiceFormComponent, canActivate: [AuthGuard] },
+  { path: 'admin/roles', component: RolesComponent, canActivate: [AuthGuard] },
+  { path: 'admin/plans', component: PlansComponent, canActivate: [AuthGuard] },
+  { path: 'admin/rooms', component: RoomsComponent, canActivate: [AuthGuard] },
+  { path: 'admin/rooms/manage', component: RoomsManagementComponent, canActivate: [AuthGuard] },
+  { path: 'admin/rooms/add', component: RoomFormComponent, canActivate: [AuthGuard] },
+  { path: 'admin/rooms/edit/:id', component: RoomFormComponent, canActivate: [AuthGuard] },
+  { path: 'admin/rooms/:id', component: RoomDetailsComponent, canActivate: [AuthGuard] },
+  { path: 'admin/schemes', component: SchemesComponent, canActivate: [AuthGuard] },
+  // Additional routes for better navigation
+  { path: 'exercise-create', component: ExerciseCreateComponent, canActivate: [AuthGuard] },
+  { path: 'exercise-set-create', component: ExerciseSetCreateComponent, canActivate: [AuthGuard] },
+  { path: 'diet-create', component: DietCreateComponent, canActivate: [AuthGuard] },
+  { path: 'doctor-create', component: DoctorCreateComponent, canActivate: [AuthGuard] },
+  { path: 'patient-create', component: PatientCreateComponent, canActivate: [AuthGuard] }
 ];

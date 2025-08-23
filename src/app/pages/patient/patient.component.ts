@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { GridComponent } from '../../tools/grid/grid.component';
 import { Patient } from '../../interfaces/patient.interface';
 import { ColDef, GridOptions } from 'ag-grid-community';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PatientCreateComponent } from '../patient-create/patient-create.component';
-import { ChipCellRendererComponent } from '../../tools/chip-cell-renderer/chip-cell-renderer.component';
+import { StatusCellRendererComponent } from '../../tools/status-cell-renderer/status-cell-renderer.component';
 
 @Component({
   selector: 'app-patient',
@@ -27,7 +28,7 @@ export class PatientComponent {
   ];
 
   columnDefs: ColDef[] = [
-    { field: 'bloodGroup', headerName: 'Blood Group', width: 140, sortable: true, filter: true, cellRenderer: ChipCellRendererComponent },
+    { field: 'bloodGroup', headerName: 'Blood Group', width: 140, sortable: true, filter: true, cellRenderer: StatusCellRendererComponent },
     { field: 'firstName', headerName: 'First Name', width: 150, sortable: true, filter: true },
     { field: 'lastName', headerName: 'Last Name', width: 80, sortable: true, filter: true },
     { field: 'dateOfBirth', headerName: 'Date of Birth', width: 140, sortable: true, filter: true },
@@ -41,7 +42,7 @@ export class PatientComponent {
 
   gridOptions: any = {};
 
-  constructor(private dialog: MatDialog) {
+  constructor(private dialog: MatDialog, private router: Router) {
     this.initializeGridOptions();
   }
 
@@ -69,7 +70,13 @@ export class PatientComponent {
 
   onViewPatient(param: any) {
     console.log('View patient:', param);
-    this.onCreatePatient('view',param?.data);
+    // Navigate to patient profile page
+    this.router.navigate(['/patient-profile'], { 
+      queryParams: { 
+        patientId: param?.data?.patientId,
+        patientName: `${param?.data?.firstName} ${param?.data?.lastName}`
+      }
+    });
   }
   onEditPatient(param: any) {
     console.log('Edit patient:', param);

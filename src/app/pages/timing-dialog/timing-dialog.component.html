@@ -1,0 +1,257 @@
+<div class="timing-dialog" [class.view-mode]="isViewMode">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'schedule'" class="title-icon"></app-icon>
+        <h2 class="title">{{ data.mode | titlecase }} Timing</h2>
+      </div>
+      <app-icon [fontIcon]="'close'" (iconClick)="onCancel()"></app-icon>
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <form [formGroup]="timingForm" (ngSubmit)="onSubmit()" class="form">
+      
+      <!-- Time For Section -->
+      <div class="form-row">
+        <app-selectbox 
+          label="Time For" 
+          [disabled]="isViewMode"
+          formControlName="timeFor" 
+          [options]="timeForOptions" 
+          placeholder="Select time frequency" 
+          [required]="true" 
+          [(data)]="timingData.timeFor"
+          [displayExpr]="'label'"
+          [valueField]="'value'">
+        </app-selectbox>
+
+
+        <ng-container *ngIf="timingData.timeFor !== 'leave'">
+
+          <app-input 
+          label="Start Time" 
+          [disabled]="isViewMode"
+          formControlName="startTime" 
+          type="time"
+          [(value)]="timingData.startTime"
+          placeholder="Start time" 
+          [required]="true">
+          </app-input>
+          <app-input 
+          [disabled]="isViewMode"
+          label="End Time" 
+          formControlName="endTime" 
+          type="time"
+          [(value)]="timingData.endTime"
+          placeholder="End time" 
+          [required]="true">
+        </app-input>
+      </ng-container>
+      
+
+      </div>
+
+      <!-- Leave Form Section -->
+      <div *ngIf="timingData.timeFor === 'leave'" class="leave-form-section">
+        <div class="form-row">
+          <app-date-picker
+            [disabled]="isViewMode"
+            label="Select Date" 
+            formControlName="selectedDate" 
+            placeholder="Select date" 
+            [required]="true">
+          </app-date-picker>
+        </div>
+        <div class="form-row">
+          <app-input 
+            [disabled]="isViewMode"
+            class="leave-reason-input"
+            label="Reason" 
+            formControlName="reason" 
+            [(value)]="timingData.reason"
+            placeholder="Enter reason for leave" 
+            [required]="true"
+            [multiline]="true"
+            [rows]="3">
+          </app-input>
+        </div>
+      </div>
+
+      <!-- Regular Timing Form Section -->
+      <div *ngIf="timingData.timeFor === 'daily' || timingData.timeFor === 'weekly' || timingData.timeFor === 'specific_day'" class="regular-timing-section">
+        <!-- Day Selection Section -->
+      <div class="form-row" >
+                      <!-- Appointment Duration -->
+                      <app-input 
+                      [disabled]="isViewMode"
+                      [label]="'Appointment Duration' + ' (Min)'" 
+                      formControlName="appointmentDuration" 
+                      type="number"
+                      [(value)]="timingData.appointmentDuration"
+                      placeholder="Duration in minutes" 
+                      [required]="true">
+                    </app-input>
+
+                    <!-- Specific Date Section -->
+                    <app-date-picker
+                    [disabled]="isViewMode"
+                    *ngIf="timingData.timeFor === 'specific_day'" 
+                    label="Select Date" 
+                    formControlName="selectedDate" 
+                    placeholder="Select specific date" 
+                    [required]="true">
+                  </app-date-picker>
+
+
+        <div class="day-selection" *ngIf="timingData.timeFor === 'weekly'">
+          <app-selectbox 
+            [disabled]="isViewMode"
+            formControlName="selectedDays" 
+            [label]="'Select Day'"
+            [options]="dayOptions" 
+            placeholder="Select days" 
+            [(data)]="timingData.selectedDays"
+            [displayExpr]="'label'"
+            [valueField]="'value'">
+          </app-selectbox>
+        </div>
+
+
+      </div>
+
+      <!-- Start and End Time Section -->
+      <div class="form-row time-row">
+
+      </div>
+
+      <!-- Appointment Time Section -->
+      <div class="appointment-time-section">
+        <div class="section-header">
+          <h4 class="section-title">Appointment Time:</h4>
+          <span class="time-range">{{ getAppointmentTimeRange() }}</span>
+        </div>
+        
+        <!-- Breaks Section -->
+        <div class="breaks-section">
+          <div formArrayName="breaks">
+            <div *ngFor="let break of breaks.controls; let i = index" [formGroupName]="i" class="break-item">
+              <div class="break-row">
+                <app-input 
+                  label="Reason" 
+                  formControlName="reason" 
+                  placeholder="Break reason" 
+                  [(value)]="break.value.reason"
+                  [disabled]="isViewMode"
+                  [required]="true">
+                </app-input>
+                <div class="break-time">
+                  <div class="time-display">
+                    <app-input 
+                      formControlName="startTime" 
+                      type="time"
+                      [label]="'Start Time'"
+                      [(value)]="break.value.startTime"
+                      placeholder="Start time" 
+                      [disabled]="isViewMode"
+                      [required]="true">
+                    </app-input>
+                    <span class="time-separator">-</span>
+                    <app-input 
+                      formControlName="endTime" 
+                      type="time"
+                      [label]="'End Time'"
+                      [disabled]="isViewMode"
+                      [(value)]="break.value.endTime"
+                      placeholder="End time" 
+                      [required]="true">
+                    </app-input>
+                    <app-icon *ngIf="(breaks.length > 1) && !isViewMode" [fontIcon]="'close'" (iconClick)="removeBreak(i)" class="remove-break-btn" [isCovered]="true"></app-icon>
+                  </div>
+                </div>
+                  
+              </div>
+            </div>
+          </div>
+          <app-button *ngIf="!isViewMode" type="button" class="add-break-btn" (btnClick)="addBreak()" [text]="'ADD BREAK'" [appearance]="'basic'">
+          </app-button>
+        </div>
+      </div>
+
+
+
+      <!-- Advanced Options Section -->
+      <div class="advanced-options-section">
+        <div class="section-header" (click)="toggleAdvancedOptions()">
+          <h4 class="section-title">ADVANCE OPTION</h4>
+          <app-icon [fontIcon]="advancedOptionsExpanded ? 'expand_less' : 'expand_more'" class="expand-icon"></app-icon>
+        </div>
+        
+        <div class="advanced-content" *ngIf="advancedOptionsExpanded">
+          <div class="form-row">
+            <app-input 
+              [disabled]="isViewMode"
+              [label]="'Buffer Time Btn Slots' + ' (Sec)'" 
+              formControlName="bufferTime" 
+              type="number"
+              [(value)]="timingData.bufferTime"
+              placeholder="Buffer time in seconds" 
+              [required]="true">
+            </app-input>
+            
+
+            <app-input 
+            [disabled]="isViewMode"
+            label="Max Appointment /Slot" 
+            formControlName="maxAppointmentsPerSlot" 
+            type="number"
+            [(value)]="timingData.maxAppointmentsPerSlot"
+            placeholder="Max appointments per slot" 
+            [required]="true">
+          </app-input>
+          <app-selectbox 
+            [disabled]="isViewMode"
+            label="Slot Prioritization" 
+            formControlName="slotPrioritization" 
+            [options]="priorityOptions" 
+            placeholder="Select priority" 
+            [required]="true" 
+            [(data)]="timingData.slotPrioritization"
+            [displayExpr]="'label'"
+            [valueField]="'value'">
+          </app-selectbox>
+
+          </div>
+          
+        </div>
+      </div>
+
+      </div> <!-- End of regular-timing-section -->
+
+    </form>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        *ngIf="!isViewMode"
+        appearance="basic"
+        (btnClick)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
+      <app-button
+        type="button"
+        [appearance]="isViewMode ? 'basic' : 'raised'"
+        [disabled]="timingForm.invalid && !isViewMode"
+        (btnClick)="onSubmit()"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div> 

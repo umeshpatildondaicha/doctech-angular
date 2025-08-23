@@ -1,0 +1,61 @@
+<div class="appointment-create-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'event'" class="title-icon"></app-icon>
+        <h2 class="title">{{ 'Reschedule' | titlecase }} Appointment</h2>
+      </div>
+      <app-icon [fontIcon]="'close'" (iconClick)="onCancel()"></app-icon>
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="section-title-wrapper"><h4 class="section-title">Appointment Details</h4></div>
+      <div class="patient-profile">
+        <div class="patient-profile-image">
+          <app-image [src]="patient?.image" [alt]="patient?.name" [width]="100" [height]="100"></app-image>
+        </div>
+        <div class="patient-profile-details">
+          <div class="patient-name">{{patient?.name}}</div>
+          <div class="patient-details">
+            <div class="patient-age">Age : {{patient?.age}}</div>
+            <div class="patient-age">Phone Number : {{patient?.number}}</div>
+            <div class="patient-gender">Gender : {{patient?.gender}}</div>
+            <div class="patient-address">Address : {{patient?.address}}</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <!-- <app-date-picker label="Appointment Date & Time" formControlName="appointment_date_time" placeholder="Select date and time" [required]="true"></app-date-picker> -->
+        <app-calendar class="calendar-container" [showNavigation]="true" [showToday]="true"></app-calendar>
+      </div>
+      <div class="form-row">
+        <app-input class="row-cover" [rows]="3" [multiline]="true" label="Notes" formControlName="notes" placeholder="Enter appointment notes"></app-input>
+      </div>
+    </form>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        appearance="basic"
+        (btnClick)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
+      <app-button
+        type="button"
+        [appearance]="'raised'"
+        [disabled]="appointmentForm.invalid"
+        (btnClick)="onSubmit()"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div> 

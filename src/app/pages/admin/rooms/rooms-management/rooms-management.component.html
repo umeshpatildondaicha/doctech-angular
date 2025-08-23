@@ -1,0 +1,550 @@
+<div class="rooms-management-page">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <app-button 
+        [text]="'Back'" 
+        [color]="'accent'" 
+        [fontIcon]="'arrow_back'"
+        (btnClick)="onBack()">
+      </app-button>
+      <div class="breadcrumb">
+        <span class="breadcrumb-item">Admin</span>
+        <span class="breadcrumb-separator">•</span>
+        <span class="breadcrumb-item">Rooms & Beds</span>
+        <span class="breadcrumb-separator">•</span>
+        <span class="breadcrumb-item current">Management</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <app-button 
+        [text]="'Save All Changes'" 
+        [color]="'primary'" 
+        [fontIcon]="'save'"
+        (btnClick)="onSave()">
+      </app-button>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-navigation">
+    <button 
+      class="tab-button"
+      [class.active]="activeTab === 'floors'"
+      (click)="setActiveTab('floors')">
+      <app-icon [fontIcon]="'business'" [size]="20"></app-icon>
+      <span>Floors</span>
+    </button>
+    <button 
+      class="tab-button"
+      [class.active]="activeTab === 'wards'"
+      (click)="setActiveTab('wards')">
+      <app-icon [fontIcon]="'local_hospital'" [size]="20"></app-icon>
+      <span>Wards</span>
+    </button>
+    <button 
+      class="tab-button"
+      [class.active]="activeTab === 'rooms'"
+      (click)="setActiveTab('rooms')">
+      <app-icon [fontIcon]="'meeting_room'" [size]="20"></app-icon>
+      <span>Rooms</span>
+    </button>
+    <button 
+      class="tab-button"
+      [class.active]="activeTab === 'beds'"
+      (click)="setActiveTab('beds')">
+      <app-icon [fontIcon]="'hotel'" [size]="20"></app-icon>
+      <span>Beds</span>
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="tab-content">
+    
+    <!-- Floors Management -->
+    <div class="tab-panel" *ngIf="activeTab === 'floors'">
+      <div class="management-section">
+        <div class="section-header">
+          <h2>Floor Management</h2>
+          <div class="section-description">Add and configure hospital floors</div>
+        </div>
+        
+        <!-- Add Floor Form -->
+        <div class="add-form-card">
+          <h3>Add New Floor</h3>
+          <form [formGroup]="floorForm" class="add-form">
+            <div class="form-row">
+              <div class="form-field">
+                <app-input
+                  [label]="'Floor Number'"
+                  [placeholder]="'e.g., 0, 1, 2'"
+                  [value]="floorForm.controls['number'].value"
+                  (valueChange)="floorForm.controls['number'].setValue(+$event)"
+                  [type]="'number'"
+                  [required]="true">
+                </app-input>
+              </div>
+              <div class="form-field">
+                <app-input
+                  [label]="'Floor Name'"
+                  [placeholder]="'e.g., Ground Floor, 1st Floor'"
+                  [value]="floorForm.controls['name'].value"
+                  (valueChange)="floorForm.controls['name'].setValue($event)"
+                  [required]="true">
+                </app-input>
+              </div>
+            </div>
+            
+
+            
+            <app-button 
+              [text]="'Add Floor'" 
+              [color]="'primary'" 
+              [fontIcon]="'add'"
+              (btnClick)="onAddFloor()"
+              [disabled]="floorForm.invalid">
+            </app-button>
+          </form>
+        </div>
+        
+        <!-- Floors List -->
+        <div class="items-grid">
+          <div *ngFor="let floor of floors" class="item-card floor-card">
+            <div class="card-header">
+              <div class="card-title">
+                <app-icon [fontIcon]="'business'" [size]="24"></app-icon>
+                <div>
+                  <h4>{{ floor.name }}</h4>
+                  <span class="card-subtitle">Floor {{ floor.number }}</span>
+                </div>
+              </div>
+              <app-button 
+                [fontIcon]="'delete'" 
+                [color]="'warn'"
+                (btnClick)="removeFloor(floor.id)"
+                class="delete-btn">
+              </app-button>
+            </div>
+            <div class="card-content">
+              <div class="stat-item">
+                <span class="label">Total Rooms:</span>
+                <span class="value">{{ floor.totalRooms }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Total Beds:</span>
+                <span class="value">{{ floor.totalBeds }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wards Management -->
+    <div class="tab-panel" *ngIf="activeTab === 'wards'">
+      <div class="management-section">
+        <div class="section-header">
+          <h2>Ward Management</h2>
+          <div class="section-description">Create and organize hospital wards by specialty</div>
+        </div>
+        
+        <!-- Add Ward Form -->
+        <div class="add-form-card">
+          <h3>Add New Ward</h3>
+          <form [formGroup]="wardForm" class="add-form">
+            <div class="form-row">
+              <div class="form-field">
+                <app-input
+                  [label]="'Ward Name'"
+                  [placeholder]="'e.g., ICU Ward 1, General Ward A'"
+                  [value]="wardForm.controls['name'].value"
+                  (valueChange)="wardForm.controls['name'].setValue($event)"
+                  [required]="true">
+                </app-input>
+              </div>
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Ward Type'"
+                  [data]="wardForm.controls['type'].value"
+                  (dataChange)="wardForm.controls['type'].setValue($event)"
+                  [options]="wardTypeOptions"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Floor'"
+                  [data]="wardForm.controls['floor'].value"
+                  (dataChange)="wardForm.controls['floor'].setValue($event)"
+                  [options]="getFloorOptions()"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+
+              <div class="form-field">
+                <app-input
+                  [label]="'Capacity'"
+                  [placeholder]="'Total bed capacity'"
+                  [value]="wardForm.controls['capacity'].value"
+                  (valueChange)="wardForm.controls['capacity'].setValue(+$event)"
+                  [type]="'number'"
+                  [required]="true">
+                </app-input>
+              </div>
+            </div>
+            
+            <app-button 
+              [text]="'Add Ward'" 
+              [color]="'primary'" 
+              [fontIcon]="'add'"
+              (btnClick)="onAddWard()"
+              [disabled]="wardForm.invalid">
+            </app-button>
+          </form>
+        </div>
+        
+        <!-- Wards List -->
+        <div class="items-grid">
+          <div *ngFor="let ward of wards" class="item-card ward-card">
+            <div class="card-header">
+              <div class="card-title">
+                <app-icon [fontIcon]="'local_hospital'" [size]="24"></app-icon>
+                <div>
+                  <h4>{{ ward.name }}</h4>
+                  <span class="card-subtitle">{{ ward.type }} Ward</span>
+                </div>
+              </div>
+              <app-button 
+                [fontIcon]="'delete'" 
+                [color]="'warn'"
+                (btnClick)="removeWard(ward.id)"
+                class="delete-btn">
+              </app-button>
+            </div>
+            <div class="card-content">
+              <div class="stat-item">
+                <span class="label">Location:</span>
+                <span class="value">Floor {{ ward.floor }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Capacity:</span>
+                <span class="value">{{ ward.capacity }} beds</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Rooms:</span>
+                <span class="value">{{ ward.rooms.length }} assigned</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rooms Management -->
+    <div class="tab-panel" *ngIf="activeTab === 'rooms'">
+      <div class="management-section">
+        <div class="section-header">
+          <h2>Room Management</h2>
+          <div class="section-description">Add and configure individual rooms</div>
+        </div>
+        
+        <!-- Add Room Form -->
+        <div class="add-form-card">
+          <h3>Add New Room</h3>
+          <form [formGroup]="roomForm" class="add-form">
+            <div class="form-row">
+              <div class="form-field">
+                <app-input
+                  [label]="'Room Number'"
+                  [placeholder]="'e.g., ICU-01, GW-101'"
+                  [value]="roomForm.controls['number'].value"
+                  (valueChange)="roomForm.controls['number'].setValue($event)"
+                  [required]="true">
+                </app-input>
+              </div>
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Room Type'"
+                  [data]="roomForm.controls['type'].value"
+                  (dataChange)="roomForm.controls['type'].setValue($event)"
+                  [options]="[
+                    { label: 'ICU', value: 'ICU' },
+                    { label: 'General Ward', value: 'General Ward' },
+                    { label: 'Private', value: 'Private' },
+                    { label: 'Semi-Private', value: 'Semi-Private' }
+                  ]"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Floor'"
+                  [data]="roomForm.controls['floor'].value"
+                  (dataChange)="roomForm.controls['floor'].setValue($event)"
+                  [options]="getFloorOptions()"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+
+              <div class="form-field">
+                <app-input
+                  [label]="'Bed Capacity'"
+                  [placeholder]="'Number of beds'"
+                  [value]="roomForm.controls['capacity'].value"
+                  (valueChange)="roomForm.controls['capacity'].setValue(+$event)"
+                  [type]="'number'"
+                  [required]="true">
+                </app-input>
+              </div>
+            </div>
+            
+            <app-button 
+              [text]="'Add Room'" 
+              [color]="'primary'" 
+              [fontIcon]="'add'"
+              (btnClick)="onAddRoom()"
+              [disabled]="roomForm.invalid">
+            </app-button>
+          </form>
+        </div>
+        
+        <!-- Rooms List -->
+        <div class="items-grid">
+          <div *ngFor="let room of rooms" class="item-card room-card">
+            <div class="card-header">
+              <div class="card-title">
+                <app-icon [fontIcon]="'meeting_room'" [size]="24"></app-icon>
+                <div>
+                  <h4>{{ room.number }}</h4>
+                  <span class="card-subtitle">{{ room.type }}</span>
+                </div>
+              </div>
+              <app-button 
+                [fontIcon]="'delete'" 
+                [color]="'warn'"
+                (btnClick)="removeRoom(room.id)"
+                class="delete-btn">
+              </app-button>
+            </div>
+            <div class="card-content">
+              <div class="stat-item">
+                <span class="label">Location:</span>
+                <span class="value">Floor {{ room.floor }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Capacity:</span>
+                <span class="value">{{ room.capacity }} beds</span>
+              </div>
+              <div class="stat-item">
+                <span class="label">Status:</span>
+                <span class="value status-{{ room.status.toLowerCase() }}">{{ room.status }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Beds Management -->
+    <div class="tab-panel" *ngIf="activeTab === 'beds'">
+      <div class="management-section">
+        <div class="section-header">
+          <div class="header-content">
+            <h2>Beds Management</h2>
+            <div class="section-description">Add, configure and manage beds across all rooms</div>
+          </div>
+          <div class="header-actions">
+            <app-button 
+              [text]="'Add New Bed'" 
+              [color]="'primary'" 
+              [fontIcon]="'add'"
+              (btnClick)="openAddBedForm()"
+              class="add-bed-btn">
+            </app-button>
+          </div>
+        </div>
+        
+        <!-- Bed Management Form -->
+        <div class="bed-form-card" *ngIf="showBedForm">
+          <div class="form-header">
+            <h3>{{ isEditingBed ? 'Edit Bed' : 'Add New Bed' }}</h3>
+            <app-button 
+              [fontIcon]="'close'" 
+              [color]="'accent'"
+              (btnClick)="closeBedForm()"
+              class="close-btn">
+            </app-button>
+          </div>
+          
+          <form [formGroup]="bedForm" class="bed-form">
+            <div class="form-row">
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Select Floor'"
+                  [data]="bedForm.controls['floor'].value"
+                  (dataChange)="bedForm.controls['floor'].setValue($event); onFloorChange()"
+                  [options]="getFloorOptions()"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+              
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Select Room'"
+                  [data]="bedForm.controls['room'].value"
+                  (dataChange)="bedForm.controls['room'].setValue($event); onRoomChange()"
+                  [options]="getAvailableRooms()"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true"
+                  [disabled]="!bedForm.controls['floor'].value">
+                </app-selectbox>
+              </div>
+              
+              <div class="form-field">
+                <app-input
+                  [label]="'Bed ID'"
+                  [placeholder]="'e.g., A, B, C'"
+                  [value]="bedForm.controls['bedId'].value"
+                  (valueChange)="bedForm.controls['bedId'].setValue($event)"
+                  [required]="true">
+                </app-input>
+              </div>
+              
+              <div class="form-field">
+                <app-selectbox
+                  [label]="'Bed Status'"
+                  [data]="bedForm.controls['status'].value"
+                  (dataChange)="bedForm.controls['status'].setValue($event)"
+                  [options]="bedStatusOptions"
+                  [valueField]="'value'"
+                  [displayExpr]="'label'"
+                  [required]="true">
+                </app-selectbox>
+              </div>
+            </div>
+            
+            <!-- Bed Facilities -->
+            <div class="facilities-section" formGroupName="facilities">
+              <h4>Bed Facilities</h4>
+              <div class="facilities-grid">
+                <div 
+                  *ngFor="let facility of bedFacilitiesOptions" 
+                  class="facility-item">
+                  <input 
+                    type="checkbox" 
+                    [id]="'form-' + facility.key" 
+                    [formControlName]="facility.key"
+                    class="facility-checkbox">
+                  <label [for]="'form-' + facility.key" class="facility-label">
+                    <app-icon [fontIcon]="facility.icon" [size]="16"></app-icon>
+                    <span>{{ facility.label }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <app-button 
+                [text]="'Cancel'" 
+                [color]="'accent'" 
+                (btnClick)="closeBedForm()"
+                type="button">
+              </app-button>
+              <app-button 
+                [text]="isEditingBed ? 'Update Bed' : 'Add Bed'" 
+                [color]="'primary'" 
+                [fontIcon]="'save'"
+                (btnClick)="saveBed()"
+                [disabled]="bedForm.invalid">
+              </app-button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Beds Overview Cards -->
+        <div class="beds-overview">
+          <div *ngFor="let floor of floors" class="floor-section">
+            <div class="floor-header">
+              <h3 class="floor-title">
+                <app-icon [fontIcon]="'apartment'" [size]="24"></app-icon>
+                {{ floor.name }}
+              </h3>
+              <div class="floor-stats">
+                <span class="stat">{{ getTotalBedsInFloor(floor.number) }} beds</span>
+                <span class="stat">{{ getOccupiedBedsInFloor(floor.number) }} occupied</span>
+              </div>
+            </div>
+            
+            <div class="rooms-grid">
+              <div *ngFor="let room of getRoomsByFloor(floor.number)" class="room-card">
+                <div class="room-header">
+                  <div class="room-info">
+                    <h4 class="room-number">{{ room.number }}</h4>
+                    <span class="room-type">{{ room.type }}</span>
+                  </div>
+                  <div class="room-stats">
+                    <span class="bed-count">{{ room.beds?.length || 0 }} beds</span>
+                  </div>
+                </div>
+                
+                <div class="beds-grid-compact">
+                  <div 
+                    *ngFor="let bed of room.beds" 
+                    class="bed-card"
+                    [class]="'status-' + bed.status.toLowerCase()"
+                    (click)="editBed(room, bed)">
+                    
+                    <div class="bed-icon">
+                      <app-icon [fontIcon]="'hotel'" [size]="20"></app-icon>
+                    </div>
+                    
+                    <div class="bed-details">
+                      <div class="bed-id">{{ bed.id.split('-').pop() }}</div>
+                      <div class="bed-status">{{ bed.status }}</div>
+                    </div>
+                    
+                    <div class="bed-actions">
+                      <app-button 
+                        [fontIcon]="'edit'" 
+                        [color]="'accent'"
+                        (btnClick)="editBed(room, bed); $event.stopPropagation()"
+                        class="action-btn">
+                      </app-button>
+                      <app-button 
+                        [fontIcon]="'delete'" 
+                        [color]="'warn'"
+                        (btnClick)="deleteBed(room, bed); $event.stopPropagation()"
+                        class="action-btn">
+                      </app-button>
+                    </div>
+                  </div>
+                  
+                  <!-- Add Bed to Room Card -->
+                  <div class="add-bed-to-room-card" (click)="addBedToRoom(room)">
+                    <app-icon [fontIcon]="'add_circle'" [size]="24"></app-icon>
+                    <span>Add Bed</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

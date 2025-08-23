@@ -2,15 +2,56 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: var(--background-color);
 }
-// Grid Section
-.grid-section {
-  flex: 1;
+
+.diet-tabs {
+  height: 100%;
+  
+  ::ng-deep .mat-mdc-tab-group {
+    height: 100%;
+  }
+  ::ng-deep {
+    .mat-mdc-tab-header{
+      width: 30em;
+      padding-bottom: 0.5em;
+    }
+  }
+  
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    height: 100%;
+  }
+  
+  ::ng-deep .mat-mdc-tab-body {
+    height: 100%;
+  }
+  
+  ::ng-deep .mat-mdc-tab-body-content {
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+.tab-content {
+  height: 100%;
   background: white;
   overflow: hidden;
+}
 
-  app-grid {
-    height: 100%;
+.grid-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  app-icon {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
   }
 }
 
@@ -54,12 +95,11 @@
 // Responsive design
 @media (max-width: 768px) {
   .diet-container {
-    padding: 16px;
-    gap: 16px;
+    padding: 0;
   }
-
-  .grid-section {
-    border-radius: 8px;
+  
+  .tab-content {
+    padding: 16px;
   }
 }
 

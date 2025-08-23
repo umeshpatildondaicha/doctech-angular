@@ -1,0 +1,91 @@
+<div class="assign-diet-dialog" [class.view-mode]="isViewMode">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'group_work'" class="title-icon"></app-icon>
+        <h2 class="title">{{ dialogTitle }}</h2>
+      </div>
+      <app-icon [fontIcon]="'close'" (iconClick)="onCancel()"></app-icon>
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <form [formGroup]="dietGroupForm" (ngSubmit)="onSubmit()" class="form">
+      <div class="section-title-wrapper">
+        <h4 class="section-title">Diet Group Details</h4>
+      </div>
+      
+      <div class="form-row diet-time-wrapper">
+        <app-selectbox label="Day" [multiple]="true" [hideErrorMessage]="true" formControlName="day" [options]="daysOptions" placeholder="Select Day" [required]="true" [displayExpr]="'label'"></app-selectbox>
+
+        <app-input 
+        formControlName="Diet Time" 
+        type="time"
+        [hideErrorMessage]="true"
+        [label]="'Diet Time'"
+        [(value)]="dietTime"
+        placeholder="Diet time" 
+        [disabled]="isViewMode"
+        [required]="true">
+      </app-input>
+      </div>
+
+      <div class="section-title-wrapper">
+        <h4 class="section-title">Select Diets</h4>
+        <p class="section-description">Choose the diets to include in this group</p>
+      </div>
+
+      <div class="diet-grid-container">
+        <app-grid
+          [columnDefs]="dietColumnDefs"
+          [gridOptions]="dietGridOptions"
+          [rowData]="availableDiets"
+          class="diet-selection-grid">
+        </app-grid>
+      </div>
+
+      <div class="selection-summary" *ngIf="selectedDietIds.length > 0">
+        <p class="summary-text">
+          <app-icon [fontIcon]="'check_circle'" class="summary-icon"></app-icon>
+          {{ selectedDietIds.length }} diet{{ selectedDietIds.length > 1 ? 's' : '' }} selected
+        </p>
+      </div>
+    </form>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        *ngIf="!isViewMode"
+        appearance="basic"
+        (btnClick)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
+
+      <!-- Edit button for view mode -->
+      <app-button
+        *ngIf="showEditButton"
+        type="button"
+        appearance="raised"
+        (btnClick)="onEdit()"
+        [text]="'Edit'"
+        class="edit-btn">
+      </app-button>
+
+      <!-- Submit button for create/edit mode, Close button for view mode -->
+      <app-button
+        type="button"
+        [appearance]="isViewMode ? 'basic' : 'raised'"
+        [disabled]="dietGroupForm.invalid && !isViewMode"
+        (btnClick)="onSubmit()"
+        [text]="submitButtonText"
+        class="submit-btn">
+      </app-button>
+    </div>
+  </div>
+</div> 

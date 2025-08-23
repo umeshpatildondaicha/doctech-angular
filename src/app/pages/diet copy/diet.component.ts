@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
 import { GridComponent } from '../../tools/grid/grid.component';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
 import { IconComponent } from '../../tools/app-icon/icon.component';
@@ -8,15 +9,25 @@ import { DietCreateComponent } from '../diet-create/diet-create.component';
 import { Diet } from '../../interfaces/diet.interface';
 import { ColDef } from 'ag-grid-community';
 import { Mode } from '../../types/mode.type';
+import { DietGroupComponent } from '../diet-group/diet-group.component';
+import { DietGroup } from '../../interfaces/diet-group.interface';
 
 @Component({
   selector: 'app-diet',
   standalone: true,
-  imports: [CommonModule, GridComponent, AppButtonComponent, IconComponent],
+  imports: [CommonModule, MatTabsModule, GridComponent, AppButtonComponent, IconComponent],
   templateUrl: './diet.component.html',
   styleUrl: './diet.component.scss'
 })
 export class DietComponent implements OnInit {
+  selectedTabIndex = 0;
+  
+  // Diet Groups Tab
+  dietGroupList: any[] = [];
+  dietGroupColumns: ColDef[] = [];
+  dietGroupGridOptions: any = {};
+  
+  // Diets Tab
   dietList: Diet[] = [];
   columnDefs: ColDef[] = [];
   gridOptions: any = {};
@@ -24,6 +35,189 @@ export class DietComponent implements OnInit {
   constructor(private dialog: MatDialog) {}
 
   ngOnInit() {
+    this.initializeDietGroupData();
+    this.initializeDietData();
+  }
+
+  onTabChange(index: number) {
+    this.selectedTabIndex = index;
+  }
+
+  // Diet Groups Tab Methods
+  initializeDietGroupData() {
+    this.initializeDietGroupColumnDefs();
+    this.initializeDietGroupGridOptions();
+    this.loadDietGroupData();
+  }
+
+  initializeDietGroupGridOptions() {
+    this.dietGroupGridOptions.menuActions = [
+      {
+        "title": "View",
+        "icon": "remove_red_eye",
+        "click": (param: any) => { this.onViewDietGroup(param?.data) }
+      },
+      {
+        "title": "Edit",
+        "icon": "edit",
+        "click": (param: any) => { this.onEditDietGroup(param?.data) }
+      },
+      {
+        "title": "Delete",
+        "icon": "delete",
+        "click": (param: any) => { this.onDeleteDietGroup(param?.data) }
+      },
+    ];
+  }
+
+  onDeleteDietGroup(param: any) {
+    console.log('Delete diet group:', param);
+    // TODO: Implement delete diet group functionality
+  }
+
+  onCreateDietGroup() {
+    const dialogRef = this.dialog.open(DietGroupComponent, {
+      width: '90%',
+      data: { mode: 'create' },
+      disableClose: true,
+      panelClass: 'diet-group-dialog-panel'
+    });
+  }
+  
+  // Edit Mode
+  onEditDietGroup(dietGroup: DietGroup) {
+    const dialogRef = this.dialog.open(DietGroupComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { dietGroup, mode: 'edit' } ,
+      disableClose: true
+    });
+  }
+  
+  // View Mode
+  onViewDietGroup(dietGroup: DietGroup) {
+    const dialogRef = this.dialog.open(DietGroupComponent, {
+      width: '600px',
+      maxWidth: '90vw',
+      data: { dietGroup, mode: 'view' },
+      disableClose: false
+    });
+  }
+
+  onDietGroupRowClick(event: any) {
+    console.log('Diet group row clicked:', event);
+  }
+
+  onSearchDietGroup(searchTerm: string) {
+    console.log('Search diet group term:', searchTerm);
+    // TODO: Implement search functionality
+  }
+
+  private initializeDietGroupColumnDefs() {
+    this.dietGroupColumns = [
+      {
+        headerName: 'Group Name',
+        field: 'name',
+        sortable: true,
+        filter: true,
+        flex: 1,
+        minWidth: 150
+      },
+      {
+        headerName: 'Description',
+        field: 'description',
+        sortable: true,
+        filter: true,
+        minWidth: 200
+      },
+      {
+        headerName: 'Diet Count',
+        field: 'dietCount',
+        sortable: true,
+        filter: true,
+        minWidth: 100,
+        cellRenderer: (params: any) => {
+          return `<span style="font-weight: 600; color: #2c3e50;">${params.value} diets</span>`;
+        }
+      },
+      {
+        headerName: 'Created By',
+        field: 'createdBy',
+        sortable: true,
+        filter: true,
+        minWidth: 120
+      },
+      {
+        headerName: 'Status',
+        field: 'isActive',
+        sortable: true,
+        filter: true,
+        minWidth: 100,
+        cellRenderer: (params: any) => {
+          const isActive = params.value;
+          const color = isActive ? '#27ae60' : '#e74c3c';
+          const text = isActive ? 'Active' : 'Inactive';
+          return `<span style="color: ${color}; font-weight: 600;">${text}</span>`;
+        }
+      },
+      {
+        headerName: 'Created',
+        field: 'createdAt',
+        sortable: true,
+        filter: true,
+        minWidth: 120,
+        cellRenderer: (params: any) => {
+          const date = new Date(params.value);
+          return date.toLocaleDateString();
+        }
+      }
+    ];
+  }
+
+  private loadDietGroupData() {
+    // Mock data for diet groups
+    this.dietGroupList = [
+      {
+        groupId: 'DG001',
+        name: 'Weight Management',
+        description: 'Diet groups focused on weight loss and maintenance',
+        dietCount: 3,
+        createdBy: 'Dr. Chetan',
+        createdAt: new Date('2024-01-10'),
+        isActive: true
+      },
+      {
+        groupId: 'DG002',
+        name: 'Medical Conditions',
+        description: 'Specialized diets for medical conditions',
+        dietCount: 2,
+        createdBy: 'Dr. Sarah',
+        createdAt: new Date('2024-01-15'),
+        isActive: true
+      },
+      {
+        groupId: 'DG003',
+        name: 'Athletic Performance',
+        description: 'High-performance diets for athletes',
+        dietCount: 1,
+        createdBy: 'Dr. Michael',
+        createdAt: new Date('2024-01-20'),
+        isActive: true
+      },
+      {
+        groupId: 'DG004',
+        name: 'Experimental Diets',
+        description: 'New and experimental diet plans',
+        dietCount: 1,
+        createdBy: 'Dr. Chetan',
+        createdAt: new Date('2024-02-01'),
+        isActive: false
+      }
+    ];
+  }
+
+  // Diets Tab Methods (existing code)
+  initializeDietData() {
     this.initializeColumnDefs();
     this.initializeGridOptions();
     this.loadDietData();
@@ -61,6 +255,10 @@ export class DietComponent implements OnInit {
   onDelete(param: any) {
     console.log('Delete diet:', param);
     // TODO: Implement delete functionality with confirmation dialog
+  }
+
+  onDietRowClick(event: any) {
+    console.log('Diet row clicked:', event);
   }
 
   private openDietDialog(diet: Diet | undefined, mode: Mode) {

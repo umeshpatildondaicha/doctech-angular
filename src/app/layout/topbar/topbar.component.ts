@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { AppInputComponent } from '../../tools/app-input/app-input.component';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { NotificationService } from '../notification/notification.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -26,7 +27,8 @@ export class TopbarComponent {
 
   constructor(
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   onNotificationClick(event: Event) {
@@ -50,5 +52,9 @@ export class TopbarComponent {
 
   onSettingsMenuClick() {
     this.router.navigate(['/settings']);
+  }
+
+  onLogoutClick() {
+    this.authService.logout();
   }
 }

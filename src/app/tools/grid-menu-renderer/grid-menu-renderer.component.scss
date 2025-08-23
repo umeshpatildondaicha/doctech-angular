@@ -1,0 +1,38 @@
+:host {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-trigger {
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host-context(.ag-row-hover) .menu-trigger,
+:host-context(.ag-row-selected) .menu-trigger,
+:host:hover .menu-trigger,
+.menu-trigger:hover,
+.menu-trigger:focus {
+  opacity: 1;
+}
+
+// Remove extra padding the grid might add to this cell
+:host-context(.actions-cell) {
+  padding: 0 !important;
+}
+
+// Make header cell minimal
+:host-context(.actions-header-cell) {
+  padding: 0 !important;
+}
+

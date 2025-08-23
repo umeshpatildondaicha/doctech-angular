@@ -1,0 +1,13 @@
+<img 
+  [src]="src" 
+  [alt]="alt"
+  [class]="class + (clickable ? ' clickable' : '')"
+  [style]="getImageStyle()"
+  [loading]="loading"
+  [decoding]="decoding"
+  [attr.crossorigin]="crossorigin"
+  (error)="onImageError($event)"
+  (load)="onImageLoad($event)"
+  (click)="onImageClick($event)"
+  role="img"
+  [attr.aria-label]="alt"> 

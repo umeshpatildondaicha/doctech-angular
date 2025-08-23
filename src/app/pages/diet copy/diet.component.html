@@ -1,0 +1,53 @@
+<div class="diet-container">
+  <mat-tab-group 
+    [selectedIndex]="selectedTabIndex"
+    (selectedIndexChange)="onTabChange($event)"
+    class="diet-tabs"
+  >
+    <!-- Diet Groups Tab -->
+    <mat-tab label="Diet group">
+      <div class="tab-content">
+        <app-grid
+          [rowData]="dietGroupList"
+          [columnDefs]="dietGroupColumns"
+          [gridOptions]="dietGroupGridOptions"
+          [height]="'500px'"
+          [showHeader]="true"
+          [rightTooltemplateRef]="rightTooltemplateDietGroup"
+          [searchPlaceholder]="'Search diet groups...'"
+          (rowClicked)="onDietGroupRowClick($event)"
+          (searchChange)="onSearchDietGroup($event)">
+        </app-grid>
+      </div>
+    </mat-tab>
+
+    <!-- Diets Tab -->
+    <mat-tab label="Diets">
+      <div class="tab-content">
+        <app-grid
+          [rowData]="dietList"
+          [columnDefs]="columnDefs"
+          [gridOptions]="gridOptions"
+          [height]="'500px'"
+          [showHeader]="true"
+          [rightTooltemplateRef]="rightTooltemplateDiet"
+          [searchPlaceholder]="'Search diets...'"
+          (rowClicked)="onDietRowClick($event)"
+          (searchChange)="onSearchChange($event)">
+        </app-grid>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>
+
+<ng-template #rightTooltemplateDietGroup>
+    <div class="grid-actions">
+        <app-icon [fontSet]="'material-icons-outlined'" [isCovered]="true" [fontIcon]="'add'" (click)="onCreateDietGroup()"></app-icon>
+    </div>
+</ng-template>
+
+<ng-template #rightTooltemplateDiet>
+    <div class="grid-actions">
+        <app-icon [fontSet]="'material-icons-outlined'" [isCovered]="true" [fontIcon]="'add'" (click)="onCreateDiet()"></app-icon>
+    </div>
+</ng-template>

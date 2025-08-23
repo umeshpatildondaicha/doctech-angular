@@ -15,6 +15,18 @@
     <form [formGroup]="dietForm" (ngSubmit)="onSubmit()" class="form">
       <div class="section-title-wrapper"><h4 class="section-title">Diet details</h4></div>
       <div class="form-row">
+          <app-uploadbox
+            class="uploadbox"
+            [multiple]="true"
+            accept="image/*,.pdf"
+            [maxFileSize]="5 * 1024 * 1024"
+            [maxFiles]="3"
+            placeholder="Drop files here"
+            (filesSelected)="onFilesSelected($event)"
+            (fileUploaded)="onFileUploaded($event)">
+          </app-uploadbox>
+      </div>
+      <div class="form-row">
         <app-input
           label="Diet Name"
           formControlName="name"
