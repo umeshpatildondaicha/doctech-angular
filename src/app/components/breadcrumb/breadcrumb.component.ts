@@ -191,7 +191,18 @@ export class BreadcrumbComponent implements OnInit {
   }
 
   goBack(): void {
-    window.history.back();
+    // Check if there's history to go back to
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // If no history, navigate to the previous breadcrumb item or home
+      const previousItem = this.breadcrumbs.find(item => !item.isActive && item.path);
+      if (previousItem && previousItem.path) {
+        this.router.navigate([previousItem.path]);
+      } else {
+        this.router.navigate(['/']);
+      }
+    }
   }
 
   goHome(): void {

@@ -23,6 +23,8 @@ export interface Exercise {
   contraindications: string; // Contraindications
   sets: ExerciseSet[]; // Array of sets for this exercise
   media?: string[]; // Array of media files (images, videos, gifs)
+  imageUrl?: string; // Primary image URL for the exercise
+  videoUrl?: string; // Video URL for the exercise
   createdAt: Date;
   updatedAt: Date;
 }

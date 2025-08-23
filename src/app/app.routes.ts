@@ -10,7 +10,7 @@ import { PatientListComponent } from './components/patient-list/patient-list.com
 import { PatientFormComponent } from './components/patient-form/patient-form.component';
 import { ExerciseComponent } from './pages/exercise copy/exercise.component';
 import { DietComponent } from './pages/diet copy/diet.component';
-import { DietGroupManagementComponent } from './pages/diet-group-management/diet-group-management.component';
+
 import { ProfileComponent } from './layout/profile/profile.component';
 import { SettingsComponent } from './layout/settings/settings.component';
 import { LoginComponent } from './pages/login/login.component';
@@ -29,6 +29,9 @@ import { SchemesComponent } from './pages/admin/schemes/schemes.component';
 import { ExerciseCreateComponent } from './pages/exercise-create/exercise-create.component';
 import { ExerciseSetCreateComponent } from './pages/exercise-set-create/exercise-set-create.component';
 import { DietCreateComponent } from './pages/diet-create/diet-create.component';
+import { DietViewComponent } from './pages/diet-view/diet-view.component';
+import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.component';
+import { DietPlanCreateComponent } from './pages/diet-plan-create/diet-plan-create.component';
 import { DoctorCreateComponent } from './pages/docter-create/doctor-create.component';
 import { PatientCreateComponent } from './pages/patient-create/patient-create.component';
 import { AuthGuard } from './guards/auth.guard';
@@ -44,7 +47,9 @@ export const routes: Routes = [
   { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard] },
   { path: 'exercises', component: ExerciseComponent, canActivate: [AuthGuard] },
   { path: 'diet', component: DietComponent, canActivate: [AuthGuard] },
-  { path: 'diet-groups', component: DietGroupManagementComponent, canActivate: [AuthGuard] },
+  { path: 'diet/plans', component: DietComponent, canActivate: [AuthGuard], data: { breadcrumb: 'Diet Plans', breadcrumbIcon: 'calendar_today' } },
+  { path: 'diet/view/:id', component: DietViewComponent, canActivate: [AuthGuard] },
+
   { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
   { path: 'help', component: HelpComponent, canActivate: [AuthGuard] },
   { path: 'patients', component: PatientListComponent, canActivate: [AuthGuard] },
@@ -86,5 +91,8 @@ export const routes: Routes = [
   { path: 'exercise-set-create', component: ExerciseSetCreateComponent, canActivate: [AuthGuard] },
   { path: 'diet-create', component: DietCreateComponent, canActivate: [AuthGuard] },
   { path: 'doctor-create', component: DoctorCreateComponent, canActivate: [AuthGuard] },
-  { path: 'patient-create', component: PatientCreateComponent, canActivate: [AuthGuard] }
+  { path: 'patient-create', component: PatientCreateComponent, canActivate: [AuthGuard] },
+  { path: 'diet-plan-view/:id', component: DietPlanViewComponent, canActivate: [AuthGuard], data: { breadcrumb: 'View Diet Plan', breadcrumbIcon: 'visibility' } },
+  { path: 'diet-plan-create', component: DietPlanCreateComponent, canActivate: [AuthGuard], data: { breadcrumb: 'Create Diet Plan', breadcrumbIcon: 'add_circle' } },
+  { path: '**', redirectTo: '/dashboard' }
 ];

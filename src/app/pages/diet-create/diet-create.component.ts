@@ -1,21 +1,14 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { AppButtonComponent } from '../../tools/app-button/app-button.component';
-import { AppInputComponent } from '../../tools/app-input/app-input.component';
-import { AppSelectboxComponent } from '../../tools/app-selectbox/app-selectbox.component';
-import { IconComponent } from '../../tools/app-icon/icon.component';
-import { Diet } from '../../interfaces/diet.interface';
+import { Diet, Ingredient, Recipe } from '../../interfaces/diet.interface';
 import { Mode } from '../../types/mode.type';
-import { UploadboxComponent } from '../../tools';
-import { UploadedFile } from '../../interfaces/uploaded-file.interface';
-
 
 export interface DialogData {
   diet?: Diet;
@@ -33,12 +26,7 @@ export interface DialogData {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatIconModule,
-    AppButtonComponent,
-    AppInputComponent,
-    AppSelectboxComponent,
-    IconComponent,
-    UploadboxComponent
+    MatIconModule
   ],
   templateUrl: './diet-create.component.html',
   styleUrl: './diet-create.component.scss'
@@ -46,15 +34,11 @@ export interface DialogData {
 export class DietCreateComponent {
   dietForm: FormGroup;
   mode: Mode = 'create';
-  submitButtonText:string='Create Diet';
-  dietTypes = [
-    { value: 'Weight Loss', label: 'Weight Loss' },
-    { value: 'Weight Gain', label: 'Weight Gain' },
-    { value: 'Maintenance', label: 'Maintenance' },
-    { value: 'Diabetic', label: 'Diabetic' },
-    { value: 'Low Carb', label: 'Low Carb' },
-    { value: 'High Protein', label: 'High Protein' }
-  ];
+  submitButtonText: string = 'Create Diet';
+  dialogTitle: string = 'Create Diet';
+  isViewMode: boolean = false;
+  imagePreview: string | null = null;
+  selectedFileName: string | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -62,17 +46,33 @@ export class DietCreateComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData
   ) {
     this.mode = data?.mode || 'create';
-    this.submitButtonText = this.getsubmitButtonText();
+    this.isViewMode = this.mode === 'view';
+    this.submitButtonText = this.getSubmitButtonText();
+    this.dialogTitle = this.getDialogTitle();
     
     this.dietForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
       description: ['', [Validators.required, Validators.minLength(10)]],
       dietType: ['', Validators.required],
-      calories: ['', [Validators.required, Validators.min(500), Validators.max(5000)]],
+      calories: ['', [Validators.required, Validators.min(0), Validators.max(5000)]],
       protein: ['', [Validators.required, Validators.min(0), Validators.max(500)]],
       carbs: ['', [Validators.required, Validators.min(0), Validators.max(1000)]],
       fat: ['', [Validators.required, Validators.min(0), Validators.max(200)]],
-      fiber: ['', [Validators.required, Validators.min(0), Validators.max(100)]]
+      fiber: ['', [Validators.required, Validators.min(0), Validators.max(100)]],
+      imageUrl: [''],
+      videoUrl: [''],
+      documentUrl: [''],
+      tags: [''],
+      // Ingredients array
+      ingredients: this.fb.array([]),
+      // Recipe fields
+      prepTime: ['', [Validators.min(0), Validators.max(300)]],
+      cookTime: ['', [Validators.min(0), Validators.max(300)]],
+      servings: ['', [Validators.min(1), Validators.max(20)]],
+      difficulty: ['Easy'],
+      instructions: [''],
+      tips: [''],
+      notes: ['']
     });
 
     // If editing or viewing existing diet, populate form
@@ -85,31 +85,124 @@ export class DietCreateComponent {
         protein: data.diet.protein,
         carbs: data.diet.carbs,
         fat: data.diet.fat,
-        fiber: data.diet.fiber
+        fiber: data.diet.fiber,
+        imageUrl: data.diet.imageUrl || '',
+        videoUrl: data.diet.videoUrl || '',
+        documentUrl: data.diet.documentUrl || '',
+        tags: data.diet.tags ? data.diet.tags.join(', ') : ''
       });
 
       // Disable form in view mode
-      if (this.mode === 'view') {
+      if (this.isViewMode) {
         this.dietForm.disable();
       }
     }
   }
 
+  getSubmitButtonText(): string {
+    switch (this.mode) {
+      case 'create':
+        return 'Create Diet';
+      case 'edit':
+        return 'Save Changes';
+      case 'view':
+        return 'Close';
+      default:
+        return 'Create Diet';
+    }
+  }
+
+  getDialogTitle(): string {
+    switch (this.mode) {
+      case 'create':
+        return 'Create Diet';
+      case 'edit':
+        return 'Edit Diet';
+      case 'view':
+        return 'View Diet';
+      default:
+        return 'Create Diet';
+    }
+  }
+
+  getTagsArray(): string[] {
+    const tagsValue = this.dietForm.get('tags')?.value;
+    if (!tagsValue) return [];
+    return tagsValue.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0);
+  }
+
+  onEdit() {
+    // Switch to edit mode
+    this.mode = 'edit';
+    this.isViewMode = false;
+    this.dietForm.enable();
+    this.submitButtonText = this.getSubmitButtonText();
+    this.dialogTitle = this.getDialogTitle();
+  }
+
+  onDelete() {
+    // TODO: Implement delete confirmation dialog
+    console.log('Delete diet:', this.data?.diet);
+    this.dialogRef.close({ action: 'delete', diet: this.data?.diet });
+  }
+
   onSubmit() {
-    if (this.dietForm.valid && this.mode !== 'view') {
+    if (this.dietForm.valid && !this.isViewMode) {
+      const formValue = this.dietForm.value;
+      
+      // Convert tags string to array
+      const tags = formValue.tags ? 
+        formValue.tags.split(',').map((tag: string) => tag.trim()).filter((tag: string) => tag.length > 0) : 
+        [];
+
+      // Convert ingredients form array to Ingredient objects
+      const ingredients: Ingredient[] = formValue.ingredients.map((ingredient: any, index: number) => ({
+        ingredientId: `ingredient_${index + 1}`,
+        name: ingredient.name,
+        quantity: ingredient.quantity,
+        unit: ingredient.unit,
+        category: ingredient.category || undefined,
+        notes: ingredient.notes || undefined
+      }));
+
+      // Create recipe object
+      const recipe: Recipe = {
+        recipeId: `recipe_${Date.now()}`,
+        prepTime: formValue.prepTime || 0,
+        cookTime: formValue.cookTime || 0,
+        servings: formValue.servings || 1,
+        difficulty: formValue.difficulty || 'Easy',
+        instructions: this.getInstructionsArray().map((instruction, index) => ({
+          stepNumber: index + 1,
+          instruction: instruction.trim()
+        })),
+        tips: this.getTipsArray(),
+        notes: formValue.notes || undefined
+      };
+
       const dietData: Partial<Diet> = {
-        ...this.dietForm.value,
-        dietId: this.data?.diet?.dietId || this.generateDietId(),
-        createdByDoctorId: this.data?.diet?.createdByDoctorId || 'DOC001', // In real app, get from auth service
-        createdAt: this.data?.diet?.createdAt || new Date(),
+        name: formValue.name,
+        description: formValue.description,
+        dietType: formValue.dietType,
+        calories: formValue.calories,
+        protein: formValue.protein,
+        carbs: formValue.carbs,
+        fat: formValue.fat,
+        fiber: formValue.fiber,
+        imageUrl: formValue.imageUrl || undefined,
+        videoUrl: formValue.videoUrl || undefined,
+        documentUrl: formValue.documentUrl || undefined,
+        tags: tags.length > 0 ? tags : undefined,
+        ingredients: ingredients.length > 0 ? ingredients : undefined,
+        recipe: recipe,
+        createdByDoctorId: 'doc1', // TODO: Get from auth service
+        createdAt: new Date(),
         isActive: true
       };
 
       this.dialogRef.close(dietData);
-    } else if (this.mode === 'view') {
+    } else if (this.isViewMode) {
       this.dialogRef.close();
-    } else {
-      this.markFormGroupTouched();
     }
   }
 
@@ -117,97 +210,73 @@ export class DietCreateComponent {
     this.dialogRef.close();
   }
 
-  onEdit() {
-    // Enable form for editing
-    this.mode = 'edit';
-    this.dietForm.enable();
-  }
-
-  private generateDietId(): string {
-    return 'D' + Date.now().toString().slice(-6);
-  }
-
-  private markFormGroupTouched() {
-    Object.keys(this.dietForm.controls).forEach(key => {
-      const control = this.dietForm.get(key);
-      control?.markAsTouched();
-    });
-  }
-
-  get isEditMode(): boolean {
-    return this.mode === 'edit';
-  }
-
-  get isViewMode(): boolean {
-    return this.mode === 'view';
-  }
-
-  get isCreateMode(): boolean {
-    return this.mode === 'create';
-  }
-
-  get dialogTitle(): string {
-    switch (this.mode) {
-      case 'create':
-        return 'Create New Diet';
-      case 'edit':
-        return 'Edit Diet';
-      case 'view':
-        return 'View Diet';
-      default:
-        return 'Diet';
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFileName = file.name;
+      this.createImagePreview(file);
     }
   }
 
-  getsubmitButtonText(): string {
-    switch (this.mode) {
-      case 'create':
-        return 'Create Diet';
-      case 'edit':
-        return 'Update Diet';
-      case 'view':
-        return 'Close';
-      default:
-        return 'Save';
-    }
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
   }
 
-  get showEditButton(): boolean {
-    return this.mode === 'edit';
-  }
-
-  getErrorMessage(fieldName: string): string {
-    const control = this.dietForm.get(fieldName);
-    if (control?.invalid && control?.touched) {
-      switch (fieldName) {
-        case 'name':
-          return 'Diet name is required and must be at least 3 characters';
-        case 'description':
-          return 'Description is required and must be at least 10 characters';
-        case 'dietType':
-          return 'Please select a diet type';
-        case 'calories':
-          return 'Calories must be between 500 and 5000';
-        case 'protein':
-          return 'Protein must be between 0 and 500 grams';
-        case 'carbs':
-          return 'Carbs must be between 0 and 1000 grams';
-        case 'fat':
-          return 'Fat must be between 0 and 200 grams';
-        case 'fiber':
-          return 'Fiber must be between 0 and 100 grams';
-        default:
-          return 'This field is required';
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        this.selectedFileName = file.name;
+        this.createImagePreview(file);
       }
     }
-    return '';
   }
 
-  onFilesSelected(files: File[]): void {
-    console.log('Selected files:', files);
+  createImagePreview(file: File) {
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.imagePreview = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
-  onFileUploaded(file: UploadedFile): void {
-    console.log('Uploaded file:', file);
+  onImageError(event: any) {
+    event.target.style.display = 'none';
+  }
+
+  // Ingredients methods
+  get ingredientsArray(): FormArray {
+    return this.dietForm.get('ingredients') as FormArray;
+  }
+
+  addIngredient(): void {
+    const ingredientGroup = this.fb.group({
+      name: ['', Validators.required],
+      quantity: ['', [Validators.required, Validators.min(0)]],
+      unit: ['', Validators.required],
+      category: [''],
+      notes: ['']
+    });
+    this.ingredientsArray.push(ingredientGroup);
+  }
+
+  removeIngredient(index: number): void {
+    this.ingredientsArray.removeAt(index);
+  }
+
+  // Recipe methods
+  getInstructionsArray(): string[] {
+    const instructionsValue = this.dietForm.get('instructions')?.value;
+    return instructionsValue ? instructionsValue.split('\n').filter((instruction: string) => instruction.trim()) : [];
+  }
+
+  getTipsArray(): string[] {
+    const tipsValue = this.dietForm.get('tips')?.value;
+    return tipsValue ? tipsValue.split('\n').filter((tip: string) => tip.trim()) : [];
   }
 }

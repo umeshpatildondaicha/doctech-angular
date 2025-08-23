@@ -11,6 +11,12 @@ export interface Diet {
   createdByDoctorId: string;
   createdAt: Date;
   isActive: boolean;
+  imageUrl?: string;
+  videoUrl?: string;
+  documentUrl?: string;
+  tags?: string[];
+  ingredients?: Ingredient[];
+  recipe?: Recipe;
   mealPlan?: MealPlan[];
 }
 
@@ -32,4 +38,31 @@ export interface FoodItem {
   carbs: number;
   fat: number;
   fiber: number;
+}
+
+export interface Ingredient {
+  ingredientId: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  category?: string;
+  notes?: string;
+}
+
+export interface Recipe {
+  recipeId: string;
+  prepTime: number; // in minutes
+  cookTime: number; // in minutes
+  servings: number;
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+  instructions: RecipeStep[];
+  tips?: string[];
+  notes?: string;
+}
+
+export interface RecipeStep {
+  stepNumber: number;
+  instruction: string;
+  duration?: number; // in minutes
+  tips?: string;
 } 

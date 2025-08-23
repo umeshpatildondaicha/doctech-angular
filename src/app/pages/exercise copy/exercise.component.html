@@ -6,6 +6,234 @@
     (selectedIndexChange)="onTabChange($event)"
     class="exercise-tabs"
   >
+    <!-- Exercises Tab -->
+    <mat-tab label="Exercises">
+      <div class="tab-content">
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+          <mat-card class="stat-card total-card">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>fitness_center</mat-icon>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ exerciseStats.totalExercises }}</div>
+                <div class="stat-label">Total Exercises</div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card sets-card">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>repeat</mat-icon>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ getTotalSets() }}</div>
+                <div class="stat-label">Total Sets</div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card reps-card">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>timer</mat-icon>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ getAverageReps() }}</div>
+                <div class="stat-label">Avg Reps</div>
+              </div>
+            </div>
+          </mat-card>
+
+          <mat-card class="stat-card categories-card">
+            <div class="stat-content">
+              <div class="stat-icon">
+                <mat-icon>category</mat-icon>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ getCategoryCount() }}</div>
+                <div class="stat-label">Categories</div>
+              </div>
+            </div>
+          </mat-card>
+        </div>
+
+        <!-- View Mode Toggle -->
+        <div class="view-toggle">
+          <button mat-button [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
+            <mat-icon>view_module</mat-icon>
+            Cards View
+          </button>
+          <button mat-button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
+            <mat-icon>table_view</mat-icon>
+            Table View
+          </button>
+        </div>
+
+        <!-- Exercise Cards View -->
+        <div class="exercise-cards" *ngIf="viewMode === 'cards'">
+          <!-- Cards View Filters -->
+          <div class="cards-filters">
+            <div class="filters-header">
+              <h3>Filter Exercises</h3>
+              <div class="results-count">
+                Showing {{ getFilteredExercises().length }} of {{ exercises.length }} exercises
+              </div>
+            </div>
+            
+            <div class="filters-content">
+              <div class="filter-group">
+                <label class="filter-label">Category</label>
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryChange($event)">
+                    <mat-option value="">All Categories</mat-option>
+                    <mat-option *ngFor="let category of categories" [value]="category.value">
+                      {{ category.label }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Difficulty</label>
+                <mat-form-field appearance="outline" class="filter-field">
+                  <mat-select [(ngModel)]="selectedDifficulty" (selectionChange)="onDifficultyChange($event)">
+                    <mat-option value="">All Difficulties</mat-option>
+                    <mat-option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
+                      {{ difficulty.label }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-group search-group">
+                <label class="filter-label">Search</label>
+                <mat-form-field appearance="outline" class="search-field">
+                  <mat-label>Search exercises...</mat-label>
+                  <input matInput [(ngModel)]="searchQuery" placeholder="Search by name, description, or muscles">
+                  <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+              </div>
+
+              <div class="filter-actions">
+                <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
+                  <mat-icon>clear_all</mat-icon>
+                  Clear Filters
+                </button>
+                <button mat-raised-button color="primary" (click)="onAddExercise()" class="add-exercise-btn">
+                  <mat-icon>add</mat-icon>
+                  Add Exercise
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Exercise Cards Grid -->
+          <div class="cards-grid" *ngIf="getFilteredExercises().length > 0; else noResults">
+            <mat-card class="exercise-card" *ngFor="let exercise of getFilteredExercises()">
+              <!-- Exercise Image -->
+              <div class="card-media">
+                <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" [alt]="exercise.name">
+                <div class="media-placeholder" *ngIf="!exercise.imageUrl">
+                  <mat-icon>fitness_center</mat-icon>
+                  <span>No Image</span>
+                </div>
+                <div class="card-badge" [class]="'badge-' + exercise.category.toLowerCase()">
+                  {{ exercise.category }}
+                </div>
+              </div>
+
+              <!-- Exercise Details -->
+              <div class="card-content">
+                <h3 class="exercise-name">{{ exercise.name }}</h3>
+                <div class="exercise-category">
+                  <mat-chip class="category-chip">{{ exercise.category }}</mat-chip>
+                  <span class="difficulty-text">{{ exercise.difficulty }}</span>
+                </div>
+                <p class="exercise-description">{{ exercise.description }}</p>
+                
+                <!-- Tags -->
+                <div class="exercise-tags" *ngIf="exercise.tags && exercise.tags.length > 0">
+                  <mat-chip *ngFor="let tag of exercise.tags" class="tag-chip">
+                    {{ tag }}
+                  </mat-chip>
+                </div>
+
+                <!-- Sets and Muscles -->
+                <div class="exercise-details">
+                  <div class="detail-item">
+                    <mat-icon>repeat</mat-icon>
+                    <span>{{ getSetsDisplay(exercise) }}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>fitness_center</mat-icon>
+                    <span>{{ exercise.targetMuscles.join(', ') }}</span>
+                  </div>
+                  <div class="detail-item" *ngIf="exercise.equipment && exercise.equipment.length > 0">
+                    <mat-icon>build</mat-icon>
+                    <span>{{ exercise.equipment.join(', ') }}</span>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="card-actions">
+                  <button mat-stroked-button color="primary" class="action-btn view-btn" (click)="onViewExercise({data: exercise})" matTooltip="View exercise details">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                  </button>
+                  <button mat-stroked-button color="accent" class="action-btn edit-btn" (click)="onEditExercise({data: exercise})" matTooltip="Edit exercise">
+                    <mat-icon>edit</mat-icon>
+                    Edit
+                  </button>
+                  <button mat-stroked-button color="warn" class="action-btn delete-btn" (click)="onDeleteExercise({data: exercise})" matTooltip="Delete exercise">
+                    <mat-icon>delete</mat-icon>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </mat-card>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="exercise-table" *ngIf="viewMode === 'table'">
+          <div class="table-header">
+            <h3>All Exercises (Table View)</h3>
+            <p>Showing {{ getFilteredExercises().length }} exercises</p>
+          </div>
+        
+          <app-grid
+            [rowData]="getFilteredExercises()"
+            [gridOptions]="exerciseGridOptions"
+            [columnDefs]="exerciseColumns"
+            [height]="'500px'"
+            [showHeader]="true"
+            [rightTooltemplateRef]="rightTooltemplate"
+            [searchPlaceholder]="'Search exercises...'"
+            (rowClicked)="onExerciseRowClick($event)"
+          ></app-grid>
+        </div>
+
+        <!-- No Results Template -->
+        <ng-template #noResults>
+          <div class="no-results">
+            <mat-card class="no-results-card">
+              <div class="no-results-content">
+                <mat-icon class="no-results-icon">search_off</mat-icon>
+                <h3>No exercises found</h3>
+                <p>Try adjusting your search criteria or filters</p>
+                <button mat-raised-button color="primary" (click)="clearFilters()">
+                  Clear Filters
+                </button>
+              </div>
+            </mat-card>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
     <!-- Exercise Groups Tab -->
     <mat-tab label="Groups">
       <div class="tab-content">
@@ -46,8 +274,6 @@
               </div>
             </div>
           </mat-card>
-
-
         </div>
 
         <!-- Groups Filters -->
@@ -201,235 +427,6 @@
                 <button mat-raised-button color="primary" (click)="onAddExerciseGroup()">
                   <mat-icon>add</mat-icon>
                   Create First Group
-                </button>
-              </div>
-            </mat-card>
-          </div>
-        </ng-template>
-      </div>
-    </mat-tab>
-
-    <!-- Exercises Tab -->
-    <mat-tab label="Exercises">
-      <div class="tab-content">
-        <!-- Statistics Cards -->
-        <div class="stats-cards">
-          <mat-card class="stat-card total-card">
-            <div class="stat-content">
-              <div class="stat-icon">
-                <mat-icon>fitness_center</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ exerciseStats.totalExercises }}</div>
-                <div class="stat-label">Total Exercises</div>
-              </div>
-            </div>
-          </mat-card>
-
-          <mat-card class="stat-card sets-card">
-            <div class="stat-content">
-              <div class="stat-icon">
-                <mat-icon>repeat</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ getTotalSets() }}</div>
-                <div class="stat-label">Total Sets</div>
-              </div>
-            </div>
-          </mat-card>
-
-          <mat-card class="stat-card reps-card">
-            <div class="stat-content">
-              <div class="stat-icon">
-                <mat-icon>timer</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ getAverageReps() }}</div>
-                <div class="stat-label">Avg Reps</div>
-              </div>
-            </div>
-          </mat-card>
-
-          <mat-card class="stat-card categories-card">
-            <div class="stat-content">
-              <div class="stat-icon">
-                <mat-icon>category</mat-icon>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ getCategoryCount() }}</div>
-                <div class="stat-label">Categories</div>
-              </div>
-            </div>
-          </mat-card>
-
-
-        </div>
-
-        <!-- View Mode Toggle -->
-        <div class="view-toggle">
-          <button mat-button [class.active]="viewMode === 'cards'" (click)="viewMode = 'cards'">
-            <mat-icon>view_module</mat-icon>
-            Cards View
-          </button>
-          <button mat-button [class.active]="viewMode === 'table'" (click)="viewMode = 'table'">
-            <mat-icon>table_view</mat-icon>
-            Table View
-          </button>
-        </div>
-
-        <!-- Exercise Cards View -->
-        <div class="exercise-cards" *ngIf="viewMode === 'cards'">
-          <!-- Cards View Filters -->
-          <div class="cards-filters">
-            <div class="filters-header">
-              <h3>Filter Exercises</h3>
-              <div class="results-count">
-                Showing {{ getFilteredExercises().length }} of {{ exercises.length }} exercises
-              </div>
-            </div>
-            
-            <div class="filters-content">
-              <div class="filter-group">
-                <label class="filter-label">Category</label>
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-select [(ngModel)]="selectedCategory" (selectionChange)="onCategoryChange($event)">
-                    <mat-option value="">All Categories</mat-option>
-                    <mat-option *ngFor="let category of categories" [value]="category.value">
-                      {{ category.label }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="filter-group">
-                <label class="filter-label">Difficulty</label>
-                <mat-form-field appearance="outline" class="filter-field">
-                  <mat-select [(ngModel)]="selectedDifficulty" (selectionChange)="onDifficultyChange($event)">
-                    <mat-option value="">All Difficulties</mat-option>
-                    <mat-option *ngFor="let difficulty of difficulties" [value]="difficulty.value">
-                      {{ difficulty.label }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-
-              <div class="filter-group search-group">
-                <label class="filter-label">Search</label>
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>Search exercises...</mat-label>
-                  <input matInput [(ngModel)]="searchQuery" placeholder="Search by name, description, muscles, or tags">
-                  <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
-              </div>
-
-                           <div class="filter-actions">
-               <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-                 <mat-icon>clear_all</mat-icon>
-                 Clear Filters
-               </button>
-               <button mat-raised-button color="primary" (click)="onAddExercise()" class="add-exercise-btn">
-                 <mat-icon>add</mat-icon>
-                 Add Exercise
-               </button>
-             </div>
-            </div>
-          </div>
-
-          <div class="cards-grid" *ngIf="getFilteredExercises().length > 0; else noResults">
-            <mat-card class="exercise-card" *ngFor="let exercise of getFilteredExercises()">
-              <!-- Media Section -->
-              <div class="card-media">
-                <div class="media-placeholder" *ngIf="!exercise.media || exercise.media.length === 0">
-                  <mat-icon>fitness_center</mat-icon>
-                  <span>No media</span>
-                </div>
-                <img *ngIf="exercise.media && exercise.media.length > 0" [src]="exercise.media[0]" alt="Exercise media">
-                <div class="card-badge" [class]="'badge-' + exercise.difficulty.toLowerCase()">
-                  {{ exercise.difficulty }}
-                </div>
-              </div>
-
-              <!-- Exercise Details -->
-              <div class="card-content">
-                <h3 class="exercise-name">{{ exercise.name }}</h3>
-                <div class="exercise-category">
-                  <mat-chip class="category-chip">{{ exercise.category }}</mat-chip>
-                  <span class="difficulty-text">{{ exercise.difficulty }}</span>
-                </div>
-                <p class="exercise-description">{{ exercise.description }}</p>
-                
-                <!-- Tags -->
-                <div class="exercise-tags" *ngIf="exercise.tags && exercise.tags.length > 0">
-                  <mat-chip *ngFor="let tag of exercise.tags" class="tag-chip">
-                    {{ tag }}
-                  </mat-chip>
-                </div>
-
-                <!-- Sets and Muscles -->
-                <div class="exercise-details">
-                  <div class="detail-item">
-                    <mat-icon>repeat</mat-icon>
-                    <span>{{ getSetsDisplay(exercise) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>fitness_center</mat-icon>
-                    <span>{{ exercise.targetMuscles.join(', ') }}</span>
-                  </div>
-                  <div class="detail-item" *ngIf="exercise.equipment && exercise.equipment.length > 0">
-                    <mat-icon>build</mat-icon>
-                    <span>{{ exercise.equipment.join(', ') }}</span>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="card-actions">
-                  <button mat-stroked-button color="primary" class="action-btn view-btn" (click)="onViewExercise({data: exercise})" matTooltip="View exercise details">
-                    <mat-icon>visibility</mat-icon>
-                    View
-                  </button>
-                  <button mat-stroked-button color="accent" class="action-btn edit-btn" (click)="onEditExercise({data: exercise})" matTooltip="Edit exercise">
-                    <mat-icon>edit</mat-icon>
-                    Edit
-                  </button>
-                  <button mat-stroked-button color="warn" class="action-btn delete-btn" (click)="onDeleteExercise({data: exercise})" matTooltip="Delete exercise">
-                    <mat-icon>delete</mat-icon>
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </mat-card>
-          </div>
-        </div>
-
-        <!-- Table View -->
-        <div class="exercise-table" *ngIf="viewMode === 'table'">
-          <div class="table-header">
-            <h3>All Exercises (Table View)</h3>
-            <p>Showing {{ getFilteredExercises().length }} exercises</p>
-          </div>
-        
-          <app-grid
-            [rowData]="getFilteredExercises()"
-            [gridOptions]="exerciseGridOptions"
-            [columnDefs]="exerciseColumns"
-            [height]="'500px'"
-            [showHeader]="true"
-            [rightTooltemplateRef]="rightTooltemplate"
-            [searchPlaceholder]="'Search exercises...'"
-            (rowClicked)="onExerciseRowClick($event)"
-          ></app-grid>
-        </div>
-
-        <!-- No Results Template -->
-        <ng-template #noResults>
-          <div class="no-results">
-            <mat-card class="no-results-card">
-              <div class="no-results-content">
-                <mat-icon class="no-results-icon">search_off</mat-icon>
-                <h3>No exercises found</h3>
-                <p>Try adjusting your search criteria or filters</p>
-                <button mat-raised-button color="primary" (click)="clearFilters()">
-                  Clear Filters
                 </button>
               </div>
             </mat-card>

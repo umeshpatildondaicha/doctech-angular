@@ -1,7 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { Router, ActivatedRoute } from '@angular/router';
 import { GridComponent } from '../../tools/grid/grid.component';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
 import { IconComponent } from '../../tools/app-icon/icon.component';
@@ -9,471 +19,490 @@ import { DietCreateComponent } from '../diet-create/diet-create.component';
 import { Diet } from '../../interfaces/diet.interface';
 import { ColDef } from 'ag-grid-community';
 import { Mode } from '../../types/mode.type';
-import { DietGroupComponent } from '../diet-group/diet-group.component';
-import { DietGroup } from '../../interfaces/diet-group.interface';
+
+import { DietSelectionDialogComponent } from '../diet-selection-dialog/diet-selection-dialog.component';
+import { MealTimeDialogComponent } from '../meal-time-dialog/meal-time-dialog.component';
 
 @Component({
   selector: 'app-diet',
   standalone: true,
-  imports: [CommonModule, MatTabsModule, GridComponent, AppButtonComponent, IconComponent],
+  imports: [
+    CommonModule, 
+    FormsModule,
+    MatTabsModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTableModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatDialogModule,
+    GridComponent, 
+    AppButtonComponent, 
+    IconComponent,
+    DietSelectionDialogComponent,
+    MealTimeDialogComponent
+  ],
   templateUrl: './diet.component.html',
   styleUrl: './diet.component.scss'
 })
 export class DietComponent implements OnInit {
   selectedTabIndex = 0;
+  viewMode: 'grid' | 'list' = 'grid';
+  searchQuery: string = '';
+  selectedDietType: string = '';
   
-  // Diet Groups Tab
-  dietGroupList: any[] = [];
-  dietGroupColumns: ColDef[] = [];
-  dietGroupGridOptions: any = {};
+
   
   // Diets Tab
   dietList: Diet[] = [];
+  filteredDiets: Diet[] = [];
   columnDefs: ColDef[] = [];
   gridOptions: any = {};
 
-  constructor(private dialog: MatDialog) {}
+  // Table columns for list view
+  displayedColumns: string[] = ['image', 'name', 'type', 'calories', 'protein', 'actions'];
+
+  // Diet Plans Tab
+  dietPlans: any[] = [];
+  filteredDietPlans: any[] = [];
+  selectedPlanType: string = '';
+  selectedPlanStatus: string = '';
+  planSearchQuery: string = '';
+
+  // Computed properties for stats
+  get totalCalories(): number {
+    return this.dietList.reduce((sum, diet) => sum + diet.calories, 0);
+  }
+
+  get totalProtein(): number {
+    return this.dietList.reduce((sum, diet) => sum + diet.protein, 0);
+  }
+
+  get totalCarbs(): number {
+    return this.dietList.reduce((sum, diet) => sum + diet.carbs, 0);
+  }
+
+  constructor(private dialog: MatDialog, private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    this.initializeDietGroupData();
     this.initializeDietData();
+    this.loadMockData();
+    this.loadMockDietPlans();
+    
+    // Handle tab navigation from route
+    const currentUrl = this.router.url;
+    if (currentUrl.includes('/diet/plans')) {
+      this.selectedTabIndex = 1; // Diet Plans tab index (second tab)
+    }
   }
 
   onTabChange(index: number) {
     this.selectedTabIndex = index;
+    
+    // Update URL based on selected tab
+    if (index === 1) { // Diet Plans tab (second tab)
+      this.router.navigate(['/diet/plans']);
+    } else {
+      // Navigate to main diet page for other tabs
+      this.router.navigate(['/diet']);
+    }
   }
 
-  // Diet Groups Tab Methods
-  initializeDietGroupData() {
-    this.initializeDietGroupColumnDefs();
-    this.initializeDietGroupGridOptions();
-    this.loadDietGroupData();
+  setViewMode(mode: 'grid' | 'list') {
+    this.viewMode = mode;
   }
 
-  initializeDietGroupGridOptions() {
-    this.dietGroupGridOptions.menuActions = [
+  onSearchChange(event: any) {
+    this.filterDiets();
+  }
+
+  onDietTypeChange(event: any) {
+    this.filterDiets();
+  }
+
+  clearFilters() {
+    this.searchQuery = '';
+    this.selectedDietType = '';
+    this.filterDiets();
+  }
+
+  filterDiets() {
+    this.filteredDiets = this.dietList.filter(diet => {
+      const matchesSearch = !this.searchQuery || 
+        diet.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        diet.description.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+        diet.tags?.some(tag => tag.toLowerCase().includes(this.searchQuery.toLowerCase()));
+      
+      const matchesType = !this.selectedDietType || 
+        diet.dietType.toLowerCase() === this.selectedDietType.toLowerCase();
+      
+      return matchesSearch && matchesType;
+    });
+  }
+
+  loadMockData() {
+    // Mock data for demonstration
+    this.dietList = [
+      {
+        dietId: '1',
+        name: 'Balanced Veg Bowl',
+        description: 'Quinoa, chickpeas, mixed veggies, olive oil dressing.',
+        dietType: 'Mediterranean',
+        calories: 520,
+        protein: 22,
+        carbs: 68,
+        fat: 18,
+        fiber: 11,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://arohanyoga.com/wp-content/uploads/2024/03/The-Yogic-Diet-Food-for-Mind-and-Body-.jpg',
+        videoUrl: 'https://youtu.be/oX_iH0CbZzg?si=jkzW8WP0xBasAYdB',
+        documentUrl: 'https://morth.nic.in/sites/default/files/dd12-13_0.pdf',
+        tags: ['lunch', 'quick']
+      },
+      {
+        dietId: '2',
+        name: 'Keto Chicken Salad',
+        description: 'Grilled chicken, avocado, mixed greens, olive oil.',
+        dietType: 'Keto',
+        calories: 450,
+        protein: 35,
+        carbs: 8,
+        fat: 32,
+        fiber: 6,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&h=300&fit=crop',
+        videoUrl: 'https://youtu.be/oX_iH0CbZzg?si=jkzW8WP0xBasAYdB',
+        documentUrl: 'https://morth.nic.in/sites/default/files/dd12-13_0.pdf',
+        tags: ['lunch', 'high-protein']
+      },
+      {
+        dietId: '3',
+        name: 'Vegan Buddha Bowl',
+        description: 'Brown rice, tofu, vegetables, tahini dressing.',
+        dietType: 'Vegan',
+        calories: 380,
+        protein: 18,
+        carbs: 45,
+        fat: 15,
+        fiber: 12,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&h=300&fit=crop',
+        videoUrl: 'https://youtu.be/oX_iH0CbZzg?si=jkzW8WP0xBasAYdB',
+        documentUrl: 'https://morth.nic.in/sites/default/files/dd12-13_0.pdf',
+        tags: ['dinner', 'plant-based']
+      },
+      {
+        dietId: '4',
+        name: 'Morning Oatmeal',
+        description: 'Steel-cut oats with berries, nuts, and honey.',
+        dietType: 'Mediterranean',
+        calories: 320,
+        protein: 12,
+        carbs: 55,
+        fat: 8,
+        fiber: 8,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1517686469429-8bdb88b9f907?w=400&h=300&fit=crop',
+        videoUrl: '',
+        documentUrl: '',
+        tags: ['breakfast', 'fiber-rich']
+      },
+      {
+        dietId: '5',
+        name: 'Greek Yogurt Parfait',
+        description: 'Greek yogurt with granola, honey, and fresh fruits.',
+        dietType: 'Mediterranean',
+        calories: 280,
+        protein: 20,
+        carbs: 35,
+        fat: 6,
+        fiber: 4,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=400&h=300&fit=crop',
+        videoUrl: '',
+        documentUrl: '',
+        tags: ['breakfast', 'protein-rich']
+      },
+      {
+        dietId: '6',
+        name: 'Grilled Salmon',
+        description: 'Grilled salmon with steamed vegetables and quinoa.',
+        dietType: 'Mediterranean',
+        calories: 480,
+        protein: 42,
+        carbs: 25,
+        fat: 22,
+        fiber: 6,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=400&h=300&fit=crop',
+        videoUrl: '',
+        documentUrl: '',
+        tags: ['dinner', 'omega-3']
+      },
+      {
+        dietId: '7',
+        name: 'Mixed Nuts Snack',
+        description: 'Almonds, walnuts, and cashews with dried fruits.',
+        dietType: 'Mediterranean',
+        calories: 180,
+        protein: 6,
+        carbs: 12,
+        fat: 14,
+        fiber: 3,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=400&h=300&fit=crop',
+        videoUrl: '',
+        documentUrl: '',
+        tags: ['snack', 'healthy-fats']
+      },
+      {
+        dietId: '8',
+        name: 'Vegetable Soup',
+        description: 'Homemade vegetable soup with lentils and herbs.',
+        dietType: 'Vegan',
+        calories: 220,
+        protein: 12,
+        carbs: 35,
+        fat: 4,
+        fiber: 10,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        imageUrl: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop',
+        videoUrl: '',
+        documentUrl: '',
+        tags: ['lunch', 'soup']
+      }
+    ];
+    this.filteredDiets = [...this.dietList];
+  }
+
+
+
+  // Diets Tab Methods
+  initializeDietData() {
+    this.initializeDietColumnDefs();
+    this.initializeDietGridOptions();
+  }
+
+  initializeDietGridOptions() {
+    this.gridOptions.menuActions = [
       {
         "title": "View",
         "icon": "remove_red_eye",
-        "click": (param: any) => { this.onViewDietGroup(param?.data) }
+        "click": (param: any) => { this.onViewDiet(param?.data) }
       },
       {
         "title": "Edit",
         "icon": "edit",
-        "click": (param: any) => { this.onEditDietGroup(param?.data) }
+        "click": (param: any) => { this.onEditDiet(param?.data) }
       },
       {
         "title": "Delete",
         "icon": "delete",
-        "click": (param: any) => { this.onDeleteDietGroup(param?.data) }
+        "click": (param: any) => { this.onDeleteDiet(param?.data) }
       },
     ];
   }
 
-  onDeleteDietGroup(param: any) {
-    console.log('Delete diet group:', param);
-    // TODO: Implement delete diet group functionality
-  }
-
-  onCreateDietGroup() {
-    const dialogRef = this.dialog.open(DietGroupComponent, {
+  onCreateDiet() {
+    const dialogRef = this.dialog.open(DietCreateComponent, {
       width: '90%',
+      maxWidth: '800px',
       data: { mode: 'create' },
       disableClose: true,
-      panelClass: 'diet-group-dialog-panel'
+      panelClass: 'diet-dialog-panel'
     });
-  }
-  
-  // Edit Mode
-  onEditDietGroup(dietGroup: DietGroup) {
-    const dialogRef = this.dialog.open(DietGroupComponent, {
-      width: '600px',
-      maxWidth: '90vw',
-      data: { dietGroup, mode: 'edit' } ,
-      disableClose: true
-    });
-  }
-  
-  // View Mode
-  onViewDietGroup(dietGroup: DietGroup) {
-    const dialogRef = this.dialog.open(DietGroupComponent, {
-      width: '600px',
-      maxWidth: '90vw',
-      data: { dietGroup, mode: 'view' },
-      disableClose: false
-    });
-  }
 
-  onDietGroupRowClick(event: any) {
-    console.log('Diet group row clicked:', event);
-  }
-
-  onSearchDietGroup(searchTerm: string) {
-    console.log('Search diet group term:', searchTerm);
-    // TODO: Implement search functionality
-  }
-
-  private initializeDietGroupColumnDefs() {
-    this.dietGroupColumns = [
-      {
-        headerName: 'Group Name',
-        field: 'name',
-        sortable: true,
-        filter: true,
-        flex: 1,
-        minWidth: 150
-      },
-      {
-        headerName: 'Description',
-        field: 'description',
-        sortable: true,
-        filter: true,
-        minWidth: 200
-      },
-      {
-        headerName: 'Diet Count',
-        field: 'dietCount',
-        sortable: true,
-        filter: true,
-        minWidth: 100,
-        cellRenderer: (params: any) => {
-          return `<span style="font-weight: 600; color: #2c3e50;">${params.value} diets</span>`;
-        }
-      },
-      {
-        headerName: 'Created By',
-        field: 'createdBy',
-        sortable: true,
-        filter: true,
-        minWidth: 120
-      },
-      {
-        headerName: 'Status',
-        field: 'isActive',
-        sortable: true,
-        filter: true,
-        minWidth: 100,
-        cellRenderer: (params: any) => {
-          const isActive = params.value;
-          const color = isActive ? '#27ae60' : '#e74c3c';
-          const text = isActive ? 'Active' : 'Inactive';
-          return `<span style="color: ${color}; font-weight: 600;">${text}</span>`;
-        }
-      },
-      {
-        headerName: 'Created',
-        field: 'createdAt',
-        sortable: true,
-        filter: true,
-        minWidth: 120,
-        cellRenderer: (params: any) => {
-          const date = new Date(params.value);
-          return date.toLocaleDateString();
-        }
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh diet list
+        this.loadMockData();
+        this.filterDiets();
       }
-    ];
+    });
   }
 
-  private loadDietGroupData() {
-    // Mock data for diet groups
-    this.dietGroupList = [
-      {
-        groupId: 'DG001',
-        name: 'Weight Management',
-        description: 'Diet groups focused on weight loss and maintenance',
-        dietCount: 3,
-        createdBy: 'Dr. Chetan',
-        createdAt: new Date('2024-01-10'),
-        isActive: true
-      },
-      {
-        groupId: 'DG002',
-        name: 'Medical Conditions',
-        description: 'Specialized diets for medical conditions',
-        dietCount: 2,
-        createdBy: 'Dr. Sarah',
-        createdAt: new Date('2024-01-15'),
-        isActive: true
-      },
-      {
-        groupId: 'DG003',
-        name: 'Athletic Performance',
-        description: 'High-performance diets for athletes',
-        dietCount: 1,
-        createdBy: 'Dr. Michael',
-        createdAt: new Date('2024-01-20'),
-        isActive: true
-      },
-      {
-        groupId: 'DG004',
-        name: 'Experimental Diets',
-        description: 'New and experimental diet plans',
-        dietCount: 1,
-        createdBy: 'Dr. Chetan',
-        createdAt: new Date('2024-02-01'),
-        isActive: false
+  onEditDiet(diet: Diet) {
+    const dialogRef = this.dialog.open(DietCreateComponent, {
+      width: '90%',
+      maxWidth: '800px',
+      data: { diet, mode: 'edit' },
+      disableClose: true,
+      panelClass: 'diet-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh diet list
+        this.loadMockData();
+        this.filterDiets();
       }
-    ];
+    });
   }
 
-  // Diets Tab Methods (existing code)
-  initializeDietData() {
-    this.initializeColumnDefs();
-    this.initializeGridOptions();
-    this.loadDietData();
+  onViewDiet(diet: Diet) {
+    // Navigate to the diet view page
+    console.log('Navigating to diet view:', diet.dietId);
+    this.router.navigate(['/diet/view', diet.dietId]);
   }
 
-  initializeGridOptions(){
-    this.gridOptions.menuActions = [
-      {
-        "title":"View",
-        "icon":"remove_red_eye",
-        "click": (param:any)=> {this.onView(param)}
-      },
-      {
-        "title":"Edit",
-        "icon":"edit",
-        "click": (param:any)=> {this.onEdit(param)}
-      },
-      {
-        "title":"Delete",
-        "icon":"delete",
-        "click": (param:any)=> {this.onDelete(param)}
-      },
-    ]
-  }
-  onView(param: any) {
-    console.log('View diet:', param);
-    this.openDietDialog(param.data, 'view');
+  onVideoClick(videoUrl: string) {
+    // Open video in new tab
+    window.open(videoUrl, '_blank');
   }
 
-  onEdit(param: any) {
-    console.log('Edit diet:', param);
-    this.openDietDialog(param.data, 'edit');
+  onPdfClick(pdfUrl: string) {
+    // Open PDF in new tab
+    window.open(pdfUrl, '_blank');
   }
 
-  onDelete(param: any) {
-    console.log('Delete diet:', param);
-    // TODO: Implement delete functionality with confirmation dialog
+  onDeleteDiet(diet: Diet) {
+    console.log('Delete diet:', diet);
+    // TODO: Implement delete diet functionality with confirmation dialog
   }
 
   onDietRowClick(event: any) {
     console.log('Diet row clicked:', event);
   }
 
-  private openDietDialog(diet: Diet | undefined, mode: Mode) {
-    const dialogRef = this.dialog.open(DietCreateComponent, {
-      width: '700px',
-      maxWidth: '90vw',
-      maxHeight: '90vh',
-      data: {
-        diet: diet,
-        mode: mode
-      },
-      disableClose: false,
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((result: Diet | undefined) => {
-      if (result) {
-        console.log('Diet operation completed:', result);
-        
-        if (mode === 'create') {
-          // Add the new diet to the list
-          this.dietList = [...this.dietList, result];
-        } else if (mode === 'edit') {
-          // Update the existing diet in the list
-          const index = this.dietList.findIndex(d => d.dietId === result.dietId);
-          if (index !== -1) {
-            this.dietList[index] = result;
-            this.dietList = [...this.dietList]; // Trigger change detection
-          }
-        }
-        // TODO: Send to backend API
-      }
-    });
-  }
-
-  private initializeColumnDefs() {
+  initializeDietColumnDefs() {
     this.columnDefs = [
-      {
-        headerName: 'Diet Name',
-        field: 'name',
-        sortable: true,
-        filter: true,
-        flex: 1,
-        minWidth: 150
-      },
-      {
-        headerName: 'Type',
-        field: 'dietType',
-        sortable: true,
-        filter: true,
-        minWidth: 120,
-        cellRenderer: (params: any) => {
-          const dietType = params.value;
-          const colorMap: { [key: string]: string } = {
-            'Weight Loss': '#ff6b6b',
-            'Weight Gain': '#4ecdc4',
-            'Maintenance': '#45b7d1',
-            'Diabetic': '#96ceb4',
-            'Low Carb': '#feca57',
-            'High Protein': '#ff9ff3'
-          };
-          const color = colorMap[dietType] || '#95a5a6';
-          return `<span class="diet-type-badge" style="background-color: ${color}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${dietType}</span>`;
-        }
-      },
-      {
-        headerName: 'Calories',
-        field: 'calories',
-        sortable: true,
-        filter: true,
-        minWidth: 100,
-        cellRenderer: (params: any) => {
-          return `<span style="font-weight: 600; color: #2c3e50;">${params.value} kcal</span>`;
-        }
-      },
-      {
-        headerName: 'Protein',
-        field: 'protein',
-        sortable: true,
-        filter: true,
-        minWidth: 80,
-        cellRenderer: (params: any) => {
-          return `<span style="color: #e74c3c;">${params.value}g</span>`;
-        }
-      },
-      {
-        headerName: 'Carbs',
-        field: 'carbs',
-        sortable: true,
-        filter: true,
-        minWidth: 80,
-        cellRenderer: (params: any) => {
-          return `<span style="color: #f39c12;">${params.value}g</span>`;
-        }
-      },
-      {
-        headerName: 'Fat',
-        field: 'fat',
-        sortable: true,
-        filter: true,
-        minWidth: 80,
-        cellRenderer: (params: any) => {
-          return `<span style="color: #9b59b6;">${params.value}g</span>`;
-        }
-      },
-      {
-        headerName: 'Status',
-        field: 'isActive',
-        sortable: true,
-        filter: true,
-        minWidth: 100,
-        cellRenderer: (params: any) => {
-          const isActive = params.value;
-          const color = isActive ? '#27ae60' : '#e74c3c';
-          const text = isActive ? 'Active' : 'Inactive';
-          return `<span style="color: ${color}; font-weight: 600;">${text}</span>`;
-        }
-      },
-      {
-        headerName: 'Created',
-        field: 'createdAt',
-        sortable: true,
-        filter: true,
-        minWidth: 120,
-        cellRenderer: (params: any) => {
-          const date = new Date(params.value);
-          return date.toLocaleDateString();
-        }
-      }
-      // Actions column will be automatically added by grid component when menuActions are present
+      { field: 'name', headerName: 'Name', sortable: true, filter: true },
+      { field: 'description', headerName: 'Description', sortable: true, filter: true },
+      { field: 'dietType', headerName: 'Type', sortable: true, filter: true },
+      { field: 'calories', headerName: 'Calories', sortable: true, filter: true },
+      { field: 'protein', headerName: 'Protein (g)', sortable: true, filter: true },
+      { field: 'carbs', headerName: 'Carbs (g)', sortable: true, filter: true },
+      { field: 'fat', headerName: 'Fat (g)', sortable: true, filter: true },
+      { field: 'fiber', headerName: 'Fiber (g)', sortable: true, filter: true }
     ];
   }
 
-  private loadDietData() {
-    // Mock data - replace with actual API call
-    this.dietList = [
+  // Diet Plans Methods
+  loadMockDietPlans() {
+    this.dietPlans = [
       {
-        dietId: 'D001',
-        name: 'Weight Loss Diet Plan',
-        description: 'A balanced diet plan for healthy weight loss',
-        dietType: 'Weight Loss',
-        calories: 1500,
-        protein: 120,
-        carbs: 150,
-        fat: 50,
-        fiber: 25,
-        createdByDoctorId: 'DOC001',
-        createdAt: new Date('2024-01-15'),
-        isActive: true
+        planId: 'plan1',
+        name: 'Weekly Mediterranean Plan',
+        description: 'A balanced 7-day Mediterranean diet plan for healthy eating',
+        type: 'weekly',
+        status: 'active',
+        duration: 7,
+        dietsCount: 21,
+        progress: 75,
+        createdAt: new Date('2024-01-15')
       },
       {
-        dietId: 'D002',
-        name: 'Muscle Building Diet',
-        description: 'High protein diet for muscle growth',
-        dietType: 'Weight Gain',
-        calories: 2500,
-        protein: 180,
-        carbs: 200,
-        fat: 80,
-        fiber: 30,
-        createdByDoctorId: 'DOC001',
-        createdAt: new Date('2024-01-20'),
-        isActive: true
+        planId: 'plan2',
+        name: 'Keto Weight Loss Plan',
+        description: '4-week ketogenic diet plan for weight loss',
+        type: 'monthly',
+        status: 'active',
+        duration: 28,
+        dietsCount: 84,
+        progress: 45,
+        createdAt: new Date('2024-01-10')
       },
       {
-        dietId: 'D003',
-        name: 'Diabetic Friendly Diet',
-        description: 'Low glycemic index diet for diabetes management',
-        dietType: 'Diabetic',
-        calories: 1800,
-        protein: 100,
-        carbs: 120,
-        fat: 60,
-        fiber: 35,
-        createdByDoctorId: 'DOC002',
-        createdAt: new Date('2024-01-25'),
-        isActive: true
-      },
-      {
-        dietId: 'D004',
-        name: 'Low Carb Keto Diet',
-        description: 'Ketogenic diet for rapid fat loss',
-        dietType: 'Low Carb',
-        calories: 1600,
-        protein: 140,
-        carbs: 30,
-        fat: 120,
-        fiber: 20,
-        createdByDoctorId: 'DOC001',
-        createdAt: new Date('2024-02-01'),
-        isActive: false
-      },
-      {
-        dietId: 'D005',
-        name: 'Athlete Performance Diet',
-        description: 'High energy diet for athletic performance',
-        dietType: 'High Protein',
-        calories: 3000,
-        protein: 200,
-        carbs: 300,
-        fat: 100,
-        fiber: 40,
-        createdByDoctorId: 'DOC003',
-        createdAt: new Date('2024-02-05'),
-        isActive: true
+        planId: 'plan3',
+        name: 'Vegan Wellness Plan',
+        description: 'Plant-based diet plan for overall wellness',
+        type: 'custom',
+        status: 'draft',
+        duration: 14,
+        dietsCount: 42,
+        progress: 0,
+        createdAt: new Date('2024-01-20')
       }
     ];
+    this.filteredDietPlans = [...this.dietPlans];
   }
 
-  onCreateDiet() {
-    this.openDietDialog(undefined, 'create');
+  getActivePlansCount(): number {
+    return this.dietPlans.filter(plan => plan.status === 'active').length;
   }
 
-  onSearchChange(searchTerm: string) {
-    console.log('Search term:', searchTerm);
-    // TODO: Implement search functionality
+  getWeeklyPlansCount(): number {
+    return this.dietPlans.filter(plan => plan.type === 'weekly').length;
+  }
+
+  onPlanTypeChange(event: any) {
+    this.filterDietPlans();
+  }
+
+  onPlanStatusChange(event: any) {
+    this.filterDietPlans();
+  }
+
+  onPlanSearchChange(event: any) {
+    this.filterDietPlans();
+  }
+
+  clearPlanFilters() {
+    this.selectedPlanType = '';
+    this.selectedPlanStatus = '';
+    this.planSearchQuery = '';
+    this.filterDietPlans();
+  }
+
+  filterDietPlans() {
+    this.filteredDietPlans = this.dietPlans.filter(plan => {
+      const matchesType = !this.selectedPlanType || plan.type === this.selectedPlanType;
+      const matchesStatus = !this.selectedPlanStatus || plan.status === this.selectedPlanStatus;
+      const matchesSearch = !this.planSearchQuery || 
+        plan.name.toLowerCase().includes(this.planSearchQuery.toLowerCase()) ||
+        plan.description.toLowerCase().includes(this.planSearchQuery.toLowerCase());
+      
+      return matchesType && matchesStatus && matchesSearch;
+    });
+  }
+
+  onCreateDietPlan() {
+    this.router.navigate(['/diet-plan-create']);
+  }
+
+  onViewPlan(plan: any) {
+    this.router.navigate(['/diet-plan-view', plan.planId]);
+  }
+
+  onEditPlan(plan: any) {
+    console.log('Edit plan:', plan);
+    // TODO: Open plan edit dialog
+  }
+
+  onDeletePlan(plan: any) {
+    console.log('Delete plan:', plan);
+    // TODO: Implement plan deletion with confirmation
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'check_circle';
+      case 'inactive':
+        return 'cancel';
+      case 'draft':
+        return 'edit';
+      default:
+        return 'help';
+    }
   }
 }

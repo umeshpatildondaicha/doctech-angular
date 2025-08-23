@@ -52,20 +52,8 @@ export class MenuService {
       section: 'services',
       userTypes: ['doctor']
     },
-    { 
-      label: 'Diet Groups', 
-      icon: 'category', 
-      route: '/diet-groups', 
-      section: 'services',
-      userTypes: ['doctor']
-    },
-    { 
-      label: 'Profile', 
-      icon: 'person', 
-      route: '/profile', 
-      section: 'management',
-      userTypes: ['doctor']
-    },
+
+
     { 
       label: 'Billing', 
       icon: 'credit_card', 
