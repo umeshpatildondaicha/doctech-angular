@@ -14,7 +14,7 @@
   <div class="dialog-content">
     <form [formGroup]="patientForm" (ngSubmit)="onSubmit()" class="form">
       <div class="section-title-wrapper"><h4 class="section-title">Patient details</h4></div>
-      <div class="form-row">
+      <div class="form-row combine-form-wrapper">
         <app-input
           label="First Name"
           formControlName="firstName"
@@ -31,19 +31,17 @@
           [errorMessage]="getErrorMessage('lastName')"
           class="form-field">
         </app-input>
-      </div>
 
-      <div class="form-row">
         <app-input
-          label="Date of Birth"
-          formControlName="dateOfBirth"
-          placeholder="Enter date of birth"
-          [required]="true"
-          [rows]="3"
-          [errorMessage]="getErrorMessage('dateOfBirth')"
-          class="form-field">
-        </app-input>
-        
+        label="Date of Birth"
+        formControlName="dateOfBirth"
+        placeholder="Enter date of birth"
+        [required]="true"
+        [rows]="3"
+        [errorMessage]="getErrorMessage('dateOfBirth')"
+        class="form-field">
+      </app-input>
+      
         <app-selectbox
         label="Gender"
         formControlName="gender"
@@ -54,40 +52,37 @@
         [errorMessage]="getErrorMessage('gender')"
         class="form-field">
       </app-selectbox>
+
+      <app-input
+      label="Contact"
+      formControlName="contact"
+      placeholder="Enter contact"
+      [required]="true"
+      [errorMessage]="getErrorMessage('contact')"
+      class="form-field">
+    </app-input>
+    <app-input
+      label="Email"
+      formControlName="email"
+      placeholder="Enter email"
+      [required]="true"
+      [errorMessage]="getErrorMessage('email')"
+      class="form-field">
+    </app-input>
+
+
+    <app-selectbox
+    label="Blood Group"
+    formControlName="bloodGroup"
+    [options]="bloodGroups"
+    placeholder="Select blood group"
+    [required]="true"
+    [displayExpr]="'label'"
+    [errorMessage]="getErrorMessage('bloodGroup')"
+    class="form-field">
+  </app-selectbox>
       </div>
 
-      <div class="form-row">
-        <app-input
-          label="Contact"
-          formControlName="contact"
-          placeholder="Enter contact"
-          [required]="true"
-          [errorMessage]="getErrorMessage('contact')"
-          class="form-field">
-        </app-input>
-        <app-input
-          label="Email"
-          formControlName="email"
-          placeholder="Enter email"
-          [required]="true"
-          [errorMessage]="getErrorMessage('email')"
-          class="form-field">
-        </app-input>
-      </div>
-
-      <div class="form-row">
-
-        <app-selectbox
-        label="Blood Group"
-        formControlName="bloodGroup"
-        [options]="bloodGroups"
-        placeholder="Select blood group"
-        [required]="true"
-        [displayExpr]="'label'"
-        [errorMessage]="getErrorMessage('bloodGroup')"
-        class="form-field">
-      </app-selectbox>
-      </div>
 
       <div class="form-row">
         <app-input

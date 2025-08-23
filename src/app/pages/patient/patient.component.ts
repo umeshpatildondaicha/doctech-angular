@@ -7,6 +7,7 @@ import { IconComponent } from '../../tools/app-icon/icon.component';
 import { MatDialog } from '@angular/material/dialog';
 import { PatientCreateComponent } from '../patient-create/patient-create.component';
 import { StatusCellRendererComponent } from '../../tools/status-cell-renderer/status-cell-renderer.component';
+import { CustomEventsService } from '../../services/custom-events.service';
 
 @Component({
   selector: 'app-patient',
@@ -42,8 +43,18 @@ export class PatientComponent {
 
   gridOptions: any = {};
 
-  constructor(private dialog: MatDialog, private router: Router) {
+  constructor(private dialog: MatDialog, private router: Router, private customEventsService: CustomEventsService) {
     this.initializeGridOptions();
+    this.customEventsService.breadcrumbEvent.emit(
+      {
+        isAppend:false,
+        breadcrum: [{
+          title: 'Patients',
+          url: '/patient'
+        }
+        ]
+      }
+  );
   }
 
   initializeGridOptions() {
@@ -89,7 +100,7 @@ export class PatientComponent {
 
   onCreatePatient(mode: string = 'create',param?: Patient) {
     const dialogRef = this.dialog.open(PatientCreateComponent, {
-      width: '500px',
+      width: '70%',
       data: { 
         mode: mode,
         patient: param

@@ -1,8 +1,22 @@
 <header class="topbar">
   <div class="topbar-left">
-    <div class="greeting">
-      Good Morning, <b>Dr.Umesh!</b>
-    </div>
+    @if(breadcrum.length > 0){
+      <div class="breadcrums">
+        <span *ngFor="let item of breadcrum; let i = index" (click)="onBreadcrumbClick(item)">
+          {{ item.title }}
+          @if(i < breadcrum.length - 1){
+            <span class="separator">
+              <app-icon [fontIcon]="'chevron_right'"></app-icon>
+            </span>
+          }
+        </span>
+      </div>
+    }
+    @else{
+      <div class="greeting">
+        Good Morning, <b>Dr.Umesh!</b>
+      </div>
+    }
   </div>
   <div class="topbar-center">
     <div class="search-box">

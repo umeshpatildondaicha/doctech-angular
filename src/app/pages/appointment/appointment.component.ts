@@ -13,6 +13,7 @@ import { TimingDialogComponent } from '../timing-dialog/timing-dialog.component'
 import { ChipCellRendererComponent } from '../../tools/chip-cell-renderer/chip-cell-renderer.component';
 import { Mode } from '../../types/mode.type';
 import { AppointmentRescheduleComponent } from '../appointment-reschedule/appointment-reschedule.component';
+import { CustomEventsService } from '../../services/custom-events.service';
 
 interface TimingSlot {
   id: number;
@@ -109,7 +110,20 @@ export class AppointmentComponent implements OnInit {
     ]
   };
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private customEventsService: CustomEventsService
+  ) {
+    this.customEventsService.breadcrumbEvent.emit(
+      {
+        isAppend:false,
+        breadcrum: [{
+          title: 'Appointments',
+          url: '/appointment'
+        }]
+      }
+    );
+  }
 
   ngOnInit() {
     this.initializeTimingGrid();

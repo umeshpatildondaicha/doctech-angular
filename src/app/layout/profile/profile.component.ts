@@ -10,6 +10,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { CustomEventsService } from '../../services/custom-events.service';
 
 @Component({
   selector: 'app-profile',
@@ -56,7 +57,20 @@ export class ProfileComponent {
     'Monday-Friday', 'Weekends', 'Evenings', '24/7 Emergency', 'By Appointment Only'
   ];
 
-  constructor(private fb: FormBuilder, private snackBar: MatSnackBar) {
+  constructor(
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar,
+    private customEventsService: CustomEventsService
+  ) {
+    this.customEventsService.breadcrumbEvent.emit(
+      {
+        isAppend:true,
+        breadcrum: [{
+          title: 'Dr. John Doe',
+          url: '/profile'
+        }]
+      }
+    );
     this.profileForm = this.fb.group({
       // Personal Information
       firstName: ['Dr. John', [Validators.required, Validators.minLength(2)]],

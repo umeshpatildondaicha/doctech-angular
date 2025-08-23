@@ -27,6 +27,7 @@ import { AppButtonComponent } from '../../../tools/app-button/app-button.compone
 import { AppInputComponent } from '../../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../../tools/app-selectbox/app-selectbox.component';
 import { GridComponent } from '../../../tools/grid/grid.component';
+import { CustomEventsService } from '../../../services/custom-events.service';
 
 // Interfaces
 interface CareTimetableItem {
@@ -265,12 +266,10 @@ interface VitalTrend {
     MatExpansionModule,
     ReactiveFormsModule,
     FormsModule,
-    BreadcrumbComponent,
     IconComponent,
     AppButtonComponent,
     AppInputComponent,
-    AppSelectboxComponent,
-    GridComponent
+    AppSelectboxComponent
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss']
@@ -300,6 +299,7 @@ export class PatientProfileComponent implements OnInit {
   // Navigation
   tabs = [
     { id: 'overview', label: 'Overview', icon: 'dashboard', badge: 0 },
+    { id: 'medical-record', label: 'Medical Record', icon: 'medical_information', badge: 0 },
     { id: 'profile', label: 'Profile', icon: 'person', badge: 0 },
     { id: 'vitals', label: 'Vitals', icon: 'favorite', badge: 3 },
     { id: 'medications', label: 'Medications', icon: 'local_pharmacy', badge: 0 },
@@ -778,7 +778,8 @@ export class PatientProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private customEventsService: CustomEventsService
   ) {
     this.editForm = this.fb.group({
       name: ['', Validators.required],
@@ -800,6 +801,18 @@ export class PatientProfileComponent implements OnInit {
       maritalStatus: [''],
       nextOfKin: ['']
     });
+
+    this.customEventsService.breadcrumbEvent.emit(
+      {
+        isAppend:true,
+        breadcrum: [
+          {
+            title: 'John Doe',
+            url: '/patient-profile'
+          }
+        ]
+      }
+    );
   }
 
   ngOnInit(): void {
@@ -1425,16 +1438,7 @@ export class PatientProfileComponent implements OnInit {
     // Implementation for updating chart data
   }
 
-  // UI Methods
-  exportPatientData(): void {
-    console.log('Exporting patient data');
-    // Implementation for exporting patient data
-  }
 
-  toggleFullscreen(): void {
-    this.isFullscreen = !this.isFullscreen;
-    // Implementation for fullscreen toggle
-  }
 
   startRealTimeUpdates(): void {
     // Simulate real-time updates every 30 seconds

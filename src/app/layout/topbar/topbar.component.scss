@@ -17,11 +17,18 @@
   min-width: 180px;
 }
 
-.greeting {
-  font-size: 1.25rem;
-  color: #222;
-  font-weight: 500;
-  letter-spacing: 0.01em;
+.breadcrums {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  
+  span{
+    display: flex;
+    align-items: center;
+  }
 }
 
 .topbar-center {

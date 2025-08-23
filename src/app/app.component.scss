@@ -125,11 +125,6 @@ app-right-sidebar {
 
 /**** App tabs  ****/
 ::ng-deep{
-  .mat-mdc-tab-label-container{
-    padding-top: 0.5em;
-    padding-left: 1em;
-
-  }
   .mat-mdc-tab.mdc-tab--active {
     .mdc-tab__text-label{
       color: var(--secondary-color) !important;
@@ -283,6 +278,9 @@ app-right-sidebar {
       border-radius: 2px;
     }
   }
+  .form-row{
+    margin-bottom: 1em;
+  }
 }
 /**** form section end  ****/
 
@@ -318,3 +316,14 @@ app-right-sidebar {
 }
 
 /**** App pages end  ****/
+
+
+/**** App icons  ****/
+
+::ng-deep{
+  .mat-icon{
+    place-content: center;
+  }
+}
+
+/**** App icons end  ****/

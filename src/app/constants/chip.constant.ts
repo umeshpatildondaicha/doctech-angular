@@ -14,4 +14,6 @@ export const CHIP_COLORS = {
   AB_NEGATIVE: '#f23a3ae6',
   O_POSITIVE: '#ff9800',
   O_NEGATIVE: '#607d8b',
+  true: '#149d14d4',
+  false: '#f23a3ae6',
 };

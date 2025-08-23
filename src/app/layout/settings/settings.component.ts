@@ -5,6 +5,7 @@ import { AppInputComponent } from '../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../tools/app-selectbox/app-selectbox.component';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CustomEventsService } from '../../services/custom-events.service';
 
 @Component({
   selector: 'app-settings',
@@ -39,7 +40,19 @@ export class SettingsComponent {
     { value: 'de', label: 'German' }
   ];
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private customEventsService: CustomEventsService
+  ) {
+    this.customEventsService.breadcrumbEvent.emit(
+      {
+        isAppend:true,
+        breadcrum: [{
+          title: 'Settings',
+          url: '/settings'
+        }]
+      }
+    );
     this.settingsForm = this.fb.group({
       theme: ['light', Validators.required],
       language: ['en', Validators.required],

@@ -16,9 +16,9 @@
 
 // Patient Profile Container
 .patient-profile-container {
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   background: var(--background-color);
-  padding: 24px;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 .mat-mdc-card-header {
@@ -175,7 +175,7 @@
 }
 
 // Page Header - Compact Design
-.page-header {
+.patient-overview {
   position: relative;
   border-radius: 12px;
   margin-bottom: 24px;
@@ -184,7 +184,7 @@
   background: var(--surface-color);
   border: 1px solid var(--border-color);
 
-  .header-background {
+  .patient-overview-background {
     position: absolute;
     top: 0;
     left: 0;
@@ -213,13 +213,12 @@
     }
   }
 
-  .header-content {
+  .patient-overview-content {
     position: relative;
     z-index: 2;
     padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 16px;
 
     // Patient Header - Compact Layout
     .patient-header {
@@ -671,7 +670,7 @@
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
     color: white;
 
-    .header-content {
+    .patient-overview-content {
       .patient-header {
         .patient-name {
           color: white !important;
@@ -1151,7 +1150,8 @@
 
 // Tabs Container
 .tabs-container {
-  margin-bottom: 32px;
+  margin-bottom: 0.5em;
+  height: 5.2em;
 
   ::ng-deep .mat-mdc-tab-group {
     .mat-mdc-tab-header {
@@ -1221,7 +1221,9 @@
 
 // Tab Content
 .tab-content {
-  .overview-tab {
+  height: calc(100% - 5.4em);
+  overflow: auto;
+  .medical-record-tab {
     .metrics-dashboard {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2714,10 +2716,10 @@
     padding: 16px;
   }
 
-  .page-header {
+  .patient-overview {
     padding: 24px;
 
-    .header-content {
+    .patient-overview-content {
       flex-direction: column;
       gap: 24px;
 
@@ -2767,8 +2769,8 @@
 }
 
 @media (max-width: 480px) {
-  .page-header {
-    .header-content {
+  .patient-overview {
+    .patient-overview-content {
       .patient-basic-info {
           .patient-avatar {
             width: 80px;
