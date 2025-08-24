@@ -1,0 +1,166 @@
+<div class="appointment-view-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <div class="header-content">
+      <div class="title-section">
+        <app-icon [fontIcon]="'event'" class="title-icon"></app-icon>
+        <h2 class="title">Appointment Details</h2>
+      </div>
+      <div class="header-actions">
+        <app-button
+          type="button"
+          appearance="basic"
+          [text]="'Reschedule'"
+          (btnClick)="onReschedule()"
+          class="reschedule-btn">
+        </app-button>
+        <app-icon [fontIcon]="'close'" (iconClick)="onClose()"></app-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog Content -->
+  <div class="dialog-content">
+    <!-- Status Banner -->
+    <div class="status-banner" [class]="'status-' + appointment?.status?.toLowerCase()">
+      <app-icon [fontIcon]="getStatusIcon()" class="status-icon"></app-icon>
+      <span class="status-text">{{ appointment?.status | titlecase }}</span>
+    </div>
+
+    <!-- Appointment Info Card -->
+    <div class="appointment-card">
+      <div class="card-header">
+        <h3 class="card-title">Appointment Information</h3>
+      </div>
+      <div class="card-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">
+              <app-icon [fontIcon]="'schedule'" class="info-icon"></app-icon>
+              Date & Time
+            </div>
+            <div class="info-value">{{ formatDateTime(appointment?.appointment_date_time) }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">
+              <app-icon [fontIcon]="'person'" class="info-icon"></app-icon>
+              Patient
+            </div>
+            <div class="info-value">{{ appointment?.patientName }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">
+              <app-icon [fontIcon]="'medical_services'" class="info-icon"></app-icon>
+              Doctor
+            </div>
+            <div class="info-value">{{ appointment?.doctorName }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">
+              <app-icon [fontIcon]="'access_time'" class="info-icon"></app-icon>
+              Duration
+            </div>
+            <div class="info-value">{{ appointment?.slotTime }} (30 min)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Patient Details Card -->
+    <div class="patient-card">
+      <div class="card-header">
+        <h3 class="card-title">Patient Information</h3>
+      </div>
+      <div class="card-content">
+        <div class="patient-profile">
+          <div class="patient-avatar">
+            <app-image [src]="patient?.image || 'assets/default-avatar.png'" [alt]="patient?.name" [width]="80" [height]="80"></app-image>
+          </div>
+          <div class="patient-details">
+            <h4 class="patient-name">{{ patient?.name || appointment?.patientName }}</h4>
+            <div class="patient-info">
+              <span class="patient-age">{{ patient?.age || 'N/A' }} years</span>
+              <span class="patient-gender">{{ patient?.gender || 'N/A' }}</span>
+            </div>
+            <div class="patient-contact">
+              <div class="contact-item">
+                <app-icon [fontIcon]="'phone'" class="contact-icon"></app-icon>
+                {{ patient?.number || 'N/A' }}
+              </div>
+              <div class="contact-item">
+                <app-icon [fontIcon]="'email'" class="contact-icon"></app-icon>
+                {{ patient?.email || 'N/A' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes Card -->
+    <div class="notes-card" *ngIf="appointment?.notes">
+      <div class="card-header">
+        <h3 class="card-title">Notes</h3>
+      </div>
+      <div class="card-content">
+        <p class="notes-text">{{ appointment?.notes }}</p>
+      </div>
+    </div>
+
+    <!-- Timeline Card -->
+    <div class="timeline-card">
+      <div class="card-header">
+        <h3 class="card-title">Appointment Timeline</h3>
+      </div>
+      <div class="card-content">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-icon">
+              <app-icon [fontIcon]="'event_available'" class="timeline-icon-svg"></app-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Appointment Created</div>
+              <div class="timeline-date">{{ formatDateTime(appointment?.created_at) }}</div>
+            </div>
+          </div>
+          <div class="timeline-item" *ngIf="appointment?.updated_at !== appointment?.created_at">
+            <div class="timeline-icon">
+              <app-icon [fontIcon]="'update'" class="timeline-icon-svg"></app-icon>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">Last Updated</div>
+              <div class="timeline-date">{{ formatDateTime(appointment?.updated_at) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog Footer -->
+  <div class="dialog-footer">
+    <div class="footer-actions">
+      <app-button
+        type="button"
+        appearance="basic"
+        [text]="'Edit'"
+        (btnClick)="onEdit()"
+        class="edit-btn">
+      </app-button>
+      <app-button
+        type="button"
+        appearance="basic"
+        [text]="'Cancel Appointment'"
+        (btnClick)="onCancelAppointment()"
+        class="cancel-appointment-btn">
+      </app-button>
+      <app-button
+        type="button"
+        appearance="raised"
+        [text]="'Close'"
+        (btnClick)="onClose()"
+        class="close-btn">
+      </app-button>
+    </div>
+  </div>
+</div>

@@ -13,6 +13,7 @@ import { TimingDialogComponent } from '../timing-dialog/timing-dialog.component'
 import { ChipCellRendererComponent } from '../../tools/chip-cell-renderer/chip-cell-renderer.component';
 import { Mode } from '../../types/mode.type';
 import { AppointmentRescheduleComponent } from '../appointment-reschedule/appointment-reschedule.component';
+import { AppointmentViewComponent } from '../appointment-view/appointment-view.component';
 import { CustomEventsService } from '../../services/custom-events.service';
 
 interface TimingSlot {
@@ -24,6 +25,12 @@ interface TimingSlot {
   appointmentDuration: number;
   breakTime: number;
   created_at: string;
+  schedulingType: 'slots' | 'flexible';
+  slotDuration?: number;
+  maxAppointmentsPerSlot?: number;
+  maxAppointmentsPerDay?: number;
+  availableSlots?: number;
+  flexibleAppointmentsRemaining?: number;
 }
 
 @Component({
@@ -67,7 +74,7 @@ export class AppointmentComponent implements OnInit {
       {
         title: 'View',
         icon: 'visibility',
-        click: (param: any) => this.openDialog('view', param.data)
+        click: (param: any) => this.openViewDialog(param.data)
       },
       {
         title: 'Edit',
@@ -95,7 +102,7 @@ export class AppointmentComponent implements OnInit {
       {
         title: 'View',
         icon: 'visibility',
-        click: (param: any) => this.openDialog('view', param.data)
+        click: (param: any) => this.openViewDialog(param.data)
       },
       {
         title: 'Approve',
@@ -150,6 +157,16 @@ export class AppointmentComponent implements OnInit {
         cellRenderer: ChipCellRendererComponent
       },
       {
+        headerName: 'Scheduling Type',
+        field: 'schedulingType',
+        width: 150,
+        sortable: true,
+        filter: true,
+        valueFormatter: (params: any) => {
+          return params.value === 'slots' ? 'Fixed Time Slots' : 'Flexible Time';
+        }
+      },
+      {
         headerName: 'Day',
         field: 'dayOfWeek',
         width: 120,
@@ -185,6 +202,21 @@ export class AppointmentComponent implements OnInit {
         filter: true
       },
       {
+        headerName: 'Capacity',
+        field: 'capacity',
+        width: 120,
+        sortable: true,
+        filter: true,
+        valueFormatter: (params: any) => {
+          const data = params.data;
+          if (data.schedulingType === 'slots') {
+            return `${data.availableSlots || 0} slots`;
+          } else {
+            return `${data.flexibleAppointmentsRemaining || 0} remaining`;
+          }
+        }
+      },
+      {
         headerName: 'Created',
         field: 'created_at',
         width: 150,
@@ -207,7 +239,11 @@ export class AppointmentComponent implements OnInit {
         isActive: true,
         appointmentDuration: 30,
         breakTime: 10,
-        created_at: '2024-01-01T00:00:00'
+        created_at: '2024-01-01T00:00:00',
+        schedulingType: 'slots',
+        slotDuration: 30,
+        maxAppointmentsPerSlot: 1,
+        availableSlots: 16
       },
       {
         id: 2,
@@ -217,7 +253,10 @@ export class AppointmentComponent implements OnInit {
         isActive: true,
         appointmentDuration: 30,
         breakTime: 10,
-        created_at: '2024-01-01T00:00:00'
+        created_at: '2024-01-01T00:00:00',
+        schedulingType: 'flexible',
+        maxAppointmentsPerDay: 20,
+        flexibleAppointmentsRemaining: 15
       },
       {
         id: 3,
@@ -227,7 +266,11 @@ export class AppointmentComponent implements OnInit {
         isActive: false,
         appointmentDuration: 30,
         breakTime: 10,
-        created_at: '2024-01-01T00:00:00'
+        created_at: '2024-01-01T00:00:00',
+        schedulingType: 'slots',
+        slotDuration: 45,
+        maxAppointmentsPerSlot: 2,
+        availableSlots: 10
       }
     ];
   }
@@ -238,7 +281,7 @@ export class AppointmentComponent implements OnInit {
 
   onAddTiming(mode: Mode, data?: TimingSlot) {
     const dialogRef = this.dialog.open(TimingDialogComponent, {
-      data: { mode, data },
+      data: { mode, timing: data },
       width: '60%',
       autoFocus: false
     });
@@ -246,14 +289,20 @@ export class AppointmentComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         // Add new timing slot
-        const newTiming = {
+        const newTiming: TimingSlot = {
           ...result,
           id: this.timingSlots.length + 1,
           dayOfWeek: this.getDayFromTiming(result),
           startTime: this.formatTime(result.startTime),
           endTime: this.formatTime(result.endTime),
           isActive: true,
-          created_at: new Date().toISOString()
+          created_at: new Date().toISOString(),
+          schedulingType: result.schedulingType || 'slots',
+          slotDuration: result.slotDuration,
+          maxAppointmentsPerSlot: result.maxAppointmentsPerSlot,
+          maxAppointmentsPerDay: result.maxAppointmentsPerDay,
+          availableSlots: result.availableSlots,
+          flexibleAppointmentsRemaining: result.maxAppointmentsPerDay
         };
         this.timingSlots = [...this.timingSlots, newTiming];
       }
@@ -298,54 +347,48 @@ export class AppointmentComponent implements OnInit {
       {
         headerName: 'Status',
         field: 'status',
-        width: 140,
+        width: 120,
         sortable: true,
         filter: true,
         cellRenderer: ChipCellRendererComponent
       },
       {
-        headerName: 'Patient',
+        headerName: 'Patient Name',
         field: 'patientName',
         width: 150,
         sortable: true,
         filter: true
       },
       {
-        headerName: 'Doctor',
+        headerName: 'Doctor Name',
         field: 'doctorName',
         width: 150,
         sortable: true,
         filter: true
       },
       {
-        headerName: 'Date & Time',
+        headerName: 'Appointment Date',
         field: 'appointment_date_time',
-        width: 180,
-        sortable: true,
-        filter: true,
-        valueFormatter: (params: any) => {
-          return new Date(params.value).toLocaleString();
-        }
-      },
-      {
-        headerName: 'Notes',
-        field: 'notes',
-        width: 200,
-        sortable: true,
-        filter: true,
-        cellRenderer: (params: any) => {
-          return params.value ? params.value.substring(0, 50) + (params.value.length > 50 ? '...' : '') : '';
-        }
-      },
-      {
-        headerName: 'Created',
-        field: 'created_at',
         width: 150,
         sortable: true,
         filter: true,
         valueFormatter: (params: any) => {
           return new Date(params.value).toLocaleDateString();
         }
+      },
+      {
+        headerName: 'Slot Time',
+        field: 'slotTime',
+        width: 120,
+        sortable: true,
+        filter: true
+      },
+      {
+        headerName: 'Notes',
+        field: 'notes',
+        width: 200,
+        sortable: true,
+        filter: true
       }
     ];
   }
@@ -369,7 +412,7 @@ export class AppointmentComponent implements OnInit {
       {
         appointment_id: 2,
         patient_id: 2,
-        appointment_date_time: '2024-01-16T10:00:00',
+        appointment_date_time: '2024-01-15T10:00:00',
         notes: 'Follow-up consultation',
         created_at: '2024-01-11T11:00:00',
         updated_at: '2024-01-11T11:00:00',
@@ -383,13 +426,13 @@ export class AppointmentComponent implements OnInit {
       {
         appointment_id: 3,
         patient_id: 3,
-        appointment_date_time: '2024-01-17T11:00:00',
+        appointment_date_time: '2024-01-15T11:00:00',
         notes: 'Emergency consultation',
         created_at: '2024-01-12T09:00:00',
         updated_at: '2024-01-12T09:00:00',
         doctor_id: 1,
         slot_id: 3,
-        status: 'CANCELED',
+        status: 'PENDING',
         patientName: 'Mike Johnson',
         doctorName: 'Dr. Chetan',
         slotTime: '11:00 AM'
@@ -401,171 +444,144 @@ export class AppointmentComponent implements OnInit {
     console.log('Appointment row clicked:', event.data);
   }
 
+  openDialog(mode: Mode, data?: Appointment) {
+    const dialogRef = this.dialog.open(AppointmentCreateComponent, {
+      data: { mode, appointment: data },
+      width: '60%',
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Handle appointment creation/update
+        this.loadAppointmentData();
+      }
+    });
+  }
+
+  openViewDialog(appointment: Appointment) {
+    const dialogRef = this.dialog.open(AppointmentViewComponent, {
+      data: { appointment },
+      width: '50%',
+      autoFocus: false
+    });
+  }
+
+  openRescheduleDialog(appointment: Appointment) {
+    const dialogRef = this.dialog.open(AppointmentRescheduleComponent, {
+      data: { appointment },
+      width: '50%',
+      autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Handle rescheduling
+        this.loadAppointmentData();
+      }
+    });
+  }
+
+  deleteAppointment(appointment: Appointment) {
+    if (confirm(`Are you sure you want to delete appointment for ${appointment.patientName}?`)) {
+      this.allAppointments = this.allAppointments.filter(item => item.appointment_id !== appointment.appointment_id);
+    }
+  }
+
+  approveAppointment(appointment: Appointment) {
+    // Handle appointment approval
+    console.log('Approving appointment:', appointment);
+  }
+
+  rejectAppointment(appointment: Appointment) {
+    // Handle appointment rejection
+    console.log('Rejecting appointment:', appointment);
+  }
+
   // Pending appointments methods
   initializePendingGrid() {
     this.pendingColumns = [
       {
-        headerName: 'Patient',
+        headerName: 'Status',
+        field: 'status',
+        width: 120,
+        sortable: true,
+        filter: true,
+        cellRenderer: ChipCellRendererComponent
+      },
+      {
+        headerName: 'Patient Name',
         field: 'patientName',
         width: 150,
         sortable: true,
         filter: true
       },
       {
-        headerName: 'Doctor',
+        headerName: 'Doctor Name',
         field: 'doctorName',
         width: 150,
         sortable: true,
         filter: true
       },
       {
-        headerName: 'Requested Date',
+        headerName: 'Appointment Date',
         field: 'appointment_date_time',
-        width: 180,
-        sortable: true,
-        filter: true,
-        valueFormatter: (params: any) => {
-          return new Date(params.value).toLocaleString();
-        }
-      },
-      {
-        headerName: 'Reason',
-        field: 'notes',
-        width: 200,
-        sortable: true,
-        filter: true,
-        cellRenderer: (params: any) => {
-          return params.value ? params.value.substring(0, 50) + (params.value.length > 50 ? '...' : '') : '';
-        }
-      },
-      {
-        headerName: 'Requested On',
-        field: 'created_at',
         width: 150,
         sortable: true,
         filter: true,
         valueFormatter: (params: any) => {
           return new Date(params.value).toLocaleDateString();
         }
+      },
+      {
+        headerName: 'Slot Time',
+        field: 'slotTime',
+        width: 120,
+        sortable: true,
+        filter: true
+      },
+      {
+        headerName: 'Notes',
+        field: 'notes',
+        width: 200,
+        sortable: true,
+        filter: true
       }
     ];
   }
 
   loadPendingData() {
-    this.pendingAppointments = [
-      {
-        appointment_id: 4,
-        patient_id: 4,
-        appointment_date_time: '2024-01-20T14:00:00',
-        notes: 'New patient consultation request',
-        created_at: '2024-01-13T15:00:00',
-        updated_at: '2024-01-13T15:00:00',
-        doctor_id: 1,
-        slot_id: 4,
-        status: 'PENDING',
-        patientName: 'Alice Brown',
-        doctorName: 'Dr. Chetan',
-        slotTime: '02:00 PM'
-      },
-      {
-        appointment_id: 5,
-        patient_id: 5,
-        appointment_date_time: '2024-01-21T16:00:00',
-        notes: 'Follow-up appointment request',
-        created_at: '2024-01-14T10:00:00',
-        updated_at: '2024-01-14T10:00:00',
-        doctor_id: 2,
-        slot_id: 5,
-        status: 'PENDING',
-        patientName: 'Bob Wilson',
-        doctorName: 'Dr. Sarah',
-        slotTime: '04:00 PM'
-      }
-    ];
+    this.pendingAppointments = this.allAppointments.filter(appointment => appointment.status === 'PENDING');
   }
 
   onPendingRowClick(event: any) {
     console.log('Pending appointment row clicked:', event.data);
   }
 
-  refreshPending() {
-    console.log('Refreshing pending appointments');
-    this.loadPendingData();
+  // Helper methods for scheduling types
+  getSchedulingTypeLabel(schedulingType: string): string {
+    return schedulingType === 'slots' ? 'Fixed Time Slots' : 'Flexible Time';
   }
 
-  approveAppointment(appointment: Appointment) {
-    if (confirm(`Approve appointment for ${appointment.patientName}?`)) {
-      // Move from pending to all appointments
-      const approvedAppointment:any = { ...appointment, status: 'SCHEDULED' };
-      this.allAppointments = [...this.allAppointments, approvedAppointment];
-      this.pendingAppointments = this.pendingAppointments.filter(item => item.appointment_id !== appointment.appointment_id);
+  getSchedulingTypeIcon(schedulingType: string): string {
+    return schedulingType === 'slots' ? 'schedule' : 'access_time';
+  }
+
+  getCapacityInfo(timingSlot: TimingSlot): string {
+    if (timingSlot.schedulingType === 'slots') {
+      return `${timingSlot.availableSlots || 0} available slots`;
+    } else {
+      return `${timingSlot.flexibleAppointmentsRemaining || 0} appointments remaining`;
     }
   }
 
-  rejectAppointment(appointment: Appointment) {
-    if (confirm(`Reject appointment for ${appointment.patientName}?`)) {
-      this.pendingAppointments = this.pendingAppointments.filter(item => item.appointment_id !== appointment.appointment_id);
-    }
-  }
-
-  // Original methods
-  openDialog(mode: Mode, appointment?: Appointment) {
-    const dialogRef = this.dialog.open(AppointmentCreateComponent, {
-      data: { mode, appointment },
-      width: '80%',
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result && mode !== 'view') {
-        if (mode === 'create') {
-          // Add new appointment
-          const newAppointment = {
-            ...result,
-            appointment_id: this.allAppointments.length + 1,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          this.allAppointments = [...this.allAppointments, newAppointment];
-        } else if (mode === 'edit') {
-          // Update existing appointment
-          this.allAppointments = this.allAppointments.map(item => 
-            item.appointment_id === appointment?.appointment_id 
-              ? { ...item, ...result, updated_at: new Date().toISOString() }
-              : item
-          );
-        }
-      }
-    });
-  }
-  openRescheduleDialog(appointment?: Appointment) {
-    const dialogRef = this.dialog.open(AppointmentRescheduleComponent, {
-      data: { appointment },
-      width: '80%',
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-          // Add new appointment
-          const newAppointment = {
-            ...result,
-            appointment_id: this.allAppointments.length + 1,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          };
-          this.allAppointments = [...this.allAppointments, newAppointment];
-      }
-    });
-  }
-
+  // Add missing methods referenced in template
   createAppointment() {
     this.openDialog('create');
   }
 
-  deleteAppointment(appointment: Appointment) {
-    if (confirm(`Are you sure you want to delete appointment ${appointment.appointment_id}?`)) {
-      this.allAppointments = this.allAppointments.filter(item => item.appointment_id !== appointment.appointment_id);
-    }
+  refreshPending() {
+    console.log('Refreshing pending appointments');
+    this.loadPendingData();
   }
 }

@@ -34,6 +34,7 @@ import { DietPlanViewComponent } from './pages/diet-plan-view/diet-plan-view.com
 import { DietPlanCreateComponent } from './pages/diet-plan-create/diet-plan-create.component';
 import { DoctorCreateComponent } from './pages/docter-create/doctor-create.component';
 import { PatientCreateComponent } from './pages/patient-create/patient-create.component';
+import { ScheduleComponent } from './pages/schedule/schedule.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 
@@ -42,6 +43,7 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },
+  { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuard] },
   { path: 'doctor', component: DoctorComponent, canActivate: [AuthGuard] },
   { path: 'patient', component: PatientComponent, canActivate: [AuthGuard] },
   { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard] },

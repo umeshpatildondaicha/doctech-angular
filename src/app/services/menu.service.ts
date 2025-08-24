@@ -25,6 +25,13 @@ export class MenuService {
       userTypes: ['doctor']
     },
     { 
+      label: 'Schedule', 
+      icon: 'schedule', 
+      route: '/schedule', 
+      section: 'main',
+      userTypes: ['doctor']
+    },
+    { 
       label: 'Patients', 
       icon: 'groups', 
       route: '/patient', 

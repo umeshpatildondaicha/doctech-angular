@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Appointment } from '../../interfaces/appointment.interface';
@@ -8,6 +8,13 @@ import { IconComponent } from '../../tools/app-icon/icon.component';
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CalendarComponent, ImageComponent } from "../../tools";
+
+interface TimeSlot {
+  id: number;
+  time: string;
+  available: boolean;
+  hasConflict: boolean;
+}
 
 @Component({
   selector: 'app-appointment-reschedule',
@@ -24,67 +31,161 @@ import { CalendarComponent, ImageComponent } from "../../tools";
     ReactiveFormsModule,
     MatFormFieldModule,
     CalendarComponent
-]
+  ]
 })
-export class AppointmentRescheduleComponent {
-  appointmentForm: FormGroup;
+export class AppointmentRescheduleComponent implements OnInit {
+  rescheduleForm: FormGroup;
   submitButtonText: string = 'Reschedule Appointment';
-  statusOptions = [
-    { value: 'scheduled', label: 'Scheduled' },
-    { value: 'canceled', label: 'Canceled' },
-    { value: 'completed', label: 'Completed' }
-  ];
-
-  patient: any = {
-    name: 'John Doe',
-    age: 25,
-    gender: 'Male',
-    address: '123 Main St, Anytown, USA',
-    number: '9876543210',
-    image: 'assets/user.svg'
-  };
-  // Mock data for dropdowns - in real app, these would come from services
-  patientOptions = [
-    { value: 1, label: 'John Doe' },
-    { value: 2, label: 'Jane Smith' },
-    { value: 3, label: 'Mike Johnson' }
-  ];
-
-  doctorOptions = [
-    { value: 1, label: 'Dr. Chetan' },
-    { value: 2, label: 'Dr. Sarah' },
-    { value: 3, label: 'Dr. Michael' }
-  ];
-
-  slotOptions = [
-    { value: 1, label: '09:00 AM' },
-    { value: 2, label: '10:00 AM' },
-    { value: 3, label: '11:00 AM' },
-    { value: 4, label: '02:00 PM' },
-    { value: 5, label: '03:00 PM' }
-  ];
+  appointment: Appointment | undefined;
+  
+  selectedDate: Date | null = null;
+  selectedTimeSlot: TimeSlot | null = null;
+  availableTimeSlots: TimeSlot[] = [];
+  hasConflict: boolean = false;
+  
+  calendarEvents: any[] = [];
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<AppointmentRescheduleComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {appointment?: Appointment }
+    @Inject(MAT_DIALOG_DATA) public data: { appointment?: Appointment }
   ) {
-    this.appointmentForm = this.fb.group({
-      patient_id: [data?.appointment?.patient_id || '', Validators.required],
-      appointment_date_time: [data?.appointment?.appointment_date_time || '', Validators.required],
-      notes: [data?.appointment?.notes || ''],
-      doctor_id: [data?.appointment?.doctor_id || '', Validators.required],
-      slot_id: [data?.appointment?.slot_id || '', Validators.required],
-      status: [data?.appointment?.status || 'scheduled', Validators.required]
+    this.appointment = data?.appointment;
+    this.rescheduleForm = this.fb.group({
+      rescheduleReason: [''],
+      newDateTime: [null, Validators.required]
     });
-
   }
 
+  ngOnInit() {
+    this.loadCalendarEvents();
+  }
+
+  loadCalendarEvents() {
+    // Mock calendar events - in real app, this would come from a service
+    this.calendarEvents = [
+      {
+        date: new Date(2024, 0, 15),
+        title: 'Appointment',
+        color: '#667eea'
+      },
+      {
+        date: new Date(2024, 0, 16),
+        title: 'Appointment',
+        color: '#667eea'
+      }
+    ];
+  }
+
+  onDateSelected(date: Date) {
+    this.selectedDate = date;
+    this.selectedTimeSlot = null;
+    this.loadTimeSlotsForDate(date);
+  }
+
+  onEventClicked(event: any) {
+    console.log('Calendar event clicked:', event);
+  }
+
+  loadTimeSlotsForDate(date: Date) {
+    // Mock time slots - in real app, this would come from a service
+    const baseSlots: TimeSlot[] = [
+      { id: 1, time: '09:00 AM', available: true, hasConflict: false },
+      { id: 2, time: '10:00 AM', available: true, hasConflict: false },
+      { id: 3, time: '11:00 AM', available: true, hasConflict: false },
+      { id: 4, time: '02:00 PM', available: true, hasConflict: false },
+      { id: 5, time: '03:00 PM', available: true, hasConflict: false },
+      { id: 6, time: '04:00 PM', available: true, hasConflict: false }
+    ];
+
+    // Simulate conflicts for demonstration
+    if (date.getDate() === 15) {
+      baseSlots[1].hasConflict = true;
+      baseSlots[3].hasConflict = true;
+    }
+
+    this.availableTimeSlots = baseSlots;
+  }
+
+  selectTimeSlot(slot: TimeSlot) {
+    this.selectedTimeSlot = slot;
+    this.hasConflict = slot.hasConflict;
+    
+    if (this.selectedDate && slot) {
+      const newDateTime = this.combineDateAndTime(this.selectedDate, slot.time);
+      this.rescheduleForm.patchValue({
+        newDateTime: newDateTime
+      });
+    }
+  }
+
+  combineDateAndTime(date: Date, timeString: string): Date {
+    const [time, period] = timeString.split(' ');
+    const [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+    
+    if (period === 'PM' && hour !== 12) {
+      hour += 12;
+    } else if (period === 'AM' && hour === 12) {
+      hour = 0;
+    }
+    
+    const newDate = new Date(date);
+    newDate.setHours(hour, parseInt(minutes), 0, 0);
+    return newDate;
+  }
+
+  formatDateTime(dateTime: string | undefined): string {
+    if (!dateTime) return 'N/A';
+    return new Date(dateTime).toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  formatDate(date: Date): string {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  formatNewDateTime(): string {
+    if (!this.selectedDate || !this.selectedTimeSlot) return 'N/A';
+    const newDateTime = this.combineDateAndTime(this.selectedDate, this.selectedTimeSlot.time);
+    return newDateTime.toLocaleString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  canSubmit(): boolean {
+    return this.selectedDate !== null && 
+           this.selectedTimeSlot !== null && 
+           this.rescheduleForm.valid;
+  }
 
   onSubmit() {
-      this.dialogRef.close();
-      return;
-    
+    if (this.canSubmit()) {
+      const result = {
+        originalAppointment: this.appointment,
+        newDateTime: this.rescheduleForm.get('newDateTime')?.value,
+        rescheduleReason: this.rescheduleForm.get('rescheduleReason')?.value,
+        hasConflict: this.hasConflict
+      };
+      
+      this.dialogRef.close(result);
+    }
   }
 
   onCancel() {
