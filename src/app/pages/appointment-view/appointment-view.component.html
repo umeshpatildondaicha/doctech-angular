@@ -9,7 +9,7 @@
       <div class="header-actions">
         <app-button
           type="button"
-          appearance="basic"
+          [appearance]="'stroked'"
           [text]="'Reschedule'"
           (btnClick)="onReschedule()"
           class="reschedule-btn">

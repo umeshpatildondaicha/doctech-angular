@@ -17,7 +17,7 @@
       <div class="form-row">
           <app-selectbox label="Patient" formControlName="patient_id" [options]="patientOptions" placeholder="Select patient" [required]="true" [displayExpr]="'label'"></app-selectbox>
         </div>
-      <div class="form-row">
+      <div class="form-row calendar-container-wrapper">
         <!-- <app-date-picker label="Appointment Date & Time" formControlName="appointment_date_time" placeholder="Select date and time" [required]="true"></app-date-picker> -->
         <app-calendar 
           class="calendar-container" 
