@@ -1,0 +1,65 @@
+<h2 mat-dialog-title>Manage Fees & Payment Options</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="grid">
+      <app-input
+        label="Regular Consultation Fee ($)"
+        placeholder="Enter consultation fee"
+        type="number"
+        formControlName="consultationFee"
+        class="form-field">
+      </app-input>
+
+      <app-input
+        label="Follow-up Fee ($)"
+        placeholder="Enter follow-up fee"
+        type="number"
+        formControlName="followUpFee"
+        class="form-field">
+      </app-input>
+
+      <app-input
+        label="Emergency Fee ($)"
+        placeholder="Enter emergency fee"
+        type="number"
+        formControlName="emergencyFee"
+        class="form-field">
+      </app-input>
+
+      <app-input
+        label="Online Consultation Fee ($)"
+        placeholder="Enter online consultation fee"
+        type="number"
+        formControlName="onlineConsultationFee"
+        class="form-field">
+      </app-input>
+    </div>
+
+    <div class="section">
+      <mat-checkbox formControlName="insuranceAccepted">Accept Insurance</mat-checkbox>
+    </div>
+
+    <div class="section">
+      <label class="form-label">Payment Methods</label>
+      <div class="methods">
+        <button type="button"
+                class="method-chip"
+                [class.selected]="isPaymentSelected(option)"
+                *ngFor="let option of paymentOptions"
+                (click)="togglePaymentMethod(option)">
+          <mat-icon *ngIf="isPaymentSelected(option)">check</mat-icon>
+          <span>{{ option }}</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
+  
+</div>
+
+

@@ -1,26 +1,30 @@
 <div class="appointment-container">
 
+  <!-- My Schedule Button Section -->
+  <div class="my-schedule-section">
+    <div class="schedule-header">
+      <div class="schedule-info">
+        <h2>My Schedule</h2>
+        <p>Manage your appointment timings and availability</p>
+      </div>
+      <div class="schedule-actions">
+        <app-button 
+          [color]="'primary'" 
+          [appearance]="'raised'"
+          (btnClick)="navigateToMySchedule()"
+        >
+          <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="'schedule'"></app-icon>
+          Manage My Schedule
+        </app-button>
+      </div>
+    </div>
+  </div>
+
   <mat-tab-group 
     [selectedIndex]="selectedTabIndex"
     (selectedIndexChange)="onTabChange($event)"
     class="appointment-tabs"
   >
-    <!-- Create and List Timing Tab -->
-    <mat-tab label="My Schedule">
-      <div class="tab-content">
-        
-        <app-grid
-          [rowData]="timingSlots"
-          [columnDefs]="timingColumns"
-          [gridOptions]="timingGridOptions"
-          [height]="'500px'"
-          [showHeader]="true"
-          [rightTooltemplateRef]="rightTooltemplateTiming"
-          [searchPlaceholder]="'Search timing slots...'"
-          (rowClicked)="onTimingRowClick($event)"
-        ></app-grid>
-      </div>
-    </mat-tab>
 
     <!-- Show All Appointments Tab -->
     <mat-tab label="Show all appointments">
@@ -58,11 +62,7 @@
   </mat-tab-group>
 </div>
 
-<ng-template #rightTooltemplateTiming>
-    <div class="grid-actions">
-        <app-icon [fontSet]="'material-icons-outlined'" [isCovered]="true" [fontIcon]="'add'" (click)="onAddTiming('create')"></app-icon>
-    </div>
-</ng-template>
+
 
 <ng-template #rightTooltemplateAppointment>
     <div class="grid-actions">

@@ -95,4 +95,10 @@ export class AppInputComponent implements ControlValueAccessor {
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
   }
+
+  // Handle form control value changes
+  onFormControlChange(value: any): void {
+    this.value = value;
+    this.onChange(value);
+  }
 }

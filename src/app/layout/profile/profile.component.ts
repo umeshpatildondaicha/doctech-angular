@@ -10,6 +10,14 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { GridComponent } from '../../tools/grid/grid.component';
+import { ColDef, GridOptions } from 'ag-grid-community';
+import { PricingDialogComponent, PricingDialogData } from './pricing-dialog/pricing-dialog.component';
+import { PricingItemDialogComponent, PricingItemData } from './pricing-item-dialog/pricing-item-dialog.component';
 import { CustomEventsService } from '../../services/custom-events.service';
 
 @Component({
@@ -24,6 +32,11 @@ import { CustomEventsService } from '../../services/custom-events.service';
     MatChipsModule,
     MatCheckboxModule,
     MatExpansionModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatDialogModule,
+    MatIconModule,
+    GridComponent,
     AppButtonComponent,
     AppInputComponent,
     AppSelectboxComponent,
@@ -36,6 +49,109 @@ export class ProfileComponent {
   profileForm: FormGroup;
   isEditing = false;
   selectedTab = 0;
+  profileCompletion = 0;
+  pricingItems: PricingItemData[] = [
+    { name: 'General Consultation', category: 'Consultation', unit: 'Flat', price: 150, followUpNeeded: true, followUps: [{ day: 7, price: 100 }] },
+    { name: 'Emergency Visit', category: 'Emergency', unit: 'Flat', price: 200, followUpNeeded: false, followUps: [] },
+    { name: 'Dressing', category: 'Dressing', unit: 'Per cm', price: 15, followUpNeeded: false, followUps: [] }
+  ];
+
+  // Grid Configuration
+  pricingColumnDefs: ColDef[] = [
+    {
+      headerName: 'Service Name',
+      field: 'name',
+      flex: 2,
+      minWidth: 200,
+      cellRenderer: (params: any) => {
+        return `<div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">💰</span>
+          <div>
+            <div style="font-weight: 700; color: #1e293b;">${params.value}</div>
+            <div style="font-size: 12px; color: #64748b;">${params.data.category}</div>
+          </div>
+        </div>`;
+      }
+    },
+    {
+      headerName: 'Category',
+      field: 'category',
+      flex: 1,
+      minWidth: 120,
+      cellRenderer: (params: any) => {
+        return `<span style="display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; background: #f59e0b; color: white; font-size: 12px; font-weight: 600;">${params.value}</span>`;
+      }
+    },
+    {
+      headerName: 'Unit',
+      field: 'unit',
+      flex: 1,
+      minWidth: 100,
+      cellRenderer: (params: any) => {
+        return `<span style="display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; background: #06b6d4; color: white; font-size: 12px; font-weight: 600;">${params.value}</span>`;
+      }
+    },
+    {
+      headerName: 'Base Price',
+      field: 'price',
+      flex: 1,
+      minWidth: 120,
+      cellRenderer: (params: any) => {
+        return `<span style="display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 20px; background: #10b981; color: white; font-size: 14px; font-weight: 700;">₹ ${params.value}</span>`;
+      }
+    },
+    {
+      headerName: 'Follow-ups',
+      field: 'followUps',
+      flex: 1.5,
+      minWidth: 150,
+      cellRenderer: (params: any) => {
+        if (!params.data.followUpNeeded || !params.value?.length) {
+          return '<span style="font-size: 11px; color: #64748b; font-style: italic;">No follow-ups</span>';
+        }
+        const followups = params.value.map((f: any) => 
+          `<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; font-weight: 500;">
+            <span style="background: #10b3b3; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 600;">Day ${f.day}</span>
+            <span style="color: #10b981; font-weight: 600;">₹ ${f.price}</span>
+          </div>`
+        ).join('');
+        return followups;
+      }
+    },
+    {
+      headerName: 'Actions',
+      flex: 0.5,
+      minWidth: 80,
+      sortable: false,
+      filter: false,
+      cellRenderer: 'gridMenu'
+    }
+  ];
+
+  pricingGridOptions: any = {
+    suppressMenuHide: true,
+    suppressRowClickSelection: true,
+    rowHeight: 60,
+    headerHeight: 50,
+    suppressColumnVirtualisation: false,
+    suppressRowVirtualisation: false,
+    suppressSizeToFit: false,
+    suppressAutoSize: false,
+    domLayout: 'autoHeight',
+    suppressHorizontalScroll: true,
+    menuActions: [
+      {
+        title: 'Edit',
+        icon: 'edit',
+        click: (param: any) => this.addOrEditPricingItem(param.data, param.rowIndex)
+      },
+      {
+        title: 'Delete',
+        icon: 'delete',
+        click: (param: any) => this.deletePricingItem(param.rowIndex)
+      }
+    ]
+  };
 
   // Available options for dropdowns
   specializations = [
@@ -57,10 +173,28 @@ export class ProfileComponent {
     'Monday-Friday', 'Weekends', 'Evenings', '24/7 Emergency', 'By Appointment Only'
   ];
 
+  // Tab configuration
+  tabs = [
+    { label: 'Personal Info', icon: 'person_outline', description: 'Basic information and about me' },
+    { label: 'Professional', icon: 'medical_services', description: 'Medical credentials and practice' },
+    { label: 'Work & Availability', icon: 'business', description: 'Affiliations and schedule' },
+    { label: 'Financial', icon: 'attach_money', description: 'Fees and payment methods' },
+    { label: 'Settings', icon: 'settings', description: 'Security and preferences' }
+  ];
+
+  // Quick stats
+  quickStats = [
+    { label: 'Patients Seen', value: '1,247', icon: 'people', color: 'primary' },
+    { label: 'Years Experience', value: '15', icon: 'schedule', color: 'accent' },
+    { label: 'Languages', value: '3', icon: 'language', color: 'warn' },
+    { label: 'Rating', value: '4.8/5', icon: 'star', color: 'primary' }
+  ];
+
   constructor(
     private fb: FormBuilder,
     private snackBar: MatSnackBar,
-    private customEventsService: CustomEventsService
+    private customEventsService: CustomEventsService,
+    private dialog: MatDialog
   ) {
     this.customEventsService.breadcrumbEvent.emit(
       {
@@ -77,6 +211,7 @@ export class ProfileComponent {
       lastName: ['Doe', [Validators.required, Validators.minLength(2)]],
       email: ['john.doe@shreeclinic.com', [Validators.required, Validators.email]],
       phone: ['+1 (555) 123-4567', [Validators.required]],
+      personalPhone: ['+1 (555) 987-6543'],
       dateOfBirth: ['1980-05-15'],
       gender: ['Male'],
       
@@ -137,6 +272,35 @@ export class ProfileComponent {
       outlookCalendarSync: [false],
       autoScheduleAppointments: [true]
     });
+
+    this.calculateProfileCompletion();
+  }
+
+  ngOnInit() {
+    // Listen to form changes to update completion percentage
+    this.profileForm.valueChanges.subscribe(() => {
+      this.calculateProfileCompletion();
+    });
+  }
+
+  calculateProfileCompletion() {
+    const totalFields = Object.keys(this.profileForm.controls).length;
+    let completedFields = 0;
+
+    Object.keys(this.profileForm.controls).forEach(key => {
+      const control = this.profileForm.get(key);
+      if (control?.value && control?.value !== '' && control?.value !== null) {
+        if (Array.isArray(control.value)) {
+          if (control.value.length > 0) {
+            completedFields++;
+          }
+        } else {
+          completedFields++;
+        }
+      }
+    });
+
+    this.profileCompletion = Math.round((completedFields / totalFields) * 100);
   }
 
   onEdit() {
@@ -170,6 +334,7 @@ export class ProfileComponent {
       lastName: 'Doe',
       email: 'john.doe@shreeclinic.com',
       phone: '+1 (555) 123-4567',
+      personalPhone: '+1 (555) 987-6543',
       specialization: 'General Medicine',
       licenseNumber: 'MD123456',
       experience: '15',
@@ -216,6 +381,73 @@ export class ProfileComponent {
     });
   }
 
+  getTabIcon(tabIndex: number): string {
+    return this.tabs[tabIndex]?.icon || 'info';
+  }
+
+  getTabDescription(tabIndex: number): string {
+    return this.tabs[tabIndex]?.description || '';
+  }
+
+  getProfileCompletionColor(): string {
+    if (this.profileCompletion >= 80) return 'primary';
+    if (this.profileCompletion >= 60) return 'accent';
+    if (this.profileCompletion >= 40) return 'warn';
+    return 'warn';
+  }
+
+  openPricingDialog() {
+    const data: PricingDialogData = {
+      consultationFee: this.profileForm.get('consultationFee')?.value,
+      followUpFee: this.profileForm.get('followUpFee')?.value,
+      emergencyFee: this.profileForm.get('emergencyFee')?.value,
+      onlineConsultationFee: this.profileForm.get('onlineConsultationFee')?.value,
+      insuranceAccepted: this.profileForm.get('insuranceAccepted')?.value,
+      paymentMethods: this.profileForm.get('paymentMethods')?.value || []
+    };
+
+    const ref = this.dialog.open(PricingDialogComponent, {
+      width: '640px',
+      data
+    });
+
+    ref.afterClosed().subscribe((result) => {
+      if (!result) return;
+      this.profileForm.patchValue({
+        consultationFee: result.consultationFee,
+        followUpFee: result.followUpFee,
+        emergencyFee: result.emergencyFee,
+        onlineConsultationFee: result.onlineConsultationFee,
+        insuranceAccepted: result.insuranceAccepted,
+        paymentMethods: result.paymentMethods
+      });
+      this.snackBar.open('Pricing updated', 'Close', { duration: 2500 });
+    });
+  }
+
+  addOrEditPricingItem(item?: PricingItemData, index?: number) {
+    const ref = this.dialog.open(PricingItemDialogComponent, {
+      width: '640px',
+      data: item ? { ...item } : undefined
+    });
+    ref.afterClosed().subscribe((result: PricingItemData | undefined) => {
+      if (!result) return;
+      if (typeof index === 'number') {
+        this.pricingItems[index] = result;
+        this.pricingItems = [...this.pricingItems];
+      } else {
+        this.pricingItems = [result, ...this.pricingItems];
+      }
+      this.snackBar.open('Pricing item saved', 'Close', { duration: 2000 });
+    });
+  }
+
+  deletePricingItem(index: number) {
+    this.pricingItems.splice(index, 1);
+    this.pricingItems = [...this.pricingItems];
+    this.snackBar.open('Pricing item deleted', 'Close', { duration: 1500 });
+  }
+
   private markFormGroupTouched() {
     Object.keys(this.profileForm.controls).forEach(key => {
       const control = this.profileForm.get(key);
@@ -249,5 +481,119 @@ export class ProfileComponent {
       }
     }
     return '';
+  }
+
+  addDiscount() {
+    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
+    const newDiscount = {
+      type: '',
+      percentage: 0,
+      validUntil: '',
+      minAge: 0,
+      validDays: []
+    };
+    this.profileForm.patchValue({
+      discounts: [...currentDiscounts, newDiscount]
+    });
+  }
+
+  removeDiscount(index: number) {
+    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
+    currentDiscounts.splice(index, 1);
+    this.profileForm.patchValue({
+      discounts: currentDiscounts
+    });
+  }
+
+  addPaymentPlan() {
+    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
+    const newPlan = {
+      name: '',
+      installments: 1,
+      interest: 0,
+      description: ''
+    };
+    this.profileForm.patchValue({
+      paymentPlans: [...currentPlans, newPlan]
+    });
+  }
+
+  removePaymentPlan(index: number) {
+    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
+    currentPlans.splice(index, 1);
+    this.profileForm.patchValue({
+      paymentPlans: currentPlans
+    });
+  }
+
+  updateDiscount(index: number, field: string, value: any) {
+    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
+    if (currentDiscounts[index]) {
+      currentDiscounts[index][field] = value;
+      this.profileForm.patchValue({
+        discounts: currentDiscounts
+      });
+    }
+  }
+
+  updatePaymentPlan(index: number, field: string, value: any) {
+    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
+    if (currentPlans[index]) {
+      currentPlans[index][field] = value;
+      this.profileForm.patchValue({
+        paymentPlans: currentPlans
+      });
+    }
+  }
+
+  // Insurance Methods
+  addInsuranceCode(code: string) {
+    if (!code.trim()) return;
+    const currentCodes = this.profileForm.get('insuranceCodes')?.value || [];
+    if (!currentCodes.includes(code)) {
+      this.profileForm.patchValue({
+        insuranceCodes: [...currentCodes, code]
+      });
+    }
+  }
+
+  removeInsuranceCode(code: string) {
+    const currentCodes = this.profileForm.get('insuranceCodes')?.value || [];
+    this.profileForm.patchValue({
+      insuranceCodes: currentCodes.filter((c: string) => c !== code)
+    });
+  }
+
+  // Helper methods for input events
+  onDiscountTypeChange(index: number, event: any) {
+    this.updateDiscount(index, 'type', event.target.value);
+  }
+
+  onDiscountPercentageChange(index: number, event: any) {
+    this.updateDiscount(index, 'percentage', +event.target.value);
+  }
+
+  onDiscountValidUntilChange(index: number, event: any) {
+    this.updateDiscount(index, 'validUntil', event.target.value);
+  }
+
+  onDiscountMinAgeChange(index: number, event: any) {
+    this.updateDiscount(index, 'minAge', +event.target.value);
+  }
+
+  onPaymentPlanNameChange(index: number, event: any) {
+    this.updatePaymentPlan(index, 'name', event.target.value);
+  }
+
+  onPaymentPlanInstallmentsChange(index: number, event: any) {
+    this.updatePaymentPlan(index, 'installments', +event.target.value);
+  }
+
+  onPaymentPlanInterestChange(index: number, event: any) {
+    this.updatePaymentPlan(index, 'interest', +event.target.value);
+  }
+
+  onPaymentPlanDescriptionChange(index: number, event: any) {
+    this.updatePaymentPlan(index, 'description', event.target.value);
   }
 }

@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>{{ data ? 'Edit Pricing Item' : 'Add Pricing Item' }}</h2>
+
+<div mat-dialog-content>
+  <form [formGroup]="form" class="dialog-form">
+    <div class="grid">
+      <app-input label="Item Name" placeholder="e.g., General Consultation" formControlName="name" class="form-field"></app-input>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Category</mat-label>
+        <mat-select formControlName="category">
+          <mat-option *ngFor="let c of categories" [value]="c">{{ c }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="form-field">
+        <mat-label>Unit</mat-label>
+        <mat-select formControlName="unit">
+          <mat-option *ngFor="let u of units" [value]="u">{{ u }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <app-input label="Base Price" placeholder="0" type="number" formControlName="price" class="form-field"></app-input>
+    </div>
+
+    <div class="section">
+      <mat-checkbox formControlName="followUpNeeded">Follow-ups needed</mat-checkbox>
+    </div>
+
+    <div class="section" *ngIf="form.get('followUpNeeded')?.value" formArrayName="followUps">
+      <div class="section-header">
+        <h4>Day-wise Follow-up Pricing</h4>
+        <button mat-stroked-button type="button" (click)="addFollowUp()">
+          <mat-icon>add</mat-icon>
+          Add Day
+        </button>
+      </div>
+      <div class="followups">
+        <div class="followup-row" *ngFor="let fg of followUpsArray.controls; let i = index" [formGroupName]="i">
+          <app-input label="Day" type="number" formControlName="day" class="sm"></app-input>
+          <app-input label="Price" type="number" formControlName="price" class="md"></app-input>
+          <button mat-icon-button color="warn" type="button" (click)="removeFollowUp(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
+</div>
+
+

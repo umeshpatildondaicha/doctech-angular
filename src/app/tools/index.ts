@@ -17,6 +17,7 @@ export { AppSelectboxComponent } from './app-selectbox/app-selectbox.component';
 // Dialog Components
 export { DialogboxComponent } from './dialogbox/dialogbox.component';
 export { DialogboxService } from './dialogbox/dialogbox.component';
+export { NotesDialogComponent, NotesDialogData } from './notes-dialog';
 
 // Filter Components
 export { FilterComponent } from './filter/filter.component';

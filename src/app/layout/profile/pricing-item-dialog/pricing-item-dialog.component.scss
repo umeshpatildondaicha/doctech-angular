@@ -1,0 +1,35 @@
+.dialog-form {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .section {
+    margin-top: 16px;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .followups {
+    display: grid;
+    gap: 8px;
+  }
+
+  .followup-row {
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .form-field.sm { width: 100%; }
+  .form-field.md { width: 100%; }
+}
+
+

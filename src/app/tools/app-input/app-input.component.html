@@ -14,9 +14,9 @@
       (input)="onInput($event)"
       [matAutocomplete]="auto"
     />
-    <ng-container *ngIf="suffixIconName">
+    @if(suffixIconName) {
       <mat-icon matSuffix [style.fontSize]="suffixIconSize">{{ suffixIconName }}</mat-icon>
-    </ng-container>
+    }
     <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
     <mat-autocomplete #auto="matAutocomplete">
       <mat-option *ngFor="let option of searchOptions" [value]="option">
@@ -51,9 +51,9 @@
         (input)="onInput($event)"
       />
     }
-    <ng-container *ngIf="suffixIconName">
+    @if(suffixIconName) {
       <mat-icon matSuffix [style.fontSize]="suffixIconSize">{{ suffixIconName }}</mat-icon>
-    </ng-container>
+    }
     <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
   </mat-form-field>
 }

@@ -1,25 +1,4 @@
 <div class="profile-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <div class="header-content">
-      <div class="title-section">
-        <app-icon [fontIcon]="'person'" [size]="32" [color]="'white'" class="title-icon"></app-icon>
-        <h1 class="page-title">Doctor Profile</h1>
-      </div>
-      <div class="header-actions">
-        <app-button
-          type="button"
-          [appearance]="'raised'"
-          [color]="'primary'"
-          [fontIcon]="'edit'"
-          (btnClick)="onEdit()"
-          [text]="'Edit Profile'"
-          class="edit-btn"
-          *ngIf="!isEditing">
-        </app-button>
-      </div>
-    </div>
-  </div>
 
   <!-- Profile Content -->
   <div class="profile-content">
@@ -53,597 +32,712 @@
         </div>
       </div>
 
-      <!-- Profile Form -->
-      <form [formGroup]="profileForm" class="profile-form">
+      <!-- Profile Completion & Quick Stats -->
+      <div class="profile-overview">
+        <div class="completion-section">
+          <div class="completion-header">
+            <h3>Profile Completion</h3>
+            <span class="completion-percentage">{{ profileCompletion }}%</span>
+          </div>
+          <mat-progress-bar 
+            [value]="profileCompletion" 
+            [color]="getProfileCompletionColor()"
+            class="completion-bar">
+          </mat-progress-bar>
+          <p class="completion-text">Complete your profile to improve visibility and patient trust</p>
+        </div>
         
-        <!-- Personal Information Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'person_outline'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Personal Information</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <app-input
-                label="First Name"
-                formControlName="firstName"
-                placeholder="Enter first name"
-                [required]="true"
-                [errorMessage]="getErrorMessage('firstName')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
+        <div class="quick-stats">
+          <div class="stat-card" *ngFor="let stat of quickStats">
+            <div class="stat-icon" [class]="'stat-' + stat.color">
+              <app-icon [fontIcon]="stat.icon" [size]="24" [color]="'white'"></app-icon>
             </div>
-
-            <div class="form-row">
-              <app-input
-                label="Last Name"
-                formControlName="lastName"
-                placeholder="Enter last name"
-                [required]="true"
-                [errorMessage]="getErrorMessage('lastName')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Email Address"
-                formControlName="email"
-                placeholder="Enter email address"
-                type="email"
-                [required]="true"
-                [errorMessage]="getErrorMessage('email')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Phone Number"
-                formControlName="phone"
-                placeholder="Enter phone number"
-                [required]="true"
-                [errorMessage]="getErrorMessage('phone')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Date of Birth"
-                formControlName="dateOfBirth"
-                placeholder="Select date of birth"
-                type="date"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-selectbox
-                label="Gender"
-                formControlName="gender"
-                [options]="['Male', 'Female', 'Other']"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-selectbox>
+            <div class="stat-content">
+              <div class="stat-value">{{ stat.value }}</div>
+              <div class="stat-label">{{ stat.label }}</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Professional Information Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'medical_services'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Professional Information</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <app-selectbox
-                label="Specialization"
-                formControlName="specialization"
-                [options]="specializations"
-                [required]="true"
-                [errorMessage]="getErrorMessage('specialization')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-selectbox>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Qualifications"
-                formControlName="qualifications"
-                placeholder="e.g., MBBS, MD - Internal Medicine"
-                [required]="true"
-                [errorMessage]="getErrorMessage('qualifications')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Years of Experience"
-                formControlName="experience"
-                placeholder="Enter years of experience"
-                type="number"
-                [required]="true"
-                [errorMessage]="getErrorMessage('experience')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="License Number"
-                formControlName="licenseNumber"
-                placeholder="Enter license number"
-                [required]="true"
-                [errorMessage]="getErrorMessage('licenseNumber')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Affiliated Hospitals"
-                formControlName="affiliatedHospitals"
-                placeholder="Enter affiliated hospitals"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-selectbox
-                label="Working Hours"
-                formControlName="workingHours"
-                [options]="availabilityOptions"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-selectbox>
-            </div>
-
-            <div class="form-row full-width">
-              <label class="form-label">Languages Spoken</label>
-              <div class="chips-container">
-                <mat-chip-listbox formControlName="languagesSpoken" [disabled]="!isEditing">
-                  <mat-chip-option *ngFor="let language of profileForm.get('languagesSpoken')?.value" 
-                                  [value]="language" 
-                                  (removed)="removeLanguage(language)">
-                    {{ language }}
-                    <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
-                  </mat-chip-option>
-                </mat-chip-listbox>
-                <app-selectbox
-                  *ngIf="isEditing"
-                  [options]="languages"
-                  placeholder="Add language"
-                  (dataChange)="addLanguage($event)"
-                  class="add-chip-select">
-                </app-selectbox>
+      <!-- Tabbed Navigation -->
+      <div class="tab-navigation">
+        <mat-tab-group 
+          [selectedIndex]="selectedTab" 
+          (selectedIndexChange)="onTabChange($event)"
+          class="profile-tabs"
+          mat-align-tabs="start">
+          
+          <!-- Personal Information Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <div class="tab-label">
+                <app-icon [fontIcon]="'person_outline'" [size]="20" [color]="'currentColor'"></app-icon>
+                <span>Personal Info</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Medical Practice Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'healing'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Medical Practice</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row full-width">
-              <app-input
-                label="Treatments Offered"
-                formControlName="treatmentsOffered"
-                placeholder="List treatments and services offered"
-                [multiline]="true"
-                [rows]="3"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row full-width">
-              <app-input
-                label="Procedures Performed"
-                formControlName="proceduresPerformed"
-                placeholder="List medical procedures performed"
-                [multiline]="true"
-                [rows]="3"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row full-width">
-              <label class="form-label">Patient Age Groups</label>
-              <div class="checkbox-group">
-                <mat-checkbox formControlName="patientAgeGroups" value="Children" [disabled]="!isEditing">
-                  Children
-                </mat-checkbox>
-                <mat-checkbox formControlName="patientAgeGroups" value="Adults" [disabled]="!isEditing">
-                  Adults
-                </mat-checkbox>
-                <mat-checkbox formControlName="patientAgeGroups" value="Elderly" [disabled]="!isEditing">
-                  Elderly
-                </mat-checkbox>
+            </ng-template>
+            <div class="tab-content">
+              <div class="tab-description">
+                <h3>Personal Information</h3>
+                <p>Manage your basic personal details and professional bio</p>
               </div>
-            </div>
-          </div>
-        </div>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'person_outline'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Basic Information</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-input
+                        label="First Name"
+                        formControlName="firstName"
+                        placeholder="Enter first name"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('firstName')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
 
-        <!-- Departments & Affiliations Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'business'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Departments & Affiliations</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row full-width">
-              <label class="form-label">Associated Departments</label>
-              <div class="chips-container">
-                <mat-chip-listbox formControlName="associatedDepartments" [disabled]="!isEditing">
-                  <mat-chip-option *ngFor="let dept of profileForm.get('associatedDepartments')?.value" 
-                                  [value]="dept" 
-                                  (removed)="removeDepartment(dept)">
-                    {{ dept }}
-                    <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
-                  </mat-chip-option>
-                </mat-chip-listbox>
-                <app-selectbox
-                  *ngIf="isEditing"
-                  [options]="departments"
-                  placeholder="Add department"
-                  (dataChange)="addDepartment($event)"
-                  class="add-chip-select">
-                </app-selectbox>
+                    <div class="form-row">
+                      <app-input
+                        label="Last Name"
+                        formControlName="lastName"
+                        placeholder="Enter last name"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('lastName')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Email Address"
+                        formControlName="email"
+                        placeholder="Enter email address"
+                        type="email"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('email')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Phone Number"
+                        formControlName="phone"
+                        placeholder="Enter phone number"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('phone')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <div class="field-with-info">
+                        <app-input
+                          label="Personal Contact Number (Administrative Only)"
+                          formControlName="personalPhone"
+                          placeholder="Enter personal contact number"
+                          [disabled]="!isEditing"
+                          class="form-field">
+                        </app-input>
+                        <div class="info-icon-wrapper">
+                          <app-icon [fontIcon]="'info'" [size]="16" [color]="'#6b7280'"></app-icon>
+                          <div class="tooltip">
+                            <span>This number is for administrative purposes only (app issues, technical support, etc.) and will NOT be shared with patients or the public.</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Date of Birth"
+                        formControlName="dateOfBirth"
+                        placeholder="Select date of birth"
+                        type="date"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-selectbox
+                        label="Gender"
+                        formControlName="gender"
+                        [options]="['Male', 'Female', 'Other']"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-selectbox>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'home'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Address Information</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-input
+                        label="Street Address"
+                        formControlName="streetAddress"
+                        placeholder="Enter street address"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="City"
+                        formControlName="city"
+                        placeholder="Enter city"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="State/Province"
+                        formControlName="state"
+                        placeholder="Enter state or province"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Postal Code"
+                        formControlName="postalCode"
+                        placeholder="Enter postal code"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Country"
+                        formControlName="country"
+                        placeholder="Enter country"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'description'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Professional Bio</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row full-width">
+                      <app-input
+                        label="Professional Bio"
+                        formControlName="professionalBio"
+                        placeholder="Tell us about your professional background, expertise, and approach to patient care..."
+                        [multiline]="true"
+                        [rows]="4"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- Professional Info Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <div class="tab-label">
+                <app-icon [fontIcon]="'medical_services'" [size]="20" [color]="'currentColor'"></app-icon>
+                <span>Professional</span>
               </div>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Hospital Affiliations"
-                formControlName="hospitalAffiliations"
-                placeholder="Enter hospital affiliations"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Clinic Affiliations"
-                formControlName="clinicAffiliations"
-                placeholder="Enter clinic affiliations"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fees & Consultation Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'attach_money'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Fees & Consultation</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <app-input
-                label="Regular Consultation Fee ($)"
-                formControlName="consultationFee"
-                placeholder="Enter consultation fee"
-                type="number"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Follow-up Fee ($)"
-                formControlName="followUpFee"
-                placeholder="Enter follow-up fee"
-                type="number"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Emergency Fee ($)"
-                formControlName="emergencyFee"
-                placeholder="Enter emergency fee"
-                type="number"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <app-input
-                label="Online Consultation Fee ($)"
-                formControlName="onlineConsultationFee"
-                placeholder="Enter online consultation fee"
-                type="number"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row">
-              <mat-checkbox formControlName="insuranceAccepted" [disabled]="!isEditing">
-                Accept Insurance
-              </mat-checkbox>
-            </div>
-
-            <div class="form-row full-width">
-              <label class="form-label">Payment Methods Accepted</label>
-              <div class="checkbox-group">
-                <mat-checkbox formControlName="paymentMethods" value="Cash" [disabled]="!isEditing">
-                  Cash
-                </mat-checkbox>
-                <mat-checkbox formControlName="paymentMethods" value="Credit Card" [disabled]="!isEditing">
-                  Credit Card
-                </mat-checkbox>
-                <mat-checkbox formControlName="paymentMethods" value="Insurance" [disabled]="!isEditing">
-                  Insurance
-                </mat-checkbox>
-                <mat-checkbox formControlName="paymentMethods" value="Online Payment" [disabled]="!isEditing">
-                  Online Payment
-                </mat-checkbox>
+            </ng-template>
+            <div class="tab-content">
+              <div class="tab-description">
+                <h3>Professional Information</h3>
+                <p>Manage your medical credentials, practice details, and research information</p>
               </div>
-            </div>
-          </div>
-        </div>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'medical_services'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Medical Credentials</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-selectbox
+                        label="Specialization"
+                        formControlName="specialization"
+                        [options]="specializations"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('specialization')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-selectbox>
+                    </div>
 
-        <!-- Availability & Telemedicine Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'schedule'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Availability & Telemedicine</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <app-selectbox
-                label="Availability Schedule"
-                formControlName="availabilitySchedule"
-                [options]="availabilityOptions"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-selectbox>
-            </div>
+                    <div class="form-row">
+                      <app-input
+                        label="Qualifications"
+                        formControlName="qualifications"
+                        placeholder="e.g., MBBS, MD - Internal Medicine"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('qualifications')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
 
-            <div class="form-row">
-              <app-input
-                label="Appointment Slot Duration"
-                formControlName="appointmentSlots"
-                placeholder="e.g., 30 minutes"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
+                    <div class="form-row">
+                      <app-input
+                        label="Years of Experience"
+                        formControlName="experience"
+                        placeholder="Enter years of experience"
+                        type="number"
+                        [required]="true"
+                        [errorMessage]="getErrorMessage('experience')"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="onlineConsultation" [disabled]="!isEditing">
-                Available for Online Consultation
-              </mat-checkbox>
-            </div>
+                    <div class="form-row">
+                      <label class="form-label">License Number</label>
+                      <input
+                        type="text"
+                        formControlName="licenseNumber"
+                        placeholder="Enter license number"
+                        [disabled]="!isEditing"
+                        class="form-field"
+                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                      <div *ngIf="getErrorMessage('licenseNumber')" style="color: red; font-size: 12px; margin-top: 4px;">
+                        {{ getErrorMessage('licenseNumber') }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="telemedicineAvailable" [disabled]="!isEditing">
-                Telemedicine Available
-              </mat-checkbox>
-            </div>
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'healing'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Medical Practice</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row full-width">
+                      <app-input
+                        label="Treatments Offered"
+                        formControlName="treatmentsOffered"
+                        placeholder="List treatments and services offered"
+                        [multiline]="true"
+                        [rows]="3"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="emergencyAvailability" [disabled]="!isEditing">
-                Emergency Availability
-              </mat-checkbox>
-            </div>
-          </div>
-        </div>
+                    <div class="form-row full-width">
+                      <app-input
+                        label="Areas of Expertise"
+                        formControlName="areasOfExpertise"
+                        placeholder="List your areas of expertise and specializations"
+                        [multiline]="true"
+                        [rows]="3"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
 
-        <!-- Research & Publications Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'school'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Research & Publications</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row full-width">
-              <app-input
-                label="Research Interests"
-                formControlName="researchInterests"
-                placeholder="Enter research interests"
-                [multiline]="true"
-                [rows]="3"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
+                    <div class="form-row full-width">
+                      <app-input
+                        label="Research Interests"
+                        formControlName="researchInterests"
+                        placeholder="Describe your research interests and publications"
+                        [multiline]="true"
+                        [rows]="3"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
 
-            <div class="form-row full-width">
-              <app-input
-                label="Publications"
-                formControlName="publications"
-                placeholder="List your publications"
-                [multiline]="true"
-                [rows]="4"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'groups'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Professional Memberships</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row full-width">
+                      <app-input
+                        label="Professional Memberships"
+                        formControlName="professionalMemberships"
+                        placeholder="List professional memberships"
+                        [multiline]="true"
+                        [rows]="3"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
+          </mat-tab>
 
-            <div class="form-row full-width">
-              <app-input
-                label="Case Studies"
-                formControlName="caseStudies"
-                placeholder="List notable case studies"
-                [multiline]="true"
-                [rows]="4"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row full-width">
-              <app-input
-                label="Awards & Recognition"
-                formControlName="awards"
-                placeholder="List awards and recognition"
-                [multiline]="true"
-                [rows]="3"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row full-width">
-              <app-input
-                label="Professional Memberships"
-                formControlName="memberships"
-                placeholder="List professional memberships"
-                [multiline]="true"
-                [rows]="3"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-          </div>
-        </div>
-
-        <!-- Security & Settings Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'security'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">Security & Settings</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row">
-              <mat-checkbox formControlName="twoFactorAuth" [disabled]="!isEditing">
-                Enable Two-Factor Authentication
-              </mat-checkbox>
-            </div>
-
-            <div class="form-row">
-              <app-selectbox
-                label="Profile Visibility"
-                formControlName="profileVisibility"
-                [options]="['Public', 'Private', 'Patients Only']"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-selectbox>
-            </div>
-
-            <div class="form-row full-width">
-              <label class="form-label">Notification Preferences</label>
-              <div class="checkbox-group">
-                <mat-checkbox formControlName="smsNotifications" [disabled]="!isEditing">
-                  SMS Notifications
-                </mat-checkbox>
-                <mat-checkbox formControlName="emailNotifications" [disabled]="!isEditing">
-                  Email Notifications
-                </mat-checkbox>
-                <mat-checkbox formControlName="appNotifications" [disabled]="!isEditing">
-                  App Notifications
-                </mat-checkbox>
+          <!-- Work & Availability Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <div class="tab-label">
+                <app-icon [fontIcon]="'business'" [size]="20" [color]="'currentColor'"></app-icon>
+                <span>Work & Availability</span>
               </div>
+            </ng-template>
+            <div class="tab-content">
+              <div class="tab-description">
+                <h3>Work & Availability</h3>
+                <p>Manage your work affiliations, availability schedule, and communication preferences</p>
+              </div>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'business'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Affiliations</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-input
+                        label="Affiliated Hospitals"
+                        formControlName="affiliatedHospitals"
+                        placeholder="Enter affiliated hospitals"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Hospital Affiliations"
+                        formControlName="hospitalAffiliations"
+                        placeholder="Enter hospital affiliations"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Clinic Affiliations"
+                        formControlName="clinicAffiliations"
+                        placeholder="Enter clinic affiliations"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row full-width">
+                      <label class="form-label">Associated Departments</label>
+                      <div class="chips-container">
+                        <mat-chip-listbox formControlName="associatedDepartments" [disabled]="!isEditing">
+                          <mat-chip-option *ngFor="let dept of profileForm.get('associatedDepartments')?.value" 
+                                          [value]="dept" 
+                                          (removed)="removeDepartment(dept)">
+                            {{ dept }}
+                            <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
+                          </mat-chip-option>
+                        </mat-chip-listbox>
+                        <app-selectbox
+                          *ngIf="isEditing"
+                          [options]="departments"
+                          placeholder="Add department"
+                          (dataChange)="addDepartment($event)"
+                          class="add-chip-select">
+                        </app-selectbox>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'schedule'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Availability & Schedule</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-selectbox
+                        label="Working Hours"
+                        formControlName="workingHours"
+                        [options]="availabilityOptions"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-selectbox>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Available Days"
+                        formControlName="availableDays"
+                        placeholder="e.g., Monday to Friday"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Emergency Availability"
+                        formControlName="emergencyAvailability"
+                        placeholder="Describe emergency availability"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'language'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Languages & Communication</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row full-width">
+                      <label class="form-label">Languages Spoken</label>
+                      <div class="chips-container">
+                        <mat-chip-listbox formControlName="languagesSpoken" [disabled]="!isEditing">
+                          <mat-chip-option *ngFor="let lang of languages" [value]="lang">
+                            {{ lang }}
+                            <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
+                          </mat-chip-option>
+                        </mat-chip-listbox>
+                        <div class="add-chip-input" *ngIf="isEditing">
+                          <app-selectbox
+                            placeholder="Add language"
+                            [options]="languages"
+                            class="add-chip-select"
+                            (dataChange)="addLanguage($event)">
+                          </app-selectbox>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
+          </mat-tab>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="googleCalendarSync" [disabled]="!isEditing">
-                Sync with Google Calendar
-              </mat-checkbox>
+          <!-- Financial Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <div class="tab-label">
+                <app-icon [fontIcon]="'attach_money'" [size]="20" [color]="'currentColor'"></app-icon>
+                <span>Financial</span>
+              </div>
+            </ng-template>
+            <div class="tab-content">
+              <div class="tab-description">
+                <h3>Financial Information</h3>
+                <p>Manage your consultation fees, payment methods, and insurance policies</p>
+                <div class="financial-actions" style="margin: 16px 0 8px; display: flex; gap: 12px;">
+                  <app-button
+                    [text]="'Add / Manage Fees'"
+                    [color]="'primary'"
+                    [fontIcon]="'add'"
+                    (btnClick)="openPricingDialog()"
+                    style="flex: 0 0 auto;">
+                  </app-button>
+                  <app-button
+                    [text]="'Add Pricing Item'"
+                    [color]="'accent'"
+                    [fontIcon]="'add'"
+                    (btnClick)="addOrEditPricingItem()"
+                    style="flex: 0 0 auto;">
+                  </app-button>
+                </div>
+              </div>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'attach_money'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Pricing Management</h3>
+                  </div>
+
+                  <!-- Pricing Items Grid -->
+                  <app-grid
+                    [rowData]="pricingItems"
+                    [columnDefs]="pricingColumnDefs"
+                    [gridOptions]="pricingGridOptions"
+                    [height]="'auto'"
+                    [showHeader]="true"
+                    [searchPlaceholder]="'Search pricing items...'"
+                    class="pricing-grid">
+                  </app-grid>
+
+                  <!-- Empty State -->
+                  <div class="empty-state" *ngIf="pricingItems.length === 0">
+                    <div class="empty-icon">💰</div>
+                    <div class="empty-title">No Pricing Items Yet</div>
+                    <div class="empty-description">
+                      Start by adding your first pricing item. You can set consultation fees,
+                      follow-up pricing, and other treatment costs.
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
+          </mat-tab>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="outlookCalendarSync" [disabled]="!isEditing">
-                Sync with Outlook Calendar
-              </mat-checkbox>
+          <!-- Settings Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <div class="tab-label">
+                <app-icon [fontIcon]="'settings'" [size]="20" [color]="'currentColor'"></app-icon>
+                <span>Settings</span>
+              </div>
+            </ng-template>
+            <div class="tab-content">
+              <div class="tab-description">
+                <h3>Settings & Preferences</h3>
+                <p>Manage your security settings, notification preferences, and calendar integrations</p>
+              </div>
+              <form [formGroup]="profileForm" class="profile-form">
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'security'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Security Settings</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-input
+                        label="Current Password"
+                        formControlName="currentPassword"
+                        placeholder="Enter current password"
+                        type="password"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="New Password"
+                        formControlName="newPassword"
+                        placeholder="Enter new password"
+                        type="password"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Confirm New Password"
+                        formControlName="confirmPassword"
+                        placeholder="Confirm new password"
+                        type="password"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'notifications'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Notification Preferences</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row full-width">
+                      <label class="form-label">Notification Settings</label>
+                      <div class="checkbox-group">
+                        <mat-checkbox formControlName="emailNotifications" [disabled]="!isEditing">
+                          Email Notifications
+                        </mat-checkbox>
+                        <mat-checkbox formControlName="smsNotifications" [disabled]="!isEditing">
+                          SMS Notifications
+                        </mat-checkbox>
+                        <mat-checkbox formControlName="appNotifications" [disabled]="!isEditing">
+                          App Notifications
+                        </mat-checkbox>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-header">
+                    <app-icon [fontIcon]="'calendar_today'" [size]="24" [color]="'#3b82f6'"></app-icon>
+                    <h3 class="section-title">Calendar Integration</h3>
+                  </div>
+                  <div class="form-grid">
+                    <div class="form-row">
+                      <app-selectbox
+                        label="Default Calendar"
+                        formControlName="defaultCalendar"
+                        [options]="['Google Calendar', 'Outlook', 'Apple Calendar', 'Other']"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-selectbox>
+                    </div>
+
+                    <div class="form-row">
+                      <app-input
+                        label="Calendar Sync Interval"
+                        formControlName="calendarSyncInterval"
+                        placeholder="e.g., 15 minutes"
+                        [disabled]="!isEditing"
+                        class="form-field">
+                      </app-input>
+                    </div>
+                  </div>
+                </div>
+              </form>
             </div>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </div>
+  </div>
 
-            <div class="form-row">
-              <mat-checkbox formControlName="autoScheduleAppointments" [disabled]="!isEditing">
-                Auto-schedule Appointments
-              </mat-checkbox>
-            </div>
-          </div>
-        </div>
+  <!-- Action Buttons -->
+  <div class="form-actions" *ngIf="isEditing">
+    <div class="action-buttons">
+      <app-button
+        type="button"
+        [appearance]="'basic'"
+        [color]="'accent'"
+        [fontIcon]="'close'"
+        (btnClick)="onCancel()"
+        [text]="'Cancel'"
+        class="cancel-btn">
+      </app-button>
 
-        <!-- About Me Section -->
-        <div class="form-section">
-          <div class="section-header">
-            <app-icon [fontIcon]="'description'" [size]="24" [color]="'#3b82f6'"></app-icon>
-            <h3 class="section-title">About Me</h3>
-          </div>
-          <div class="form-grid">
-            <div class="form-row full-width">
-              <app-input
-                label="Professional Bio"
-                formControlName="bio"
-                placeholder="Tell us about your professional background, expertise, and approach to patient care..."
-                [required]="true"
-                [multiline]="true"
-                [rows]="6"
-                [errorMessage]="getErrorMessage('bio')"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-
-            <div class="form-row full-width">
-              <app-input
-                label="Personal Statement"
-                formControlName="aboutMe"
-                placeholder="Share a personal statement about your approach to healthcare..."
-                [multiline]="true"
-                [rows]="4"
-                [disabled]="!isEditing"
-                class="form-field">
-              </app-input>
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="form-actions" *ngIf="isEditing">
-          <div class="action-buttons">
-            <app-button
-              type="button"
-              [appearance]="'basic'"
-              [color]="'accent'"
-              [fontIcon]="'close'"
-              (btnClick)="onCancel()"
-              [text]="'Cancel'"
-              class="cancel-btn">
-            </app-button>
-
-            <app-button
-              type="button"
-              [appearance]="'raised'"
-              [color]="'primary'"
-              [fontIcon]="'save'"
-              (btnClick)="onSave()"
-              [disabled]="profileForm.invalid"
-              [text]="'Save Changes'"
-              class="save-btn">
-            </app-button>
-          </div>
-        </div>
-      </form>
+      <app-button
+        type="button"
+        [appearance]="'raised'"
+        [color]="'primary'"
+        [fontIcon]="'save'"
+        (btnClick)="onSave()"
+        [disabled]="profileForm.invalid"
+        [text]="'Save Changes'"
+        class="save-btn">
+      </app-button>
     </div>
   </div>
 </div>

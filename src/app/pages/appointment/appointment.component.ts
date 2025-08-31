@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTabsModule } from '@angular/material/tabs';
+import { Router } from '@angular/router';
 import { ColDef } from 'ag-grid-community';
 import { Appointment } from '../../interfaces/appointment.interface';
 import { GridComponent } from '../../tools/grid/grid.component';
@@ -9,29 +10,11 @@ import { AppButtonComponent } from '../../tools/app-button/app-button.component'
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { CalendarComponent } from '../../tools/calendar/calendar.component';
 import { AppointmentCreateComponent } from '../appointment-create/appointment-create.component';
-import { TimingDialogComponent } from '../timing-dialog/timing-dialog.component';
 import { ChipCellRendererComponent } from '../../tools/chip-cell-renderer/chip-cell-renderer.component';
 import { Mode } from '../../types/mode.type';
 import { AppointmentRescheduleComponent } from '../appointment-reschedule/appointment-reschedule.component';
 import { AppointmentViewComponent } from '../appointment-view/appointment-view.component';
 import { CustomEventsService } from '../../services/custom-events.service';
-
-interface TimingSlot {
-  id: number;
-  startTime: string;
-  endTime: string;
-  isActive: boolean;
-  dayOfWeek: string;
-  appointmentDuration: number;
-  breakTime: number;
-  created_at: string;
-  schedulingType: 'slots' | 'flexible';
-  slotDuration?: number;
-  maxAppointmentsPerSlot?: number;
-  maxAppointmentsPerDay?: number;
-  availableSlots?: number;
-  flexibleAppointmentsRemaining?: number;
-}
 
 @Component({
   selector: 'app-appointment',
@@ -42,29 +25,6 @@ interface TimingSlot {
 })
 export class AppointmentComponent implements OnInit {
   selectedTabIndex = 0;
-  
-  // Timing slots data
-  timingSlots: TimingSlot[] = [];
-  timingColumns: ColDef[] = [];
-  timingGridOptions = {
-    menuActions: [
-      {
-        title: 'View',
-        icon: 'visibility',
-        click: (param: any) => this.onAddTiming('view', param.data)
-      },
-      {
-        title: 'Edit',
-        icon: 'edit',
-        click: (param: any) => this.onAddTiming('edit', param.data)
-      },
-      {
-        title: 'Delete',
-        icon: 'delete',
-        click: (param: any) => this.deleteTiming(param.data)
-      }
-    ]
-  };
 
   // All appointments data
   allAppointments: Appointment[] = [];
@@ -119,6 +79,7 @@ export class AppointmentComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
+    private router: Router,
     private customEventsService: CustomEventsService
   ) {
     this.customEventsService.breadcrumbEvent.emit(
@@ -133,10 +94,8 @@ export class AppointmentComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initializeTimingGrid();
     this.initializeAppointmentGrid();
     this.initializePendingGrid();
-    this.loadTimingData();
     this.loadAppointmentData();
     this.loadPendingData();
   }
@@ -145,201 +104,7 @@ export class AppointmentComponent implements OnInit {
     this.selectedTabIndex = index;
   }
 
-  // Timing slots methods
-  initializeTimingGrid() {
-    this.timingColumns = [
-      {
-        headerName: 'Status',
-        field: 'isActive',
-        width: 100,
-        sortable: true,
-        filter: true,
-        cellRenderer: ChipCellRendererComponent
-      },
-      {
-        headerName: 'Scheduling Type',
-        field: 'schedulingType',
-        width: 150,
-        sortable: true,
-        filter: true,
-        valueFormatter: (params: any) => {
-          return params.value === 'slots' ? 'Fixed Time Slots' : 'Flexible Time';
-        }
-      },
-      {
-        headerName: 'Day',
-        field: 'dayOfWeek',
-        width: 120,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: 'Start Time',
-        field: 'startTime',
-        width: 120,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: 'End Time',
-        field: 'endTime',
-        width: 120,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: 'Appointment Duration',
-        field: 'appointmentDuration',
-        width: 200,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: 'Break Time',
-        field: 'breakTime',
-        width: 120,
-        sortable: true,
-        filter: true
-      },
-      {
-        headerName: 'Capacity',
-        field: 'capacity',
-        width: 120,
-        sortable: true,
-        filter: true,
-        valueFormatter: (params: any) => {
-          const data = params.data;
-          if (data.schedulingType === 'slots') {
-            return `${data.availableSlots || 0} slots`;
-          } else {
-            return `${data.flexibleAppointmentsRemaining || 0} remaining`;
-          }
-        }
-      },
-      {
-        headerName: 'Created',
-        field: 'created_at',
-        width: 150,
-        sortable: true,
-        filter: true,
-        valueFormatter: (params: any) => {
-          return new Date(params.value).toLocaleDateString();
-        }
-      }
-    ];
-  }
 
-  loadTimingData() {
-    this.timingSlots = [
-      {
-        id: 1,
-        dayOfWeek: 'Monday',
-        startTime: '09:00 AM',
-        endTime: '05:00 PM',
-        isActive: true,
-        appointmentDuration: 30,
-        breakTime: 10,
-        created_at: '2024-01-01T00:00:00',
-        schedulingType: 'slots',
-        slotDuration: 30,
-        maxAppointmentsPerSlot: 1,
-        availableSlots: 16
-      },
-      {
-        id: 2,
-        dayOfWeek: 'Tuesday',
-        startTime: '09:00 AM',
-        endTime: '05:00 PM',
-        isActive: true,
-        appointmentDuration: 30,
-        breakTime: 10,
-        created_at: '2024-01-01T00:00:00',
-        schedulingType: 'flexible',
-        maxAppointmentsPerDay: 20,
-        flexibleAppointmentsRemaining: 15
-      },
-      {
-        id: 3,
-        dayOfWeek: 'Wednesday',
-        startTime: '10:00 AM',
-        endTime: '06:00 PM',
-        isActive: false,
-        appointmentDuration: 30,
-        breakTime: 10,
-        created_at: '2024-01-01T00:00:00',
-        schedulingType: 'slots',
-        slotDuration: 45,
-        maxAppointmentsPerSlot: 2,
-        availableSlots: 10
-      }
-    ];
-  }
-
-  onTimingRowClick(event: any) {
-    console.log('Timing row clicked:', event.data);
-  }
-
-  onAddTiming(mode: Mode, data?: TimingSlot) {
-    const dialogRef = this.dialog.open(TimingDialogComponent, {
-      data: { mode, timing: data },
-      width: '60%',
-      autoFocus: false
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        // Add new timing slot
-        const newTiming: TimingSlot = {
-          ...result,
-          id: this.timingSlots.length + 1,
-          dayOfWeek: this.getDayFromTiming(result),
-          startTime: this.formatTime(result.startTime),
-          endTime: this.formatTime(result.endTime),
-          isActive: true,
-          created_at: new Date().toISOString(),
-          schedulingType: result.schedulingType || 'slots',
-          slotDuration: result.slotDuration,
-          maxAppointmentsPerSlot: result.maxAppointmentsPerSlot,
-          maxAppointmentsPerDay: result.maxAppointmentsPerDay,
-          availableSlots: result.availableSlots,
-          flexibleAppointmentsRemaining: result.maxAppointmentsPerDay
-        };
-        this.timingSlots = [...this.timingSlots, newTiming];
-      }
-    });
-  }
-
-  private getDayFromTiming(timing: any): string {
-    if (timing.timeFor === 'specific_day' && timing.selectedDate) {
-      return new Date(timing.selectedDate).toLocaleDateString('en-US', { weekday: 'long' });
-    } else if (timing.timeFor === 'weekly' && timing.selectedDays && timing.selectedDays.length > 0) {
-      return timing.selectedDays.map((day: string) => 
-        day.charAt(0).toUpperCase() + day.slice(1)
-      ).join(', ');
-    }
-    return 'Daily';
-  }
-
-  private formatTime(time: string): string {
-    if (!time) return '';
-    
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
-  }
-
-  editTiming(timing: TimingSlot) {
-    console.log('Edit timing:', timing);
-    // TODO: Implement edit timing dialog
-  }
-
-  deleteTiming(timing: TimingSlot) {
-    if (confirm(`Are you sure you want to delete timing slot for ${timing.dayOfWeek}?`)) {
-      this.timingSlots = this.timingSlots.filter(item => item.id !== timing.id);
-    }
-  }
 
   // All appointments methods
   initializeAppointmentGrid() {
@@ -558,22 +323,7 @@ export class AppointmentComponent implements OnInit {
     console.log('Pending appointment row clicked:', event.data);
   }
 
-  // Helper methods for scheduling types
-  getSchedulingTypeLabel(schedulingType: string): string {
-    return schedulingType === 'slots' ? 'Fixed Time Slots' : 'Flexible Time';
-  }
 
-  getSchedulingTypeIcon(schedulingType: string): string {
-    return schedulingType === 'slots' ? 'schedule' : 'access_time';
-  }
-
-  getCapacityInfo(timingSlot: TimingSlot): string {
-    if (timingSlot.schedulingType === 'slots') {
-      return `${timingSlot.availableSlots || 0} available slots`;
-    } else {
-      return `${timingSlot.flexibleAppointmentsRemaining || 0} appointments remaining`;
-    }
-  }
 
   // Add missing methods referenced in template
   createAppointment() {
@@ -583,5 +333,10 @@ export class AppointmentComponent implements OnInit {
   refreshPending() {
     console.log('Refreshing pending appointments');
     this.loadPendingData();
+  }
+
+  // Navigation method for My Schedule
+  navigateToMySchedule() {
+    this.router.navigate(['/my-schedule']);
   }
 }

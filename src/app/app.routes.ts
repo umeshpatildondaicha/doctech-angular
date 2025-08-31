@@ -10,6 +10,8 @@ import { PatientListComponent } from './components/patient-list/patient-list.com
 import { PatientFormComponent } from './components/patient-form/patient-form.component';
 import { ExerciseComponent } from './pages/exercise copy/exercise.component';
 import { DietComponent } from './pages/diet copy/diet.component';
+import { ChatComponent } from './pages/chat/chat.component';
+import { PatientQueueComponent } from './pages/patient-queue/patient-queue.component';
 
 import { ProfileComponent } from './layout/profile/profile.component';
 import { SettingsComponent } from './layout/settings/settings.component';
@@ -35,6 +37,7 @@ import { DietPlanCreateComponent } from './pages/diet-plan-create/diet-plan-crea
 import { DoctorCreateComponent } from './pages/docter-create/doctor-create.component';
 import { PatientCreateComponent } from './pages/patient-create/patient-create.component';
 import { ScheduleComponent } from './pages/schedule/schedule.component';
+import { MyScheduleComponent } from './pages/my-schedule/my-schedule.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 
@@ -44,9 +47,13 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },
   { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuard] },
+  { path: 'my-schedule', component: MyScheduleComponent, canActivate: [AuthGuard] },
   { path: 'doctor', component: DoctorComponent, canActivate: [AuthGuard] },
   { path: 'patient', component: PatientComponent, canActivate: [AuthGuard] },
+  { path: 'patient/:id', component: PatientProfileComponent, canActivate: [AuthGuard] },
   { path: 'patient-profile', component: PatientProfileComponent, canActivate: [AuthGuard] },
+  { path: 'chat', component: ChatComponent, canActivate: [AuthGuard] },
+  { path: 'patient-queue', component: PatientQueueComponent, canActivate: [AuthGuard] },
   { path: 'exercises', component: ExerciseComponent, canActivate: [AuthGuard] },
   { path: 'diet', component: DietComponent, canActivate: [AuthGuard] },
   { path: 'diet/plans', component: DietComponent, canActivate: [AuthGuard], data: { breadcrumb: 'Diet Plans', breadcrumbIcon: 'calendar_today' } },

@@ -1,0 +1,43 @@
+.dialog-form {
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .section {
+    margin-top: 16px;
+  }
+
+  .methods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .method-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+    background: var(--surface-color);
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+
+    &.selected {
+      background: var(--primary-color);
+      color: #fff;
+      border-color: var(--primary-color);
+    }
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+  }
+}
+
+

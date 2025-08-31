@@ -39,6 +39,13 @@ export class MenuService {
       userTypes: ['doctor']
     },
     { 
+      label: 'Chat', 
+      icon: 'chat', 
+      route: '/chat', 
+      section: 'main',
+      userTypes: ['doctor']
+    },
+    { 
       label: 'Patient Queue', 
       icon: 'queue', 
       route: '/patient-queue', 
