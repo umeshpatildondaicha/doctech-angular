@@ -1,18 +1,32 @@
 export interface Doctor {
-  doctorId: number; // PK
+  // Mandatory fields
+  registrationNumber: string;
   firstName: string;
   lastName: string;
-  registrationNumber: string; // UNIQUE
-  hospitalId: number; // FK
   specialization: string;
-  globalNumber: string; // UNIQUE
-  persanalNumber: string; // UNIQUE (typo in original, kept as is)
-  email: string; // UNIQUE
-  qualifications: string;
-  profileImageUrl: string;
-  doctorStatus: string;
-  createdAt: string;
-  departmentId: number; // FK
-  updatedAt: string;
-  isDeleted: boolean;
+  password: string;
+  doctorStatus: 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
+
+  // Optional fields
+  contactNumber?: string;
+  email?: string;
+  qualifications?: string;
+  certifications?: string[];
+  profileImageUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  approvals?: any[];
+  workingDays?: any[];
+  appointmentTimings?: any[];
+  careerHistories?: any[];
+  blogs?: any[];
+  hospitalAssociations?: any[];
+
+  // Legacy fields (keeping for backward compatibility)
+  doctorId?: number;
+  hospitalId?: number;
+  globalNumber?: string;
+  persanalNumber?: string;
+  departmentId?: number;
+  isDeleted?: boolean;
 } 

@@ -6,20 +6,9 @@
         <mat-icon>add</mat-icon>
         Add New Doctor
       </button>
-      <button class="action-btn secondary" (click)="linkExistingDoctor()">
-        <mat-icon>link</mat-icon>
-        Link Existing Doctor
-      </button>
-      <button class="action-btn secondary" (click)="bulkUpload()">
-        <mat-icon>upload_file</mat-icon>
-        Bulk Upload
-      </button>
+
     </div>
     <div class="actions-right">
-      <button class="action-btn secondary" (click)="exportDoctors()">
-        <mat-icon>download</mat-icon>
-        Export All
-      </button>
       <button class="action-btn secondary" (click)="toggleViewMode()">
         <mat-icon>{{ viewMode === 'table' ? 'view_module' : 'table_view' }}</mat-icon>
         {{ viewMode === 'table' ? 'Cards' : 'Table' }}

@@ -1,0 +1,62 @@
+.notes-dialog {
+  padding: 0;
+  min-width: 400px;
+  
+  .dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    
+    .dialog-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    
+    .close-button {
+      color: #64748b;
+      
+      &:hover {
+        background-color: #f1f5f9;
+      }
+    }
+  }
+  
+  .dialog-content {
+    padding: 1.5rem;
+    
+    .dialog-message {
+      margin: 0 0 1rem 0;
+      color: #475569;
+      font-size: 0.875rem;
+      line-height: 1.5;
+    }
+    
+    .notes-field {
+      width: 100%;
+      
+      .notes-textarea {
+        font-family: inherit;
+        line-height: 1.5;
+        resize: vertical;
+        min-height: 100px;
+      }
+    }
+  }
+  
+  .dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.5rem 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    
+    button {
+      min-width: 80px;
+    }
+  }
+}
+

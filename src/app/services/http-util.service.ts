@@ -73,7 +73,7 @@ export class HttpUtilService {
     response: any,
     contentType: string,
     filename?: any
-  ) {
+  ): string | null {
     const linkElement = document.createElement('a');
     try {
       let blob = null;
@@ -117,11 +117,12 @@ export class HttpUtilService {
           cancelable: false,
         });
         linkElement.dispatchEvent(clickEvent);
+        return filename;
       } else {
         return null;
       }
     } catch (ex) {
-      return ex;
+      return ex instanceof Error ? ex.message : 'Unknown error';
     }
   }
 

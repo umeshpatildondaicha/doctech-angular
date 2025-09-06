@@ -248,6 +248,7 @@ export class HttpService {
         )
         .subscribe((response) => {
           if (response.status && response.status === 'progress') {
+            // Progress event, no action needed
           } else if (
             response.type &&
             response.type === 'application/octet-stream' //HttpEventType.ResponseHeader
@@ -264,7 +265,6 @@ export class HttpService {
               observer.next(response);
             } catch (ex) {
               observer.error(response);
-              return ex;
             }
           } else {
             try {
@@ -277,6 +277,7 @@ export class HttpService {
                 reader.addEventListener('loadend', (event: any) => {
                   const text = event.srcElement['result'];
                   if (JSON.parse(text) && JSON.parse(text).errorMsg) {
+                    // Error message found, no action needed
                   } else {
                     this.httpUtil.saveDownloadedFile(
                       contentDisposition,
@@ -298,7 +299,6 @@ export class HttpService {
               observer.next(response);
             } catch (ex) {
               observer.error(response);
-              return ex;
             }
           }
         },
@@ -381,6 +381,7 @@ export class HttpService {
                   reader.addEventListener('loadend', (event: any) => {
                     const text = event.srcElement['result'];
                     if (text && JSON.parse(text) && JSON.parse(text).errorMsg) {
+                      // Error message found, no action needed
                     } else {
                       this.httpUtil.saveDownloadedFile(
                         contentDisposition,
@@ -402,7 +403,6 @@ export class HttpService {
                 observer.next(response);
               } catch (ex) {
                 observer.error(response);
-                return ex;
               }
             }
           },
@@ -453,6 +453,7 @@ export class HttpService {
         )
         .subscribe((response) => {
           if (response?.status && response.status === 'progress') {
+            // Progress event, no action needed
           } else if (
             response.type &&
             response.type === HttpEventType.ResponseHeader
@@ -470,6 +471,7 @@ export class HttpService {
                 reader.addEventListener('loadend', (event: any) => {
                   const text = event.srcElement['result'];
                   if (JSON.parse(text) && JSON.parse(text).errorMsg) {
+                    // Error message found, no action needed
                   } else {
                     this.httpUtil.saveDownloadedFile(
                       contentDisposition,
@@ -491,7 +493,6 @@ export class HttpService {
               observer.next(response);
             } catch (ex) {
               observer.error(response);
-              return ex;
             }
           }
         });

@@ -1,0 +1,3 @@
+export { NotesDialogComponent } from './notes-dialog.component';
+export type { NotesDialogData } from './notes-dialog.component';
+

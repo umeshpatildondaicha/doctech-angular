@@ -11,12 +11,11 @@ import { IconComponent } from '../../../tools/app-icon/icon.component';
 import { StatusCellRendererComponent } from '../../../tools/status-cell-renderer/status-cell-renderer.component';
 import { 
   AdminPageHeaderComponent, 
-  AdminStatsCardComponent, 
-  AdminActionBarComponent,
+  AdminStatsCardComponent,
   type HeaderAction,
-  type StatCard,
-  type ActionButton
+  type StatCard
 } from '../../../components';
+import { AdminDoctorCreateComponent } from './doctor-create/doctor-create.component';
 
 
 
@@ -56,8 +55,7 @@ interface DoctorStats {
     GridComponent,
     IconComponent,
     AdminPageHeaderComponent,
-    AdminStatsCardComponent,
-    AdminActionBarComponent
+    AdminStatsCardComponent
   ],
   templateUrl: './doctors.component.html',
   styleUrl: './doctors.component.scss'
@@ -71,34 +69,14 @@ export class DoctorsComponent implements OnInit {
   // Page header configuration
   headerActions: HeaderAction[] = [
     {
-      text: 'Add New Doctor',
+      text: 'Add New/Existing Doctor',
       color: 'primary',
       fontIcon: 'person_add',
       action: 'add-doctor'
-    },
-    {
-      text: 'Export All',
-      color: 'accent',
-      fontIcon: 'download',
-      action: 'export'
     }
   ];
 
-  // Action bar configuration
-  quickActions: ActionButton[] = [
-    {
-      id: 'link-existing',
-      text: 'Link Existing Doctor',
-      icon: 'link',
-      color: 'accent'
-    },
-    {
-      id: 'bulk-upload',
-      text: 'Bulk Upload',
-      icon: 'upload_file',
-      color: 'accent'
-    }
-  ];
+
 
   // Stats configuration
   statsCards: StatCard[] = [];
@@ -287,7 +265,22 @@ export class DoctorsComponent implements OnInit {
 
   // Action methods
   addNewDoctor() {
-    this.showSnackBar('Add New Doctor functionality will be implemented');
+    const dialogRef = this.dialog.open(AdminDoctorCreateComponent, {
+      width: '900px',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: {},
+      panelClass: 'doctor-create-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Refresh the doctor list after successful creation
+        this.loadDoctorData();
+        this.updateStatsCards();
+        this.showSnackBar('Doctor created successfully!');
+      }
+    });
   }
 
   viewDoctor(doctor: any) {
@@ -366,16 +359,7 @@ export class DoctorsComponent implements OnInit {
     }
   }
 
-  onQuickAction(actionId: string) {
-    switch (actionId) {
-      case 'link-existing':
-        this.showSnackBar('Link Existing Doctor functionality will be implemented');
-        break;
-      case 'bulk-upload':
-        this.showSnackBar('Bulk Upload functionality will be implemented');
-        break;
-    }
-  }
+
 
   exportData() {
     this.showSnackBar('Export functionality will be implemented');

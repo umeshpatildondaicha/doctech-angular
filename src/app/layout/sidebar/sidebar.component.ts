@@ -42,7 +42,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.subscriptions.add(
       this.authService.currentUser$.subscribe(user => {
         if (user) {
-          this.menuService.updateMenu(user.userType);
+          console.log('Sidebar received user:', user);
+          // Map user types to menu service expected values
+          let menuUserType: 'doctor' | 'admin';
+          if (user.userType === 'HOSPITAL') {
+            menuUserType = 'admin';
+          } else if (user.userType === 'DOCTOR') {
+            menuUserType = 'doctor';
+          } else {
+            menuUserType = 'doctor'; // Default fallback
+          }
+          console.log('Updating menu for user type:', menuUserType);
+          this.menuService.updateMenu(menuUserType);
         }
       })
     );

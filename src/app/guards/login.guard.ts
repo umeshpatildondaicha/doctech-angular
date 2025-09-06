@@ -8,16 +8,16 @@ import { AuthService } from '../services/auth.service';
 export class LoginGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(): boolean {
-    if (this.authService.isAuthenticated()) {
-      const userType = this.authService.getUserType();
-      if (userType === 'doctor') {
-        this.router.navigate(['/dashboard']);
-      } else if (userType === 'admin') {
-        this.router.navigate(['/admin-dashboard']);
-      }
-      return false;
-    }
-    return true;
-  }
+          canActivate(): boolean {
+          if (this.authService.isAuthenticated()) {
+            const userType = this.authService.getUserType();
+            if (userType === 'DOCTOR') {
+              this.router.navigate(['/dashboard']);
+            } else if (userType === 'HOSPITAL') {
+              this.router.navigate(['/admin-dashboard']);
+            }
+            return false;
+          }
+          return true;
+        }
 } 

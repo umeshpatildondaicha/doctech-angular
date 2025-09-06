@@ -1,21 +1,4 @@
 <div class="doctor-management-page">
-  <!-- Page Header -->
-  <app-admin-page-header
-    title="Doctor Management"
-    subtitle="Comprehensive doctor management system"
-    [actions]="headerActions"
-    (actionClicked)="onHeaderAction($event)">
-  </app-admin-page-header>
-
-  <!-- Quick Actions -->
-  <app-admin-action-bar
-    [actions]="quickActions"
-    layout="horizontal"
-    align="left"
-    class="in-card"
-    (actionClicked)="onQuickAction($event)">
-  </app-admin-action-bar>
-
   <!-- Statistics Cards -->
   <app-admin-stats-card
     [stats]="statsCards">

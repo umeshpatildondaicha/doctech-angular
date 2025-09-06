@@ -1,42 +1,357 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AppInputComponent } from '../../tools/app-input/app-input.component';
-import { AppButtonComponent } from '../../tools/app-button/app-button.component';
-import { AuthService } from '../../services/auth.service';
+/**
+ * Login Component for Shree Clinic Management System
+ * Following enterprise-level standards with proper form validation, error handling, and UX
+ */
 
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Subject, takeUntil, finalize } from 'rxjs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+import { AuthService } from '../../services/auth.service';
+import { LoginRequest, UserType } from '../../interfaces/auth.interface';
+import { environment } from '../../../environments/environment';
+
+/**
+ * Component responsible for user authentication
+ */
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, AppInputComponent, AppButtonComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrl: './login.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LoginComponent {
-  username: string = '';
-  password: string = '';
-  errorMessage: string = '';
-  isLoading: boolean = false;
+export class LoginComponent implements OnInit, OnDestroy {
+  // Form and state management
+  public loginForm!: FormGroup;
+  public isLoading = false;
+  public showPassword = false;
+  public errorMessage = '';
+  public successMessage = '';
+  
+  // User type options
+  public readonly userTypes = [
+    { value: UserType.HOSPITAL, label: 'Hospital Admin', icon: 'business', description: 'Manage hospital operations and staff' },
+    { value: UserType.DOCTOR, label: 'Doctor', icon: 'medical_services', description: 'Access patient records and manage appointments' },
+    { value: UserType.PATIENT, label: 'Patient', icon: 'person', description: 'View appointments and medical records' }
+  ];
 
-  constructor(private router: Router, private authService: AuthService) {}
+  // Demo credentials for testing
+  public readonly demoCredentials: Record<string, { email: string; password: string }> = {
+    [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
+    [UserType.DOCTOR]: { email: 'u513107@gmail.com', password: 'Umesh@123' },
+    [UserType.PATIENT]: { email: 'patient@shreephysio.com', password: 'Patient@123' }
+  };
 
-  onLogin() {
-    this.isLoading = true;
-    this.errorMessage = '';
+  // Environment for template access
+  public readonly environment = environment;
 
-    this.authService.login(this.username, this.password).then((success) => {
-      if (success) {
-        const userType = this.authService.getUserType();
-        if (userType === 'doctor') {
-          this.router.navigate(['/dashboard']);
-        } else if (userType === 'admin') {
-          this.router.navigate(['/admin-dashboard']);
-        }
-      } else {
-        this.errorMessage = 'Invalid username or password';
-      }
-      this.isLoading = false;
+  // Private properties
+  private readonly destroy$ = new Subject<void>();
+  private loginAttempts = 0;
+  private readonly maxLoginAttempts = environment.security.maxLoginAttempts;
+
+  constructor(
+    private readonly formBuilder: FormBuilder,
+    private readonly authService: AuthService,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar
+  ) {}
+
+  ngOnInit(): void {
+    this.initializeForm();
+    this.checkExistingAuth();
+    this.setupAuthStateSubscription();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Initialize the login form with validation
+   */
+  private initializeForm(): void {
+    this.loginForm = this.formBuilder.group({
+      email: ['', [
+        Validators.required,
+        Validators.email,
+        Validators.maxLength(100)
+      ]],
+      password: ['', [
+        Validators.required,
+        Validators.minLength(6),
+        Validators.maxLength(50)
+      ]],
+      userType: [UserType.HOSPITAL, [Validators.required]],
+      rememberMe: [false]
     });
+  }
+
+  /**
+   * Check if user is already authenticated
+   */
+  private checkExistingAuth(): void {
+    this.authService.isAuthenticated$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(isAuthenticated => {
+      if (isAuthenticated) {
+        this.redirectToDashboard();
+      }
+    });
+  }
+
+  /**
+   * Setup authentication state subscription
+   */
+  private setupAuthStateSubscription(): void {
+    this.authService.authState$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(state => {
+      console.log('Auth state changed:', state);
+      this.isLoading = state.isLoading;
+      this.errorMessage = state.error || '';
+      
+      if (state.isAuthenticated && state.currentUser) {
+        console.log('User authenticated, redirecting...');
+        this.showSuccessMessage(`Welcome back, ${state.currentUser.user.fullName}!`);
+        this.redirectToDashboard();
+      }
+    });
+  }
+
+  /**
+   * Handle form submission
+   */
+  public onSubmit(): void {
+    if (this.loginForm.invalid || this.isLoading) {
+      return;
+    }
+
+    if (this.loginAttempts >= this.maxLoginAttempts) {
+      this.showErrorMessage('Too many login attempts. Please try again later.');
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const loginRequest: LoginRequest = {
+      email: this.loginForm.get('email')?.value?.trim(),
+      password: this.loginForm.get('password')?.value,
+      userType: this.loginForm.get('userType')?.value
+    };
+
+    this.authService.login(loginRequest, this.loginForm.get('rememberMe')?.value).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (result) => {
+        console.log('Login successful:', result);
+        this.loginAttempts = 0;
+        this.showSuccessMessage('Login successful! Redirecting...');
+      },
+      error: (error: Error) => {
+        console.error('Login failed:', error);
+        this.loginAttempts++;
+        this.errorMessage = error.message;
+        this.handleLoginError();
+      }
+    });
+  }
+
+  /**
+   * Handle login errors
+   */
+  private handleLoginError(): void {
+    if (this.loginAttempts >= this.maxLoginAttempts) {
+      this.showErrorMessage('Account temporarily locked due to multiple failed attempts.');
+      this.loginForm.disable();
+      
+      // Re-enable form after lockout duration
+      setTimeout(() => {
+        this.loginAttempts = 0;
+        this.loginForm.enable();
+        this.showSuccessMessage('Login form unlocked. Please try again.');
+      }, environment.security.lockoutDurationMinutes * 60 * 1000);
+    }
+  }
+
+  /**
+   * Fill demo credentials for testing
+   */
+  public fillDemoCredentials(): void {
+    const selectedUserType = this.loginForm.get('userType')?.value;
+    const credentials = this.demoCredentials[selectedUserType as string];
+    
+    if (credentials) {
+      this.loginForm.patchValue({
+        email: credentials.email,
+        password: credentials.password
+      });
+      this.showSuccessMessage(`Demo credentials filled for ${this.getUserTypeLabel(selectedUserType)}`);
+    }
+  }
+
+  /**
+   * Toggle password visibility
+   */
+  public togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  /**
+   * Get user type label
+   */
+  public getUserTypeLabel(userType: string): string {
+    return this.userTypes.find(type => type.value === userType)?.label || userType;
+  }
+
+  /**
+   * Get form control for validation
+   */
+  public getFormControl(controlName: string): AbstractControl | null {
+    return this.loginForm.get(controlName);
+  }
+
+  /**
+   * Check if form control is invalid and touched
+   */
+  public isFieldInvalid(controlName: string): boolean {
+    const control = this.getFormControl(controlName);
+    return !!(control && control.invalid && control.touched);
+  }
+
+  /**
+   * Get error message for form control
+   */
+  public getErrorMessage(controlName: string): string {
+    const control = this.getFormControl(controlName);
+    
+    if (!control || !control.errors) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return 'This field is required';
+    }
+    
+    if (control.errors['email']) {
+      return 'Please enter a valid email address';
+    }
+    
+    if (control.errors['minlength']) {
+      return `Minimum length is ${control.errors['minlength'].requiredLength} characters`;
+    }
+    
+    if (control.errors['maxlength']) {
+      return `Maximum length is ${control.errors['maxlength'].requiredLength} characters`;
+    }
+
+    return 'Invalid input';
+  }
+
+  /**
+   * Redirect to appropriate dashboard
+   */
+  private redirectToDashboard(): void {
+    const userType = this.loginForm.get('userType')?.value;
+    
+    switch (userType) {
+      case UserType.HOSPITAL:
+        this.router.navigate(['/admin-dashboard']);
+        break;
+      case UserType.DOCTOR:
+        this.router.navigate(['/dashboard']);
+        break;
+      case UserType.PATIENT:
+        this.router.navigate(['/patient-dashboard']);
+        break;
+      default:
+        this.router.navigate(['/dashboard']);
+    }
+  }
+
+  /**
+   * Show success message
+   */
+  private showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  /**
+   * Show error message
+   */
+  private showErrorMessage(message: string): void {
+    this.errorMessage = message;
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  /**
+   * Reset form
+   */
+  public resetForm(): void {
+    this.loginForm.reset({
+      email: '',
+      password: '',
+      userType: UserType.HOSPITAL,
+      rememberMe: false
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.loginForm.enable();
+  }
+
+  /**
+   * Select user type
+   */
+  public selectUserType(userType: string): void {
+    this.loginForm.patchValue({ userType });
+    this.onUserTypeChange();
+  }
+
+  /**
+   * Handle user type change
+   */
+  public onUserTypeChange(): void {
+    // Clear form when user type changes
+    this.loginForm.patchValue({
+      email: '',
+      password: ''
+    });
+    this.errorMessage = '';
+    this.successMessage = '';
   }
 } 

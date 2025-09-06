@@ -1,743 +1,470 @@
-<div class="profile-container">
-
-  <!-- Profile Content -->
-  <div class="profile-content">
-    <div class="profile-card">
-      <!-- Profile Header -->
-      <div class="profile-header">
-        <div class="header-background"></div>
-        <div class="avatar-section">
-          <div class="avatar-container">
-            <div class="avatar">
-              <app-icon [fontIcon]="'person'" [size]="48" [color]="'white'" class="avatar-icon"></app-icon>
-            </div>
-            <div class="avatar-badge" *ngIf="isEditing">
-              <app-icon [fontIcon]="'camera_alt'" [size]="16" [color]="'white'"></app-icon>
-            </div>
+<!-- Professional Doctor Profile Component -->
+<div class="doctor-profile-container">
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="header-background">
+      <div class="header-gradient"></div>
+      <div class="header-pattern"></div>
+    </div>
+    
+    <div class="profile-avatar-section">
+      <div class="avatar-container">
+        <div class="avatar">
+          <img 
+            [src]="doctorProfile.profileImageUrl || 'assets/avatars/default-avatar.jpg'" 
+            alt="Doctor Profile"
+            class="avatar-image"
+            onerror="this.src='assets/avatars/default-avatar.jpg'">
+          <div class="avatar-overlay" *ngIf="isEditing">
+            <mat-icon>camera_alt</mat-icon>
+            <span>Change Photo</span>
           </div>
-          <div class="profile-info">
-            <h2 class="profile-name">{{ profileForm.get('firstName')?.value }} {{ profileForm.get('lastName')?.value }}</h2>
-            <p class="profile-role">{{ profileForm.get('specialization')?.value }}</p>
-            <div class="profile-stats">
-              <div class="stat-item">
-                <app-icon [fontIcon]="'schedule'" [size]="16" [color]="'rgba(255, 255, 255, 0.9)'"></app-icon>
-                <span>{{ profileForm.get('experience')?.value }} years experience</span>
-              </div>
-              <div class="stat-item">
-                <app-icon [fontIcon]="'verified'" [size]="16" [color]="'rgba(255, 255, 255, 0.9)'"></app-icon>
-                <span>License: {{ profileForm.get('licenseNumber')?.value }}</span>
-              </div>
-            </div>
-          </div>
+        </div>
+        <div class="status-badge" [class]="'status-' + doctorProfile.doctorStatus.toLowerCase()">
+          <mat-icon>verified</mat-icon>
+          <span>{{ doctorProfile.doctorStatus }}</span>
         </div>
       </div>
-
-      <!-- Profile Completion & Quick Stats -->
-      <div class="profile-overview">
-        <div class="completion-section">
-          <div class="completion-header">
-            <h3>Profile Completion</h3>
-            <span class="completion-percentage">{{ profileCompletion }}%</span>
+      
+      <div class="profile-info">
+        <h1 class="doctor-name">{{ doctorProfile.firstName }} {{ doctorProfile.lastName }}</h1>
+        <p class="doctor-title">{{ doctorProfile.specialization }}</p>
+        <div class="doctor-stats">
+          <div class="stat-item">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ doctorProfile.experienceYears }} years experience</span>
           </div>
-          <mat-progress-bar 
-            [value]="profileCompletion" 
-            [color]="getProfileCompletionColor()"
-            class="completion-bar">
-          </mat-progress-bar>
-          <p class="completion-text">Complete your profile to improve visibility and patient trust</p>
-        </div>
-        
-        <div class="quick-stats">
-          <div class="stat-card" *ngFor="let stat of quickStats">
-            <div class="stat-icon" [class]="'stat-' + stat.color">
-              <app-icon [fontIcon]="stat.icon" [size]="24" [color]="'white'"></app-icon>
-            </div>
-            <div class="stat-content">
-              <div class="stat-value">{{ stat.value }}</div>
-              <div class="stat-label">{{ stat.label }}</div>
-            </div>
+          <div class="stat-item">
+            <mat-icon>verified_user</mat-icon>
+            <span>License: {{ doctorProfile.registrationNumber }}</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ doctorProfile.primaryHospital }}</span>
           </div>
         </div>
-      </div>
-
-      <!-- Tabbed Navigation -->
-      <div class="tab-navigation">
-        <mat-tab-group 
-          [selectedIndex]="selectedTab" 
-          (selectedIndexChange)="onTabChange($event)"
-          class="profile-tabs"
-          mat-align-tabs="start">
-          
-          <!-- Personal Information Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <div class="tab-label">
-                <app-icon [fontIcon]="'person_outline'" [size]="20" [color]="'currentColor'"></app-icon>
-                <span>Personal Info</span>
-              </div>
-            </ng-template>
-            <div class="tab-content">
-              <div class="tab-description">
-                <h3>Personal Information</h3>
-                <p>Manage your basic personal details and professional bio</p>
-              </div>
-              <form [formGroup]="profileForm" class="profile-form">
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'person_outline'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Basic Information</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-input
-                        label="First Name"
-                        formControlName="firstName"
-                        placeholder="Enter first name"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('firstName')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Last Name"
-                        formControlName="lastName"
-                        placeholder="Enter last name"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('lastName')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Email Address"
-                        formControlName="email"
-                        placeholder="Enter email address"
-                        type="email"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('email')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Phone Number"
-                        formControlName="phone"
-                        placeholder="Enter phone number"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('phone')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <div class="field-with-info">
-                        <app-input
-                          label="Personal Contact Number (Administrative Only)"
-                          formControlName="personalPhone"
-                          placeholder="Enter personal contact number"
-                          [disabled]="!isEditing"
-                          class="form-field">
-                        </app-input>
-                        <div class="info-icon-wrapper">
-                          <app-icon [fontIcon]="'info'" [size]="16" [color]="'#6b7280'"></app-icon>
-                          <div class="tooltip">
-                            <span>This number is for administrative purposes only (app issues, technical support, etc.) and will NOT be shared with patients or the public.</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Date of Birth"
-                        formControlName="dateOfBirth"
-                        placeholder="Select date of birth"
-                        type="date"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-selectbox
-                        label="Gender"
-                        formControlName="gender"
-                        [options]="['Male', 'Female', 'Other']"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-selectbox>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'home'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Address Information</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-input
-                        label="Street Address"
-                        formControlName="streetAddress"
-                        placeholder="Enter street address"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="City"
-                        formControlName="city"
-                        placeholder="Enter city"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="State/Province"
-                        formControlName="state"
-                        placeholder="Enter state or province"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Postal Code"
-                        formControlName="postalCode"
-                        placeholder="Enter postal code"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Country"
-                        formControlName="country"
-                        placeholder="Enter country"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'description'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Professional Bio</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row full-width">
-                      <app-input
-                        label="Professional Bio"
-                        formControlName="professionalBio"
-                        placeholder="Tell us about your professional background, expertise, and approach to patient care..."
-                        [multiline]="true"
-                        [rows]="4"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </mat-tab>
-
-          <!-- Professional Info Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <div class="tab-label">
-                <app-icon [fontIcon]="'medical_services'" [size]="20" [color]="'currentColor'"></app-icon>
-                <span>Professional</span>
-              </div>
-            </ng-template>
-            <div class="tab-content">
-              <div class="tab-description">
-                <h3>Professional Information</h3>
-                <p>Manage your medical credentials, practice details, and research information</p>
-              </div>
-              <form [formGroup]="profileForm" class="profile-form">
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'medical_services'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Medical Credentials</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-selectbox
-                        label="Specialization"
-                        formControlName="specialization"
-                        [options]="specializations"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('specialization')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-selectbox>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Qualifications"
-                        formControlName="qualifications"
-                        placeholder="e.g., MBBS, MD - Internal Medicine"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('qualifications')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Years of Experience"
-                        formControlName="experience"
-                        placeholder="Enter years of experience"
-                        type="number"
-                        [required]="true"
-                        [errorMessage]="getErrorMessage('experience')"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <label class="form-label">License Number</label>
-                      <input
-                        type="text"
-                        formControlName="licenseNumber"
-                        placeholder="Enter license number"
-                        [disabled]="!isEditing"
-                        class="form-field"
-                        style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-                      <div *ngIf="getErrorMessage('licenseNumber')" style="color: red; font-size: 12px; margin-top: 4px;">
-                        {{ getErrorMessage('licenseNumber') }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'healing'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Medical Practice</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row full-width">
-                      <app-input
-                        label="Treatments Offered"
-                        formControlName="treatmentsOffered"
-                        placeholder="List treatments and services offered"
-                        [multiline]="true"
-                        [rows]="3"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row full-width">
-                      <app-input
-                        label="Areas of Expertise"
-                        formControlName="areasOfExpertise"
-                        placeholder="List your areas of expertise and specializations"
-                        [multiline]="true"
-                        [rows]="3"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row full-width">
-                      <app-input
-                        label="Research Interests"
-                        formControlName="researchInterests"
-                        placeholder="Describe your research interests and publications"
-                        [multiline]="true"
-                        [rows]="3"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'groups'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Professional Memberships</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row full-width">
-                      <app-input
-                        label="Professional Memberships"
-                        formControlName="professionalMemberships"
-                        placeholder="List professional memberships"
-                        [multiline]="true"
-                        [rows]="3"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </mat-tab>
-
-          <!-- Work & Availability Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <div class="tab-label">
-                <app-icon [fontIcon]="'business'" [size]="20" [color]="'currentColor'"></app-icon>
-                <span>Work & Availability</span>
-              </div>
-            </ng-template>
-            <div class="tab-content">
-              <div class="tab-description">
-                <h3>Work & Availability</h3>
-                <p>Manage your work affiliations, availability schedule, and communication preferences</p>
-              </div>
-              <form [formGroup]="profileForm" class="profile-form">
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'business'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Affiliations</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-input
-                        label="Affiliated Hospitals"
-                        formControlName="affiliatedHospitals"
-                        placeholder="Enter affiliated hospitals"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Hospital Affiliations"
-                        formControlName="hospitalAffiliations"
-                        placeholder="Enter hospital affiliations"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Clinic Affiliations"
-                        formControlName="clinicAffiliations"
-                        placeholder="Enter clinic affiliations"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row full-width">
-                      <label class="form-label">Associated Departments</label>
-                      <div class="chips-container">
-                        <mat-chip-listbox formControlName="associatedDepartments" [disabled]="!isEditing">
-                          <mat-chip-option *ngFor="let dept of profileForm.get('associatedDepartments')?.value" 
-                                          [value]="dept" 
-                                          (removed)="removeDepartment(dept)">
-                            {{ dept }}
-                            <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
-                          </mat-chip-option>
-                        </mat-chip-listbox>
-                        <app-selectbox
-                          *ngIf="isEditing"
-                          [options]="departments"
-                          placeholder="Add department"
-                          (dataChange)="addDepartment($event)"
-                          class="add-chip-select">
-                        </app-selectbox>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'schedule'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Availability & Schedule</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-selectbox
-                        label="Working Hours"
-                        formControlName="workingHours"
-                        [options]="availabilityOptions"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-selectbox>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Available Days"
-                        formControlName="availableDays"
-                        placeholder="e.g., Monday to Friday"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Emergency Availability"
-                        formControlName="emergencyAvailability"
-                        placeholder="Describe emergency availability"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'language'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Languages & Communication</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row full-width">
-                      <label class="form-label">Languages Spoken</label>
-                      <div class="chips-container">
-                        <mat-chip-listbox formControlName="languagesSpoken" [disabled]="!isEditing">
-                          <mat-chip-option *ngFor="let lang of languages" [value]="lang">
-                            {{ lang }}
-                            <mat-icon matChipRemove *ngIf="isEditing">cancel</mat-icon>
-                          </mat-chip-option>
-                        </mat-chip-listbox>
-                        <div class="add-chip-input" *ngIf="isEditing">
-                          <app-selectbox
-                            placeholder="Add language"
-                            [options]="languages"
-                            class="add-chip-select"
-                            (dataChange)="addLanguage($event)">
-                          </app-selectbox>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </mat-tab>
-
-          <!-- Financial Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <div class="tab-label">
-                <app-icon [fontIcon]="'attach_money'" [size]="20" [color]="'currentColor'"></app-icon>
-                <span>Financial</span>
-              </div>
-            </ng-template>
-            <div class="tab-content">
-              <div class="tab-description">
-                <h3>Financial Information</h3>
-                <p>Manage your consultation fees, payment methods, and insurance policies</p>
-                <div class="financial-actions" style="margin: 16px 0 8px; display: flex; gap: 12px;">
-                  <app-button
-                    [text]="'Add / Manage Fees'"
-                    [color]="'primary'"
-                    [fontIcon]="'add'"
-                    (btnClick)="openPricingDialog()"
-                    style="flex: 0 0 auto;">
-                  </app-button>
-                  <app-button
-                    [text]="'Add Pricing Item'"
-                    [color]="'accent'"
-                    [fontIcon]="'add'"
-                    (btnClick)="addOrEditPricingItem()"
-                    style="flex: 0 0 auto;">
-                  </app-button>
-                </div>
-              </div>
-              <form [formGroup]="profileForm" class="profile-form">
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'attach_money'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Pricing Management</h3>
-                  </div>
-
-                  <!-- Pricing Items Grid -->
-                  <app-grid
-                    [rowData]="pricingItems"
-                    [columnDefs]="pricingColumnDefs"
-                    [gridOptions]="pricingGridOptions"
-                    [height]="'auto'"
-                    [showHeader]="true"
-                    [searchPlaceholder]="'Search pricing items...'"
-                    class="pricing-grid">
-                  </app-grid>
-
-                  <!-- Empty State -->
-                  <div class="empty-state" *ngIf="pricingItems.length === 0">
-                    <div class="empty-icon">💰</div>
-                    <div class="empty-title">No Pricing Items Yet</div>
-                    <div class="empty-description">
-                      Start by adding your first pricing item. You can set consultation fees,
-                      follow-up pricing, and other treatment costs.
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </mat-tab>
-
-          <!-- Settings Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <div class="tab-label">
-                <app-icon [fontIcon]="'settings'" [size]="20" [color]="'currentColor'"></app-icon>
-                <span>Settings</span>
-              </div>
-            </ng-template>
-            <div class="tab-content">
-              <div class="tab-description">
-                <h3>Settings & Preferences</h3>
-                <p>Manage your security settings, notification preferences, and calendar integrations</p>
-              </div>
-              <form [formGroup]="profileForm" class="profile-form">
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'security'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Security Settings</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-input
-                        label="Current Password"
-                        formControlName="currentPassword"
-                        placeholder="Enter current password"
-                        type="password"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="New Password"
-                        formControlName="newPassword"
-                        placeholder="Enter new password"
-                        type="password"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Confirm New Password"
-                        formControlName="confirmPassword"
-                        placeholder="Confirm new password"
-                        type="password"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'notifications'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Notification Preferences</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row full-width">
-                      <label class="form-label">Notification Settings</label>
-                      <div class="checkbox-group">
-                        <mat-checkbox formControlName="emailNotifications" [disabled]="!isEditing">
-                          Email Notifications
-                        </mat-checkbox>
-                        <mat-checkbox formControlName="smsNotifications" [disabled]="!isEditing">
-                          SMS Notifications
-                        </mat-checkbox>
-                        <mat-checkbox formControlName="appNotifications" [disabled]="!isEditing">
-                          App Notifications
-                        </mat-checkbox>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-section">
-                  <div class="section-header">
-                    <app-icon [fontIcon]="'calendar_today'" [size]="24" [color]="'#3b82f6'"></app-icon>
-                    <h3 class="section-title">Calendar Integration</h3>
-                  </div>
-                  <div class="form-grid">
-                    <div class="form-row">
-                      <app-selectbox
-                        label="Default Calendar"
-                        formControlName="defaultCalendar"
-                        [options]="['Google Calendar', 'Outlook', 'Apple Calendar', 'Other']"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-selectbox>
-                    </div>
-
-                    <div class="form-row">
-                      <app-input
-                        label="Calendar Sync Interval"
-                        formControlName="calendarSyncInterval"
-                        placeholder="e.g., 15 minutes"
-                        [disabled]="!isEditing"
-                        class="form-field">
-                      </app-input>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </mat-tab>
-        </mat-tab-group>
       </div>
     </div>
   </div>
 
-  <!-- Action Buttons -->
-  <div class="form-actions" *ngIf="isEditing">
-    <div class="action-buttons">
-      <app-button
-        type="button"
-        [appearance]="'basic'"
-        [color]="'accent'"
-        [fontIcon]="'close'"
-        (btnClick)="onCancel()"
-        [text]="'Cancel'"
-        class="cancel-btn">
-      </app-button>
+  <!-- Profile Content -->
+  <div class="profile-content">
+    <div class="profile-card">
+      <!-- Action Bar -->
+      <div class="action-bar">
+        <div class="action-left">
+          <h2 class="page-title">Doctor Profile</h2>
+          <p class="page-subtitle">Manage your professional information and credentials</p>
+        </div>
+        <div class="action-right">
+          <button 
+            *ngIf="!isEditing"
+            mat-raised-button 
+            color="primary"
+            (click)="startEditing()"
+            class="edit-btn">
+            <mat-icon>edit</mat-icon>
+            Edit Profile
+          </button>
+          <div *ngIf="isEditing" class="edit-actions">
+            <button 
+              mat-button 
+              (click)="cancelEditing()"
+              class="cancel-btn">
+              Cancel
+            </button>
+            <button 
+              mat-raised-button 
+              color="primary"
+              (click)="saveProfile()"
+              [disabled]="profileForm.invalid || isSaving"
+              class="save-btn">
+              <mat-spinner *ngIf="isSaving" diameter="16"></mat-spinner>
+              <mat-icon *ngIf="!isSaving">save</mat-icon>
+              {{ isSaving ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </div>
 
-      <app-button
-        type="button"
-        [appearance]="'raised'"
-        [color]="'primary'"
-        [fontIcon]="'save'"
-        (btnClick)="onSave()"
-        [disabled]="profileForm.invalid"
-        [text]="'Save Changes'"
-        class="save-btn">
-      </app-button>
+      <!-- Profile Sections -->
+      <form [formGroup]="profileForm" class="profile-sections">
+        
+        <!-- Basic Information Section -->
+        <div class="profile-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>person_outline</mat-icon>
+            </div>
+            <div class="section-title">
+              <h3>Basic Information</h3>
+              <p>Personal details and identification information</p>
+            </div>
+            <div class="section-badge">
+              <span class="badge read-only">Read Only</span>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="info-grid">
+              <div class="info-item">
+                <label class="info-label">First Name</label>
+                <div class="info-value">{{ doctorProfile.firstName }}</div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Last Name</label>
+                <div class="info-value">{{ doctorProfile.lastName }}</div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Registration Number / License</label>
+                <div class="info-value license-number">{{ doctorProfile.registrationNumber }}</div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Date of Birth</label>
+                <div class="info-value">{{ doctorProfile.dateOfBirth | date:'mediumDate' }}</div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Gender</label>
+                <div class="info-value">{{ doctorProfile.gender }}</div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Email Address</label>
+                <div class="info-value">
+                  <span *ngIf="!isEditing">{{ doctorProfile.email }}</span>
+                  <input 
+                    *ngIf="isEditing"
+                    type="email"
+                    formControlName="email"
+                    class="editable-input"
+                    placeholder="Enter email address">
+                </div>
+              </div>
+              
+              <div class="info-item">
+                <label class="info-label">Contact Number</label>
+                <div class="info-value">
+                  <span *ngIf="!isEditing">{{ doctorProfile.contactNumber }}</span>
+                  <input 
+                    *ngIf="isEditing"
+                    type="tel"
+                    formControlName="contactNumber"
+                    class="editable-input"
+                    placeholder="Enter contact number">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Information Section -->
+        <div class="profile-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>location_on</mat-icon>
+            </div>
+            <div class="section-title">
+              <h3>Address Information</h3>
+              <p>Connected hospital working addresses</p>
+            </div>
+            <div class="section-badge">
+              <span class="badge read-only">Read Only</span>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="hospital-addresses">
+              <div class="address-card" *ngFor="let address of doctorProfile.hospitalAddresses; let i = index">
+                <div class="address-header">
+                  <mat-icon>business</mat-icon>
+                  <h4>{{ address.hospitalName }}</h4>
+                  <span class="address-type">{{ address.type }}</span>
+                </div>
+                <div class="address-details">
+                  <p class="address-line">{{ address.streetAddress }}</p>
+                  <p class="address-line">{{ address.city }}, {{ address.state }} {{ address.postalCode }}</p>
+                  <p class="address-line">{{ address.country }}</p>
+                  <div class="address-contact">
+                    <span><mat-icon>phone</mat-icon> {{ address.phone }}</span>
+                    <span><mat-icon>email</mat-icon> {{ address.email }}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="empty-addresses" *ngIf="doctorProfile.hospitalAddresses?.length === 0">
+                <mat-icon>location_off</mat-icon>
+                <p>No hospital addresses found</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Professional Bio Section -->
+        <div class="profile-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>description</mat-icon>
+            </div>
+            <div class="section-title">
+              <h3>Professional Bio</h3>
+              <p>Your professional background and approach to patient care</p>
+            </div>
+            <div class="section-badge">
+              <span class="badge editable">Editable</span>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="bio-content">
+              <div *ngIf="!isEditing" class="bio-text">
+                <p>{{ doctorProfile.professionalBio || 'No professional bio available. Click edit to add your bio.' }}</p>
+                <!-- Debug info -->
+                <small style="color: #666; display: block; margin-top: 8px;">
+                  Debug: Bio length = {{ (doctorProfile.professionalBio || '').length }}, 
+                  Bio value = "{{ doctorProfile.professionalBio }}"
+                </small>
+              </div>
+              <div *ngIf="isEditing" class="bio-edit">
+                <textarea 
+                  formControlName="professionalBio"
+                  class="bio-textarea"
+                  placeholder="Tell us about your professional background, expertise, and approach to patient care..."
+                  rows="6"></textarea>
+                <div class="bio-counter">
+                  <span>{{ (profileForm.get('professionalBio')?.value || '').length }}/1000 characters</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Medical Credentials Section -->
+        <div class="profile-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>medical_services</mat-icon>
+            </div>
+            <div class="section-title">
+              <h3>Medical Credentials</h3>
+              <p>Your qualifications, specializations, and experience</p>
+            </div>
+            <div class="section-badge">
+              <span class="badge" [class.read-only]="!isEditing" [class.editable]="isEditing">
+                {{ isEditing ? 'Editing' : 'Read Only' }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="credentials-grid">
+              <!-- Primary Specialization -->
+              <div class="credential-item">
+                <label class="credential-label">Primary Specialization *</label>
+                <div class="credential-value" *ngIf="!isEditing">
+                  {{ doctorProfile.specialization }}
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <input 
+                    type="text" 
+                    [formControlName]="'specialization'"
+                    placeholder="Enter primary specialization"
+                    class="form-input"
+                    [class.error]="profileForm.get('specialization')?.invalid && profileForm.get('specialization')?.touched"
+                  >
+                  <div class="error-message" *ngIf="profileForm.get('specialization')?.invalid && profileForm.get('specialization')?.touched">
+                    {{ getErrorMessage('specialization') }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Additional Specializations -->
+              <div class="credential-item">
+                <label class="credential-label">Additional Specializations</label>
+                <div class="credential-value" *ngIf="!isEditing">
+                  <div class="specialization-tags">
+                    <span class="tag" *ngFor="let spec of doctorProfile.additionalSpecializations || []">
+                      {{ spec }}
+                    </span>
+                  </div>
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <div class="tags-container">
+                    <span class="tag editable-tag" *ngFor="let spec of profileForm.get('additionalSpecializations')?.value; let i = index">
+                      {{ spec }}
+                      <button type="button" class="remove-tag" (click)="removeArrayItem('additionalSpecializations', i)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div class="add-item-input">
+                    <input 
+                      type="text" 
+                      id="newSpecialization"
+                      placeholder="Add specialization"
+                      class="form-input"
+                    >
+                    <button type="button" class="add-btn" (click)="addSpecialization()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Qualifications -->
+              <div class="credential-item">
+                <label class="credential-label">Qualifications</label>
+                <div class="credential-value" *ngIf="!isEditing">
+                  <div class="qualification-list">
+                    <div class="qualification-item" *ngFor="let qual of doctorProfile.qualifications || []">
+                      <mat-icon>school</mat-icon>
+                      <span>{{ qual }}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <div class="tags-container">
+                    <span class="tag editable-tag" *ngFor="let qual of profileForm.get('qualifications')?.value; let i = index">
+                      {{ qual }}
+                      <button type="button" class="remove-tag" (click)="removeArrayItem('qualifications', i)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div class="add-item-input">
+                    <input 
+                      type="text" 
+                      id="newQualification"
+                      placeholder="Add qualification"
+                      class="form-input"
+                    >
+                    <button type="button" class="add-btn" (click)="addQualification()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Work Start Date -->
+              <div class="credential-item">
+                <label class="credential-label">Work Start Date *</label>
+                <div class="credential-value" *ngIf="!isEditing">
+                  {{ doctorProfile.workStartDate | date:'mediumDate' }}
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <input 
+                    type="date" 
+                    [formControlName]="'workStartDate'"
+                    class="form-input"
+                    [class.error]="profileForm.get('workStartDate')?.invalid && profileForm.get('workStartDate')?.touched"
+                  >
+                  <div class="error-message" *ngIf="profileForm.get('workStartDate')?.invalid && profileForm.get('workStartDate')?.touched">
+                    {{ getErrorMessage('workStartDate') }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Years of Experience -->
+              <div class="credential-item">
+                <label class="credential-label">Years of Experience *</label>
+                <div class="credential-value experience-badge" *ngIf="!isEditing">
+                  <span>{{ doctorProfile.experienceYears }} years</span>
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <input 
+                    type="number" 
+                    [formControlName]="'experienceYears'"
+                    placeholder="Enter years of experience"
+                    class="form-input"
+                    min="0"
+                    max="50"
+                    [class.error]="profileForm.get('experienceYears')?.invalid && profileForm.get('experienceYears')?.touched"
+                  >
+                  <div class="error-message" *ngIf="profileForm.get('experienceYears')?.invalid && profileForm.get('experienceYears')?.touched">
+                    {{ getErrorMessage('experienceYears') }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Certifications -->
+              <div class="credential-item">
+                <label class="credential-label">Certifications</label>
+                <div class="credential-value" *ngIf="!isEditing">
+                  <div class="certification-tags">
+                    <span class="tag" *ngFor="let cert of doctorProfile.certifications || []">
+                      {{ cert }}
+                    </span>
+                  </div>
+                </div>
+                <div class="credential-input" *ngIf="isEditing">
+                  <div class="tags-container">
+                    <span class="tag editable-tag" *ngFor="let cert of profileForm.get('certifications')?.value; let i = index">
+                      {{ cert }}
+                      <button type="button" class="remove-tag" (click)="removeArrayItem('certifications', i)">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </span>
+                  </div>
+                  <div class="add-item-input">
+                    <input 
+                      type="text" 
+                      id="newCertification"
+                      placeholder="Add certification"
+                      class="form-input"
+                    >
+                    <button type="button" class="add-btn" (click)="addCertification()">
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Affiliations Section -->
+        <div class="profile-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <mat-icon>business</mat-icon>
+            </div>
+            <div class="section-title">
+              <h3>Affiliations</h3>
+              <p>Hospital and institutional affiliations</p>
+            </div>
+            <div class="section-badge">
+              <span class="badge read-only">Read Only</span>
+            </div>
+          </div>
+          
+          <div class="section-content">
+            <div class="affiliations-grid">
+              <div class="affiliation-card" *ngFor="let affiliation of doctorProfile.affiliations || []">
+                <div class="affiliation-header">
+                  <mat-icon>business</mat-icon>
+                  <h4>{{ affiliation.institutionName }}</h4>
+                  <span class="affiliation-type">{{ affiliation.type }}</span>
+                </div>
+                <div class="affiliation-details">
+                  <p class="affiliation-role">{{ affiliation.role }}</p>
+                  <p class="affiliation-period">{{ affiliation.startDate | date:'MMM yyyy' }} - {{ affiliation.endDate ? (affiliation.endDate | date:'MMM yyyy') : 'Present' }}</p>
+                  <div class="affiliation-description">
+                    <p>{{ affiliation.description }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="empty-affiliations" *ngIf="doctorProfile.affiliations?.length === 0">
+                <mat-icon>business_center</mat-icon>
+                <p>No affiliations found</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 </div>

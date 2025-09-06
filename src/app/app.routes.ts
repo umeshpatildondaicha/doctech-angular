@@ -18,6 +18,7 @@ import { SettingsComponent } from './layout/settings/settings.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { DoctorsComponent } from './pages/admin/doctors/doctors.component';
+import { DoctorCreateTestComponent } from './pages/admin/doctors/doctor-create-test/doctor-create-test.component';
 import { ServicesComponent } from './pages/admin/services/services.component';
 import { ServiceFormComponent } from './pages/admin/services/service-form/service-form.component';
 import { ServiceDetailsComponent } from './pages/admin/services/service-details/service-details.component';
@@ -42,7 +43,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
+  { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },
@@ -73,6 +74,7 @@ export const routes: Routes = [
     data: { breadcrumb: 'Admin Dashboard', breadcrumbIcon: 'admin_panel_settings' }
   },
   { path: 'admin/doctors', component: DoctorsComponent, canActivate: [AuthGuard] },
+  { path: 'admin/doctors/test', component: DoctorCreateTestComponent, canActivate: [AuthGuard] },
   { 
     path: 'admin/services', 
     component: ServicesComponent, 

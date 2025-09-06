@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../tools/app-input/app-input.component';
@@ -14,11 +14,68 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GridComponent } from '../../tools/grid/grid.component';
 import { ColDef, GridOptions } from 'ag-grid-community';
 import { PricingDialogComponent, PricingDialogData } from './pricing-dialog/pricing-dialog.component';
 import { PricingItemDialogComponent, PricingItemData } from './pricing-item-dialog/pricing-item-dialog.component';
 import { CustomEventsService } from '../../services/custom-events.service';
+import { DoctorService, DoctorProfileUpdateRequest, DoctorProfileResponse } from '../../services/doctor.service';
+import { AuthService } from '../../services/auth.service';
+
+// Doctor Profile Interface - Updated to match service interfaces
+interface DoctorProfile {
+  // Basic Information
+  firstName: string;
+  lastName: string;
+  registrationNumber: string;
+  dateOfBirth: Date;
+  gender: string;
+  email: string;
+  contactNumber: string;
+  profileImageUrl?: string;
+  doctorStatus: string;
+  primaryHospital: string;
+
+  // Professional Bio
+  professionalBio?: string;
+
+  // Medical Credentials
+  specialization: string;
+  additionalSpecializations: string[];
+  qualifications: string[];
+  workStartDate: Date;
+  experienceYears: number;
+  certifications: string[];
+
+  // Hospital Addresses
+  hospitalAddresses: HospitalAddress[];
+
+  // Affiliations
+  affiliations: Affiliation[];
+}
+
+interface HospitalAddress {
+  hospitalName: string;
+  type: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone: string;
+  email: string;
+}
+
+interface Affiliation {
+  institutionName: string;
+  type: string;
+  role: string;
+  startDate: Date;
+  endDate?: Date;
+  description: string;
+}
 
 @Component({
   selector: 'app-profile',
@@ -36,6 +93,8 @@ import { CustomEventsService } from '../../services/custom-events.service';
     MatCardModule,
     MatDialogModule,
     MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
     GridComponent,
     AppButtonComponent,
     AppInputComponent,
@@ -45,18 +104,23 @@ import { CustomEventsService } from '../../services/custom-events.service';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
   isEditing = false;
+  isSaving = false;
   selectedTab = 0;
   profileCompletion = 0;
+
+  // Doctor Profile Data - Initialize with authenticated user data
+  doctorProfile: DoctorProfile = this.initializeDoctorProfile();
+
+  // Grid Configuration for Pricing (keeping existing)
   pricingItems: PricingItemData[] = [
     { name: 'General Consultation', category: 'Consultation', unit: 'Flat', price: 150, followUpNeeded: true, followUps: [{ day: 7, price: 100 }] },
     { name: 'Emergency Visit', category: 'Emergency', unit: 'Flat', price: 200, followUpNeeded: false, followUps: [] },
     { name: 'Dressing', category: 'Dressing', unit: 'Per cm', price: 15, followUpNeeded: false, followUps: [] }
   ];
 
-  // Grid Configuration
   pricingColumnDefs: ColDef[] = [
     {
       headerName: 'Service Name',
@@ -99,501 +163,502 @@ export class ProfileComponent {
       cellRenderer: (params: any) => {
         return `<span style="display: inline-flex; align-items: center; padding: 8px 16px; border-radius: 20px; background: #10b981; color: white; font-size: 14px; font-weight: 700;">₹ ${params.value}</span>`;
       }
-    },
-    {
-      headerName: 'Follow-ups',
-      field: 'followUps',
-      flex: 1.5,
-      minWidth: 150,
-      cellRenderer: (params: any) => {
-        if (!params.data.followUpNeeded || !params.value?.length) {
-          return '<span style="font-size: 11px; color: #64748b; font-style: italic;">No follow-ups</span>';
-        }
-        const followups = params.value.map((f: any) => 
-          `<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #64748b; font-weight: 500;">
-            <span style="background: #10b3b3; color: white; padding: 2px 6px; border-radius: 8px; font-size: 10px; font-weight: 600;">Day ${f.day}</span>
-            <span style="color: #10b981; font-weight: 600;">₹ ${f.price}</span>
-          </div>`
-        ).join('');
-        return followups;
-      }
-    },
-    {
-      headerName: 'Actions',
-      flex: 0.5,
-      minWidth: 80,
-      sortable: false,
-      filter: false,
-      cellRenderer: 'gridMenu'
     }
   ];
 
-  pricingGridOptions: any = {
-    suppressMenuHide: true,
-    suppressRowClickSelection: true,
+  pricingGridOptions: GridOptions = {
     rowHeight: 60,
     headerHeight: 50,
-    suppressColumnVirtualisation: false,
-    suppressRowVirtualisation: false,
-    suppressSizeToFit: false,
-    suppressAutoSize: false,
-    domLayout: 'autoHeight',
-    suppressHorizontalScroll: true,
-    menuActions: [
-      {
-        title: 'Edit',
-        icon: 'edit',
-        click: (param: any) => this.addOrEditPricingItem(param.data, param.rowIndex)
-      },
-      {
-        title: 'Delete',
-        icon: 'delete',
-        click: (param: any) => this.deletePricingItem(param.rowIndex)
-      }
-    ]
+    suppressMovableColumns: true,
+    suppressMenuHide: true,
+    suppressRowClickSelection: true,
+    suppressCellFocus: true,
+    suppressRowHoverHighlight: true,
+    suppressColumnVirtualisation: true,
+    suppressRowVirtualisation: true,
+    suppressAnimationFrame: true,
+    suppressBrowserResizeObserver: true,
+    suppressScrollOnNewData: true,
+    suppressPropertyNamesCheck: true,
+    suppressFieldDotNotation: true,
+    suppressLoadingOverlay: true,
+    suppressNoRowsOverlay: true,
+    suppressRowTransform: true,
+    suppressColumnMoveAnimation: true
   };
 
-  // Available options for dropdowns
-  specializations = [
-    'Cardiology', 'Orthopedics', 'Pediatrics', 'Neurology', 'Oncology', 
-    'Dermatology', 'Psychiatry', 'General Medicine', 'Surgery', 'Gynecology',
-    'Ophthalmology', 'ENT', 'Urology', 'Radiology', 'Anesthesiology'
-  ];
-
-  departments = [
-    'Cardiology', 'Pediatrics', 'Orthopedics', 'Neurology', 'Oncology',
-    'Emergency Medicine', 'Intensive Care', 'Surgery', 'Gynecology', 'Radiology'
-  ];
-
-  languages = [
-    'English', 'Hindi', 'Spanish', 'French', 'German', 'Chinese', 'Arabic', 'Portuguese'
-  ];
-
-  availabilityOptions = [
-    'Monday-Friday', 'Weekends', 'Evenings', '24/7 Emergency', 'By Appointment Only'
-  ];
-
-  // Tab configuration
-  tabs = [
-    { label: 'Personal Info', icon: 'person_outline', description: 'Basic information and about me' },
-    { label: 'Professional', icon: 'medical_services', description: 'Medical credentials and practice' },
-    { label: 'Work & Availability', icon: 'business', description: 'Affiliations and schedule' },
-    { label: 'Financial', icon: 'attach_money', description: 'Fees and payment methods' },
-    { label: 'Settings', icon: 'settings', description: 'Security and preferences' }
-  ];
-
-  // Quick stats
-  quickStats = [
-    { label: 'Patients Seen', value: '1,247', icon: 'people', color: 'primary' },
-    { label: 'Years Experience', value: '15', icon: 'schedule', color: 'accent' },
-    { label: 'Languages', value: '3', icon: 'language', color: 'warn' },
-    { label: 'Rating', value: '4.8/5', icon: 'star', color: 'primary' }
-  ];
-
   constructor(
-    private fb: FormBuilder,
+    private formBuilder: FormBuilder,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
     private customEventsService: CustomEventsService,
-    private dialog: MatDialog
+    private doctorService: DoctorService,
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {
-    this.customEventsService.breadcrumbEvent.emit(
-      {
-        isAppend:true,
-        breadcrum: [{
-          title: 'Dr. John Doe',
-          url: '/profile'
-        }]
-      }
-    );
-    this.profileForm = this.fb.group({
-      // Personal Information
-      firstName: ['Dr. John', [Validators.required, Validators.minLength(2)]],
-      lastName: ['Doe', [Validators.required, Validators.minLength(2)]],
-      email: ['john.doe@shreeclinic.com', [Validators.required, Validators.email]],
-      phone: ['+1 (555) 123-4567', [Validators.required]],
-      personalPhone: ['+1 (555) 987-6543'],
-      dateOfBirth: ['1980-05-15'],
-      gender: ['Male'],
-      
-      // Professional Information
-      specialization: ['General Medicine', [Validators.required]],
-      qualifications: ['MBBS, MD - Internal Medicine', [Validators.required]],
-      experience: ['15', [Validators.required, Validators.min(0)]],
-      licenseNumber: ['MD123456', [Validators.required]],
-      affiliatedHospitals: ['Shree Clinic, City General Hospital'],
-      workingHours: ['Monday-Friday'],
-      languagesSpoken: [['English', 'Hindi', 'Spanish']],
-      
-      // Medical Practice Information
-      treatmentsOffered: ['General Consultation, Preventive Care, Chronic Disease Management'],
-      proceduresPerformed: ['Physical Examinations, Vaccinations, Health Screenings'],
-      patientAgeGroups: [['Adults', 'Elderly']],
-      
-      // Departments & Affiliations
-      associatedDepartments: [['General Medicine', 'Preventive Care']],
-      hospitalAffiliations: ['Shree Clinic, City General Hospital'],
-      clinicAffiliations: ['Downtown Medical Center'],
-      
-      // Fees & Consultation
-      consultationFee: ['150'],
-      followUpFee: ['100'],
-      emergencyFee: ['200'],
-      onlineConsultationFee: ['120'],
-      insuranceAccepted: [true],
-      paymentMethods: [['Cash', 'Credit Card', 'Insurance']],
-      
-      // Availability & Telemedicine
-      availabilitySchedule: ['Monday-Friday'],
-      onlineConsultation: [true],
-      telemedicineAvailable: [true],
-      emergencyAvailability: [true],
-      appointmentSlots: ['30 minutes'],
-      
-      // Research & Publications
-      researchInterests: ['Preventive Medicine, Chronic Disease Management'],
-      publications: [''],
-      caseStudies: [''],
-      awards: ['Best Doctor Award 2023, Excellence in Patient Care 2022'],
-      memberships: ['American Medical Association, State Medical Board'],
-      
-      // Security & Settings
-      twoFactorAuth: [false],
-      smsNotifications: [true],
-      emailNotifications: [true],
-      appNotifications: [true],
-      profileVisibility: ['Public'],
-      
-      // Bio & About
-      bio: ['Experienced physician with over 15 years of practice in general medicine. Specialized in preventive care and chronic disease management. Committed to providing personalized healthcare with a focus on patient education and preventive medicine.', [Validators.required, Validators.minLength(50)]],
-      aboutMe: ['Dedicated to providing compassionate and comprehensive healthcare. I believe in building long-term relationships with patients and their families.'],
-      
-      // Calendar Integration
-      googleCalendarSync: [false],
-      outlookCalendarSync: [false],
-      autoScheduleAppointments: [true]
+    this.profileForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      contactNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]+$/)]],
+      professionalBio: ['', [Validators.maxLength(1000)]],
+      // Medical Credentials form controls
+      specialization: ['', [Validators.required]],
+      additionalSpecializations: [[]],
+      qualifications: [[]],
+      workStartDate: ['', [Validators.required]],
+      experienceYears: [0, [Validators.required, Validators.min(0), Validators.max(50)]],
+      certifications: [[]]
     });
+  }
 
+  ngOnInit(): void {
+    this.loadDoctorProfile();
     this.calculateProfileCompletion();
   }
 
-  ngOnInit() {
-    // Listen to form changes to update completion percentage
-    this.profileForm.valueChanges.subscribe(() => {
-      this.calculateProfileCompletion();
+  /**
+   * Initialize doctor profile with authenticated user data
+   */
+  private initializeDoctorProfile(): DoctorProfile {
+    const currentUser = this.authService.getCurrentUser();
+    
+    if (currentUser && currentUser.userType === 'DOCTOR') {
+      // Extract name from fullName
+      const nameParts = currentUser.fullName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      return {
+        // Basic Information from authenticated user
+        firstName: firstName,
+        lastName: lastName,
+        registrationNumber: currentUser.id || 'DOC-12332', // Use user ID (which should now be registration number)
+        dateOfBirth: new Date('1985-03-15'), // Default, will be loaded from API
+        gender: 'Male', // Default, will be loaded from API
+        email: currentUser.email,
+        contactNumber: currentUser.phoneNumber || '',
+        profileImageUrl: currentUser.profilePicture || 'assets/avatars/default-avatar.jpg',
+        doctorStatus: currentUser.status === 'ACTIVE' ? 'APPROVED' : 'PENDING',
+        primaryHospital: 'Shree Clinic', // Default, will be loaded from API
+
+        // Professional Bio - will be loaded from API
+        professionalBio: '',
+
+        // Medical Credentials - will be loaded from API
+        specialization: '',
+        additionalSpecializations: [],
+        qualifications: [],
+        workStartDate: new Date(),
+        experienceYears: 0,
+        certifications: [],
+
+        // Hospital Addresses - will be loaded from API
+        hospitalAddresses: [],
+
+        // Affiliations - will be loaded from API
+        affiliations: []
+      };
+    } else {
+      // Fallback to default data if not authenticated as doctor
+      return {
+        // Basic Information
+        firstName: 'Umesh',
+        lastName: 'Patil',
+        registrationNumber: 'DOC-12332',
+        dateOfBirth: new Date('1985-03-15'),
+        gender: 'Male',
+        email: 'u513107@gmail.com',
+        contactNumber: '8788802334',
+        profileImageUrl: 'assets/avatars/default-avatar.jpg',
+        doctorStatus: 'APPROVED',
+        primaryHospital: 'Shree Clinic',
+
+        // Professional Bio
+        professionalBio: '',
+
+        // Medical Credentials
+        specialization: 'Orthopedics',
+        additionalSpecializations: ['Sports Medicine', 'Joint Replacement', 'Arthroscopy'],
+        qualifications: ['MBBS', 'MS - Orthopedics', 'Fellowship in Sports Medicine'],
+        workStartDate: new Date('2015-06-01'),
+        experienceYears: 8,
+        certifications: ['BLS', 'ACLS', 'Fellowship in Joint Replacement'],
+
+        // Hospital Addresses
+        hospitalAddresses: [
+          {
+            hospitalName: 'Shree Clinic',
+            type: 'Primary Hospital',
+            streetAddress: '123 Medical Center Drive',
+            city: 'Mumbai',
+            state: 'Maharashtra',
+            postalCode: '400001',
+            country: 'India',
+            phone: '+91-22-12345678',
+            email: 'info@shreeclinic.com'
+          }
+        ],
+
+        // Affiliations
+        affiliations: [
+          {
+            institutionName: 'Indian Medical Association',
+            type: 'Professional Association',
+            role: 'Active Member',
+            startDate: new Date('2015-06-01'),
+            description: 'Active member of the Indian Medical Association, participating in continuing medical education programs and professional development activities.'
+          }
+        ]
+      };
+    }
+  }
+
+  /**
+   * Load doctor profile data
+   */
+  private loadDoctorProfile(): void {
+    // Get the authenticated user's registration number
+    const currentUser = this.authService.getCurrentUser();
+    const registrationNumber = currentUser?.userType === 'DOCTOR' ? currentUser.id : this.doctorProfile.registrationNumber;
+    
+    console.log('Loading profile for registration number:', registrationNumber);
+    
+    // Load from API
+    this.doctorService.getProfile(registrationNumber).subscribe({
+      next: (response: DoctorProfileResponse) => {
+        // Debug logging
+        console.log('API Response received:', response);
+        console.log('Professional Bio from API:', response.professionalBio);
+        
+        // Update the profile with API data
+        this.doctorProfile = {
+          ...this.doctorProfile,
+          firstName: response.firstName,
+          lastName: response.lastName,
+          email: response.email,
+          contactNumber: response.contactNumber,
+          specialization: response.specialization,
+          professionalBio: response.professionalBio || '',
+          qualifications: response.qualifications || [],
+          certifications: response.certifications || [],
+          experienceYears: response.experienceYears || 0,
+          hospitalAddresses: response.hospitalAddresses || [],
+          affiliations: (response.affiliations || []).map((aff: any) => ({
+            ...aff,
+            startDate: new Date(aff.startDate),
+            endDate: aff.endDate ? new Date(aff.endDate) : undefined
+          }))
+        };
+        
+        console.log('Updated doctorProfile:', this.doctorProfile);
+        
+        // Update form values
+        this.profileForm.patchValue({
+          email: this.doctorProfile.email,
+          contactNumber: this.doctorProfile.contactNumber,
+          professionalBio: this.doctorProfile.professionalBio,
+          // Medical Credentials
+          specialization: this.doctorProfile.specialization,
+          additionalSpecializations: this.doctorProfile.additionalSpecializations,
+          qualifications: this.doctorProfile.qualifications,
+          workStartDate: this.doctorProfile.workStartDate,
+          experienceYears: this.doctorProfile.experienceYears,
+          certifications: this.doctorProfile.certifications
+        });
+        
+        console.log('Form updated with professionalBio:', this.profileForm.get('professionalBio')?.value);
+      },
+      error: (error: any) => {
+        console.error('Error loading doctor profile:', error);
+        // Fallback to hardcoded data if API fails
+        this.profileForm.patchValue({
+          email: this.doctorProfile.email,
+          contactNumber: this.doctorProfile.contactNumber,
+          professionalBio: this.doctorProfile.professionalBio,
+          // Medical Credentials
+          specialization: this.doctorProfile.specialization,
+          additionalSpecializations: this.doctorProfile.additionalSpecializations,
+          qualifications: this.doctorProfile.qualifications,
+          workStartDate: this.doctorProfile.workStartDate,
+          experienceYears: this.doctorProfile.experienceYears,
+          certifications: this.doctorProfile.certifications
+        });
+      }
     });
   }
 
-  calculateProfileCompletion() {
-    const totalFields = Object.keys(this.profileForm.controls).length;
+  /**
+   * Calculate profile completion percentage
+   */
+  private calculateProfileCompletion(): void {
+    const totalFields = 10; // Total number of profile fields
     let completedFields = 0;
 
-    Object.keys(this.profileForm.controls).forEach(key => {
-      const control = this.profileForm.get(key);
-      if (control?.value && control?.value !== '' && control?.value !== null) {
-        if (Array.isArray(control.value)) {
-          if (control.value.length > 0) {
-            completedFields++;
-          }
-        } else {
-          completedFields++;
-        }
-      }
-    });
+    // Check basic information
+    if (this.doctorProfile.firstName) completedFields++;
+    if (this.doctorProfile.lastName) completedFields++;
+    if (this.doctorProfile.email) completedFields++;
+    if (this.doctorProfile.contactNumber) completedFields++;
+    if (this.doctorProfile.specialization) completedFields++;
+    if (this.doctorProfile.qualifications?.length > 0) completedFields++;
+    if (this.doctorProfile.professionalBio) completedFields++;
+    if (this.doctorProfile.hospitalAddresses?.length > 0) completedFields++;
+    if (this.doctorProfile.affiliations?.length > 0) completedFields++;
+    if (this.doctorProfile.certifications?.length > 0) completedFields++;
 
     this.profileCompletion = Math.round((completedFields / totalFields) * 100);
   }
 
-  onEdit() {
+  /**
+   * Start editing profile
+   */
+  startEditing(): void {
     this.isEditing = true;
+    this.loadDoctorProfile();
   }
 
-  onSave() {
-    if (this.profileForm.valid) {
-      console.log('Profile updated:', this.profileForm.value);
-      this.isEditing = false;
-      
-      // Show success notification
-      this.snackBar.open('Profile updated successfully!', 'Close', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top',
-        panelClass: ['success-snackbar']
-      });
-      
-      // TODO: Send to backend API
-    } else {
-      this.markFormGroupTouched();
-    }
-  }
-
-  onCancel() {
+  /**
+   * Cancel editing
+   */
+  cancelEditing(): void {
     this.isEditing = false;
-    // Reset form to original values
-    this.profileForm.patchValue({
-      firstName: 'Dr. John',
-      lastName: 'Doe',
-      email: 'john.doe@shreeclinic.com',
-      phone: '+1 (555) 123-4567',
-      personalPhone: '+1 (555) 987-6543',
-      specialization: 'General Medicine',
-      licenseNumber: 'MD123456',
-      experience: '15',
-      qualifications: 'MBBS, MD - Internal Medicine',
-      bio: 'Experienced physician with over 15 years of practice in general medicine. Specialized in preventive care and chronic disease management. Committed to providing personalized healthcare with a focus on patient education and preventive medicine.',
-      languagesSpoken: ['English', 'Hindi', 'Spanish'],
-      consultationFee: '150'
-    });
+    this.loadDoctorProfile(); // Reset to original values
   }
 
-  onTabChange(event: any) {
-    this.selectedTab = event.index;
-  }
-
-  addLanguage(language: string) {
-    const currentLanguages = this.profileForm.get('languagesSpoken')?.value || [];
-    if (!currentLanguages.includes(language)) {
-      this.profileForm.patchValue({
-        languagesSpoken: [...currentLanguages, language]
+  /**
+   * Save profile changes
+   */
+  saveProfile(): void {
+    if (this.profileForm.valid) {
+      this.isSaving = true;
+      
+      // Get the authenticated user's registration number
+      const currentUser = this.authService.getCurrentUser();
+      const registrationNumber = currentUser?.userType === 'DOCTOR' ? currentUser.id : this.doctorProfile.registrationNumber;
+      
+      // Prepare profile data for API
+      const profileData: DoctorProfileUpdateRequest = {
+        firstName: this.doctorProfile.firstName,
+        lastName: this.doctorProfile.lastName,
+        registrationNumber: registrationNumber,
+          dateOfBirth: this.doctorProfile.dateOfBirth.toISOString().split('T')[0],
+          gender: this.doctorProfile.gender,
+          email: this.profileForm.get('email')?.value,
+          contactNumber: this.profileForm.get('contactNumber')?.value,
+          profileImageUrl: this.doctorProfile.profileImageUrl,
+          doctorStatus: this.doctorProfile.doctorStatus,
+          primaryHospital: this.doctorProfile.primaryHospital,
+          professionalBio: this.profileForm.get('professionalBio')?.value || '',
+          specialization: this.profileForm.get('specialization')?.value,
+          additionalSpecializations: this.profileForm.get('additionalSpecializations')?.value,
+          qualifications: this.profileForm.get('qualifications')?.value,
+          workStartDate: this.profileForm.get('workStartDate')?.value.toISOString().split('T')[0],
+          experienceYears: this.profileForm.get('experienceYears')?.value,
+          certifications: this.profileForm.get('certifications')?.value,
+          hospitalAddresses: this.doctorProfile.hospitalAddresses,
+          affiliations: this.doctorProfile.affiliations.map(aff => ({
+            ...aff,
+            startDate: aff.startDate.toISOString().split('T')[0],
+            endDate: aff.endDate ? aff.endDate.toISOString().split('T')[0] : undefined
+          }))
+        };
+        
+        console.log('Sending profile data:', profileData);
+        console.log('Professional Bio being sent:', profileData.professionalBio);
+        
+        // Call API to update profile
+        this.doctorService.updateProfile(registrationNumber, profileData).subscribe({
+        next: (response: DoctorProfileResponse) => {
+          console.log('Save response received:', response);
+          console.log('Professional Bio in response:', response.professionalBio);
+          
+          // Update the profile with response data
+          this.doctorProfile = {
+            ...this.doctorProfile,
+            firstName: response.firstName,
+            lastName: response.lastName,
+            email: response.email,
+            contactNumber: response.contactNumber,
+            specialization: response.specialization,
+            professionalBio: response.professionalBio || '',
+            qualifications: response.qualifications || [],
+            certifications: response.certifications || [],
+            experienceYears: response.experienceYears || 0,
+            hospitalAddresses: response.hospitalAddresses || [],
+            affiliations: (response.affiliations || []).map((aff: any) => ({
+              ...aff,
+              startDate: new Date(aff.startDate),
+              endDate: aff.endDate ? new Date(aff.endDate) : undefined
+            }))
+          };
+          
+          console.log('Profile updated successfully. New bio:', this.doctorProfile.professionalBio);
+          
+          // Small delay to ensure data is properly updated
+          setTimeout(() => {
+            // Trigger change detection to update the view
+            this.cdr.detectChanges();
+          }, 100);
+          
+          // Update form values after save
+          this.profileForm.patchValue({
+            email: this.doctorProfile.email,
+            contactNumber: this.doctorProfile.contactNumber,
+            professionalBio: this.doctorProfile.professionalBio,
+            specialization: this.doctorProfile.specialization,
+            additionalSpecializations: this.doctorProfile.additionalSpecializations,
+            qualifications: this.doctorProfile.qualifications,
+            workStartDate: this.doctorProfile.workStartDate,
+            experienceYears: this.doctorProfile.experienceYears,
+            certifications: this.doctorProfile.certifications
+          });
+          
+          this.isEditing = false;
+          this.isSaving = false;
+          this.calculateProfileCompletion();
+          
+          this.snackBar.open('Profile updated successfully!', 'Close', {
+            duration: 3000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+            panelClass: ['success-snackbar']
+          });
+        },
+        error: (error: any) => {
+          console.error('Error updating doctor profile:', error);
+          this.isSaving = false;
+          
+          this.snackBar.open('Failed to update profile. Please try again.', 'Close', {
+            duration: 5000,
+            horizontalPosition: 'center',
+            verticalPosition: 'bottom',
+            panelClass: ['error-snackbar']
+          });
+        }
       });
     }
   }
 
-  removeLanguage(language: string) {
-    const currentLanguages = this.profileForm.get('languagesSpoken')?.value || [];
-    this.profileForm.patchValue({
-      languagesSpoken: currentLanguages.filter((lang: string) => lang !== language)
-    });
-  }
-
-  addDepartment(department: string) {
-    const currentDepartments = this.profileForm.get('associatedDepartments')?.value || [];
-    if (!currentDepartments.includes(department)) {
-      this.profileForm.patchValue({
-        associatedDepartments: [...currentDepartments, department]
-      });
-    }
-  }
-
-  removeDepartment(department: string) {
-    const currentDepartments = this.profileForm.get('associatedDepartments')?.value || [];
-    this.profileForm.patchValue({
-      associatedDepartments: currentDepartments.filter((dept: string) => dept !== department)
-    });
-  }
-
-  getTabIcon(tabIndex: number): string {
-    return this.tabs[tabIndex]?.icon || 'info';
-  }
-
-  getTabDescription(tabIndex: number): string {
-    return this.tabs[tabIndex]?.description || '';
-  }
-
-  getProfileCompletionColor(): string {
-    if (this.profileCompletion >= 80) return 'primary';
-    if (this.profileCompletion >= 60) return 'accent';
-    if (this.profileCompletion >= 40) return 'warn';
-    return 'warn';
-  }
-
-  openPricingDialog() {
-    const data: PricingDialogData = {
-      consultationFee: this.profileForm.get('consultationFee')?.value,
-      followUpFee: this.profileForm.get('followUpFee')?.value,
-      emergencyFee: this.profileForm.get('emergencyFee')?.value,
-      onlineConsultationFee: this.profileForm.get('onlineConsultationFee')?.value,
-      insuranceAccepted: this.profileForm.get('insuranceAccepted')?.value,
-      paymentMethods: this.profileForm.get('paymentMethods')?.value || []
-    };
-
-    const ref = this.dialog.open(PricingDialogComponent, {
-      width: '640px',
-      data
+  /**
+   * Open pricing dialog
+   */
+  openPricingDialog(): void {
+    const dialogRef = this.dialog.open(PricingDialogComponent, {
+      width: '800px',
+      data: { pricingItems: this.pricingItems }
     });
 
-    ref.afterClosed().subscribe((result) => {
-      if (!result) return;
-      this.profileForm.patchValue({
-        consultationFee: result.consultationFee,
-        followUpFee: result.followUpFee,
-        emergencyFee: result.emergencyFee,
-        onlineConsultationFee: result.onlineConsultationFee,
-        insuranceAccepted: result.insuranceAccepted,
-        paymentMethods: result.paymentMethods
-      });
-      this.snackBar.open('Pricing updated', 'Close', { duration: 2500 });
-    });
-  }
-
-  addOrEditPricingItem(item?: PricingItemData, index?: number) {
-    const ref = this.dialog.open(PricingItemDialogComponent, {
-      width: '640px',
-      data: item ? { ...item } : undefined
-    });
-    ref.afterClosed().subscribe((result: PricingItemData | undefined) => {
-      if (!result) return;
-      if (typeof index === 'number') {
-        this.pricingItems[index] = result;
-        this.pricingItems = [...this.pricingItems];
-      } else {
-        this.pricingItems = [result, ...this.pricingItems];
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.pricingItems = result;
+        this.snackBar.open('Pricing updated successfully!', 'Close', {
+          duration: 3000
+        });
       }
-      this.snackBar.open('Pricing item saved', 'Close', { duration: 2000 });
     });
   }
 
-  deletePricingItem(index: number) {
-    this.pricingItems.splice(index, 1);
-    this.pricingItems = [...this.pricingItems];
-    this.snackBar.open('Pricing item deleted', 'Close', { duration: 1500 });
-  }
 
-  private markFormGroupTouched() {
-    Object.keys(this.profileForm.controls).forEach(key => {
-      const control = this.profileForm.get(key);
-      control?.markAsTouched();
+
+  /**
+   * Add or edit pricing item
+   */
+  addOrEditPricingItem(): void {
+    const dialogRef = this.dialog.open(PricingItemDialogComponent, {
+      width: '600px',
+      data: {} as PricingItemData
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.pricingItems.push(result);
+        this.snackBar.open('Pricing item added successfully!', 'Close', {
+          duration: 3000
+        });
+      }
     });
   }
 
+  /**
+   * Get error message for form field
+   */
   getErrorMessage(fieldName: string): string {
     const control = this.profileForm.get(fieldName);
-    if (control?.invalid && control?.touched) {
-      switch (fieldName) {
-        case 'firstName':
-        case 'lastName':
-          return 'Name must be at least 2 characters';
-        case 'email':
-          return 'Please enter a valid email address';
-        case 'phone':
-          return 'Phone number is required';
-        case 'specialization':
-          return 'Specialization is required';
-        case 'licenseNumber':
-          return 'License number is required';
-        case 'experience':
-          return 'Experience must be a positive number';
-        case 'bio':
-          return 'Bio must be at least 50 characters';
-        case 'qualifications':
-          return 'Qualifications are required';
-        default:
-          return 'This field is required';
+    if (control?.errors) {
+      if (control.errors['required']) {
+        return 'This field is required';
+      }
+      if (control.errors['email']) {
+        return 'Please enter a valid email address';
+      }
+      if (control.errors['pattern']) {
+        return 'Please enter a valid phone number';
+      }
+      if (control.errors['maxlength']) {
+        return `Maximum length is ${control.errors['maxlength'].requiredLength} characters`;
+      }
+      if (control.errors['min']) {
+        return `Minimum value is ${control.errors['min'].min}`;
+      }
+      if (control.errors['max']) {
+        return `Maximum value is ${control.errors['max'].max}`;
       }
     }
     return '';
   }
 
-  addDiscount() {
-    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
-    const newDiscount = {
-      type: '',
-      percentage: 0,
-      validUntil: '',
-      minAge: 0,
-      validDays: []
-    };
-    this.profileForm.patchValue({
-      discounts: [...currentDiscounts, newDiscount]
-    });
-  }
-
-  removeDiscount(index: number) {
-    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
-    currentDiscounts.splice(index, 1);
-    this.profileForm.patchValue({
-      discounts: currentDiscounts
-    });
-  }
-
-  addPaymentPlan() {
-    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
-    const newPlan = {
-      name: '',
-      installments: 1,
-      interest: 0,
-      description: ''
-    };
-    this.profileForm.patchValue({
-      paymentPlans: [...currentPlans, newPlan]
-    });
-  }
-
-  removePaymentPlan(index: number) {
-    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
-    currentPlans.splice(index, 1);
-    this.profileForm.patchValue({
-      paymentPlans: currentPlans
-    });
-  }
-
-  updateDiscount(index: number, field: string, value: any) {
-    const currentDiscounts = this.profileForm.get('discounts')?.value || [];
-    if (currentDiscounts[index]) {
-      currentDiscounts[index][field] = value;
+  /**
+   * Add item to array field
+   */
+  addArrayItem(fieldName: string, value: string): void {
+    const currentValue = this.profileForm.get(fieldName)?.value || [];
+    if (value.trim() && !currentValue.includes(value.trim())) {
       this.profileForm.patchValue({
-        discounts: currentDiscounts
+        [fieldName]: [...currentValue, value.trim()]
       });
     }
   }
 
-  updatePaymentPlan(index: number, field: string, value: any) {
-    const currentPlans = this.profileForm.get('paymentPlans')?.value || [];
-    if (currentPlans[index]) {
-      currentPlans[index][field] = value;
-      this.profileForm.patchValue({
-        paymentPlans: currentPlans
-      });
-    }
-  }
-
-  // Insurance Methods
-  addInsuranceCode(code: string) {
-    if (!code.trim()) return;
-    const currentCodes = this.profileForm.get('insuranceCodes')?.value || [];
-    if (!currentCodes.includes(code)) {
-      this.profileForm.patchValue({
-        insuranceCodes: [...currentCodes, code]
-      });
-    }
-  }
-
-  removeInsuranceCode(code: string) {
-    const currentCodes = this.profileForm.get('insuranceCodes')?.value || [];
+  /**
+   * Remove item from array field
+   */
+  removeArrayItem(fieldName: string, index: number): void {
+    const currentValue = this.profileForm.get(fieldName)?.value || [];
+    const newValue = currentValue.filter((_: any, i: number) => i !== index);
     this.profileForm.patchValue({
-      insuranceCodes: currentCodes.filter((c: string) => c !== code)
+      [fieldName]: newValue
     });
   }
 
-  // Helper methods for input events
-  onDiscountTypeChange(index: number, event: any) {
-    this.updateDiscount(index, 'type', event.target.value);
+  /**
+   * Add new specialization
+   */
+  addSpecialization(): void {
+    const input = document.getElementById('newSpecialization') as HTMLInputElement;
+    if (input && input.value.trim()) {
+      this.addArrayItem('additionalSpecializations', input.value);
+      input.value = '';
+    }
   }
 
-  onDiscountPercentageChange(index: number, event: any) {
-    this.updateDiscount(index, 'percentage', +event.target.value);
+  /**
+   * Add new qualification
+   */
+  addQualification(): void {
+    const input = document.getElementById('newQualification') as HTMLInputElement;
+    if (input && input.value.trim()) {
+      this.addArrayItem('qualifications', input.value);
+      input.value = '';
+    }
   }
 
-  onDiscountValidUntilChange(index: number, event: any) {
-    this.updateDiscount(index, 'validUntil', event.target.value);
-  }
-
-  onDiscountMinAgeChange(index: number, event: any) {
-    this.updateDiscount(index, 'minAge', +event.target.value);
-  }
-
-  onPaymentPlanNameChange(index: number, event: any) {
-    this.updatePaymentPlan(index, 'name', event.target.value);
-  }
-
-  onPaymentPlanInstallmentsChange(index: number, event: any) {
-    this.updatePaymentPlan(index, 'installments', +event.target.value);
-  }
-
-  onPaymentPlanInterestChange(index: number, event: any) {
-    this.updatePaymentPlan(index, 'interest', +event.target.value);
-  }
-
-  onPaymentPlanDescriptionChange(index: number, event: any) {
-    this.updatePaymentPlan(index, 'description', event.target.value);
+  /**
+   * Add new certification
+   */
+  addCertification(): void {
+    const input = document.getElementById('newCertification') as HTMLInputElement;
+    if (input && input.value.trim()) {
+      this.addArrayItem('certifications', input.value);
+      input.value = '';
+    }
   }
 }
