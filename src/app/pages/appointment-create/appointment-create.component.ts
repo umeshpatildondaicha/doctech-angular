@@ -1,6 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { Appointment } from '../../interfaces/appointment.interface';
 import { AppInputComponent } from '../../tools/app-input/app-input.component';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
@@ -11,6 +11,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Mode } from '../../types/mode.type';
 import { DatePickerComponent } from '../../tools/date-picker/date-picker.component';
 import { CalendarComponent, CalendarEvent } from "../../tools";
+import { PatientSearchDialogComponent, PatientSearchResult } from '../patient-search-dialog/patient-search-dialog.component';
 
 @Component({
   selector: 'app-appointment-create',
@@ -35,6 +36,7 @@ export class AppointmentCreateComponent {
   mode: Mode = 'create';
   submitButtonText: string = 'Create Appointment';
   calendarEvents: CalendarEvent[] = [];
+  selectedPatient: PatientSearchResult | null = null;
   
   statusOptions = [
     { value: 'scheduled', label: 'Scheduled' },
@@ -64,7 +66,7 @@ export class AppointmentCreateComponent {
   ];
 
   // Mock existing appointments (filled slots)
-  private mockAppointments: Appointment[] = [
+  private readonly mockAppointments: Appointment[] = [
     {
       appointment_id: 1,
       patient_id: 1,
@@ -124,8 +126,9 @@ export class AppointmentCreateComponent {
   ];
 
   constructor(
-    private fb: FormBuilder,
-    private dialogRef: MatDialogRef<AppointmentCreateComponent>,
+    private readonly fb: FormBuilder,
+    private readonly dialogRef: MatDialogRef<AppointmentCreateComponent>,
+    private readonly dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: { mode: Mode, appointment?: Appointment }
   ) {
     this.mode = data?.mode || 'create';
@@ -193,7 +196,7 @@ export class AppointmentCreateComponent {
       end: 17   // 5 PM
     };
     
-    const slotDuration = 60; // 1 hour slots
+    // 1 hour slots
     const workingDays = [1, 2, 3, 4, 5]; // Monday to Friday (0 = Sunday, 1 = Monday, etc.)
 
     for (let dayOffset = 0; dayOffset < 30; dayOffset++) {
@@ -262,6 +265,15 @@ export class AppointmentCreateComponent {
       this.dialogRef.close();
       return;
     }
+    
+    // Check if patient is selected
+    if (!this.selectedPatient) {
+      // Mark the patient field as invalid
+      this.appointmentForm.get('patient_id')?.setErrors({ 'required': true });
+      this.appointmentForm.get('patient_id')?.markAsTouched();
+      return;
+    }
+    
     if (this.appointmentForm.valid) {
       this.dialogRef.close(this.appointmentForm.value);
     }
@@ -269,5 +281,59 @@ export class AppointmentCreateComponent {
 
   onCancel() {
     this.dialogRef.close();
+  }
+
+  openPatientSearch(): void {
+    const patientSearchDialogRef = this.dialog.open(PatientSearchDialogComponent, {
+      width: '90%',
+      maxWidth: '1000px',
+      height: '90%',
+      maxHeight: '90vh',
+      autoFocus: false,
+      disableClose: false
+    });
+
+    patientSearchDialogRef.afterClosed().subscribe((result) => {
+      if (result && result.action === 'select') {
+        this.selectedPatient = result.patient;
+        this.appointmentForm.patchValue({
+          patient_id: result.patient.id
+        });
+      }
+    });
+  }
+
+  calculateAge(dateOfBirth: string): number {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age;
+  }
+
+  onPatientInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.openPatientSearch();
+    }
+  }
+
+  onPatientInput(event: Event): void {
+    // Prevent typing in the input field - it should only be used for selection
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  getPatientErrorMessage(): string {
+    const patientControl = this.appointmentForm.get('patient_id');
+    if (patientControl?.hasError('required') && patientControl?.touched) {
+      return 'Please select a patient to create an appointment';
+    }
+    return '';
   }
 } 

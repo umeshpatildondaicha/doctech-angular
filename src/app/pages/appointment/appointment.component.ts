@@ -37,11 +37,6 @@ export class AppointmentComponent implements OnInit {
         click: (param: any) => this.openViewDialog(param.data)
       },
       {
-        title: 'Edit',
-        icon: 'edit',
-        click: (param: any) => this.openDialog('edit', param.data)
-      },
-      {
         title: 'Reschedule',
         icon: 'clock',
         click: (param: any) => this.openRescheduleDialog(param.data)
@@ -149,6 +144,22 @@ export class AppointmentComponent implements OnInit {
         filter: true
       },
       {
+        headerName: 'Referred By',
+        field: 'referred_by_doctor_name',
+        width: 150,
+        sortable: true,
+        filter: true,
+        cellRenderer: (params: any) => {
+          if (params.data.is_referred && params.data.referred_by_doctor_name) {
+            return `<span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 12px;">
+              <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">person_add</i>
+              ${params.data.referred_by_doctor_name}
+            </span>`;
+          }
+          return '<span style="color: #6b7280; font-style: italic;">Direct appointment</span>';
+        }
+      },
+      {
         headerName: 'Notes',
         field: 'notes',
         width: 200,
@@ -172,7 +183,8 @@ export class AppointmentComponent implements OnInit {
         status: 'SCHEDULED',
         patientName: 'John Doe',
         doctorName: 'Dr. Chetan',
-        slotTime: '09:00 AM'
+        slotTime: '09:00 AM',
+        is_referred: false
       },
       {
         appointment_id: 2,
@@ -186,7 +198,11 @@ export class AppointmentComponent implements OnInit {
         status: 'COMPLETED',
         patientName: 'Jane Smith',
         doctorName: 'Dr. Sarah',
-        slotTime: '10:00 AM'
+        slotTime: '10:00 AM',
+        is_referred: true,
+        referred_by_doctor_id: 1,
+        referred_by_doctor_name: 'Dr. Chetan',
+        referral_notes: 'Patient requires specialized cardiology consultation'
       },
       {
         appointment_id: 3,
@@ -200,7 +216,44 @@ export class AppointmentComponent implements OnInit {
         status: 'PENDING',
         patientName: 'Mike Johnson',
         doctorName: 'Dr. Chetan',
-        slotTime: '11:00 AM'
+        slotTime: '11:00 AM',
+        is_referred: true,
+        referred_by_doctor_id: 3,
+        referred_by_doctor_name: 'Dr. Michael Chen',
+        referral_notes: 'Urgent referral for neurological assessment'
+      },
+      {
+        appointment_id: 4,
+        patient_id: 4,
+        appointment_date_time: '2024-01-16T14:00:00',
+        notes: 'Routine checkup',
+        created_at: '2024-01-13T10:00:00',
+        updated_at: '2024-01-13T10:00:00',
+        doctor_id: 1,
+        slot_id: 4,
+        status: 'SCHEDULED',
+        patientName: 'Emily Davis',
+        doctorName: 'Dr. Chetan',
+        slotTime: '02:00 PM',
+        is_referred: false
+      },
+      {
+        appointment_id: 5,
+        patient_id: 5,
+        appointment_date_time: '2024-01-17T16:00:00',
+        notes: 'Specialist consultation',
+        created_at: '2024-01-14T11:00:00',
+        updated_at: '2024-01-14T11:00:00',
+        doctor_id: 1,
+        slot_id: 5,
+        status: 'SCHEDULED',
+        patientName: 'Robert Brown',
+        doctorName: 'Dr. Chetan',
+        slotTime: '04:00 PM',
+        is_referred: true,
+        referred_by_doctor_id: 4,
+        referred_by_doctor_name: 'Dr. Lisa Garcia',
+        referral_notes: 'Patient needs dermatology evaluation for skin condition'
       }
     ];
   }
@@ -229,6 +282,13 @@ export class AppointmentComponent implements OnInit {
       data: { appointment },
       width: '50%',
       autoFocus: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.action === 'viewProfile') {
+        // Navigate to patient profile
+        this.router.navigate(['/patient', appointment.patient_id]);
+      }
     });
   }
 
@@ -304,6 +364,22 @@ export class AppointmentComponent implements OnInit {
         width: 120,
         sortable: true,
         filter: true
+      },
+      {
+        headerName: 'Referred By',
+        field: 'referred_by_doctor_name',
+        width: 150,
+        sortable: true,
+        filter: true,
+        cellRenderer: (params: any) => {
+          if (params.data.is_referred && params.data.referred_by_doctor_name) {
+            return `<span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 12px;">
+              <i class="material-icons" style="font-size: 14px; vertical-align: middle; margin-right: 4px;">person_add</i>
+              ${params.data.referred_by_doctor_name}
+            </span>`;
+          }
+          return '<span style="color: #6b7280; font-style: italic;">Direct appointment</span>';
+        }
       },
       {
         headerName: 'Notes',

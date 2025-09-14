@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -13,21 +13,25 @@ import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDialogModule } from '@angular/material/dialog';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 // Custom Components
-import { BreadcrumbComponent } from '../../../components/breadcrumb/breadcrumb.component';
 import { IconComponent } from '../../../tools/app-icon/icon.component';
 import { AppButtonComponent } from '../../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../../tools/app-selectbox/app-selectbox.component';
-import { GridComponent } from '../../../tools/grid/grid.component';
 import { CustomEventsService } from '../../../services/custom-events.service';
+import { DoctorSearchDialogComponent } from '../../doctor-search-dialog/doctor-search-dialog.component';
+import { AppointmentBookingComponent } from '../../appointment-booking/appointment-booking.component';
+
+// Import new interfaces
+import { PatientRound, RoundSchedule } from '../../../interfaces/patient-rounds.interface';
+import { MedicineRequest } from '../../../interfaces/medicine-request.interface';
+import { PatientRelative } from '../../../interfaces/patient-relatives.interface';
 
 // Interfaces
 interface CareTimetableItem {
@@ -306,7 +310,10 @@ export class PatientProfileComponent implements OnInit {
     { id: 'appointments', label: 'Appointments', icon: 'event', badge: 2 },
     { id: 'lab-reports', label: 'Lab Reports', icon: 'science', badge: 1 },
     { id: 'clinical-notes', label: 'Clinical Notes', icon: 'note', badge: 0 },
-    { id: 'care-plan', label: 'Care Plan', icon: 'medical_services', badge: 0 }
+    { id: 'care-plan', label: 'Care Plan', icon: 'medical_services', badge: 0 },
+    { id: 'rounds', label: 'Rounds', icon: 'assessment', badge: 0 },
+    { id: 'medicine-requests', label: 'Medicine Requests', icon: 'medication', badge: 0 },
+    { id: 'relatives', label: 'Relatives', icon: 'people', badge: 0 }
   ];
 
   selectedTab = 'overview';
@@ -735,6 +742,13 @@ export class PatientProfileComponent implements OnInit {
       color: 'accent'
     },
     {
+      id: 'refer-patient',
+      label: 'Refer Patient',
+      icon: 'person_add',
+      action: () => this.referPatient(),
+      color: 'warn'
+    },
+    {
       id: 'order-lab',
       label: 'Order Lab Test',
       icon: 'science',
@@ -757,6 +771,20 @@ export class PatientProfileComponent implements OnInit {
   showDischargeDialog = false;
   showAdmissionDialog = false;
 
+  // New Forms for Enhanced Features
+  roundForm!: FormGroup;
+  medicineRequestForm!: FormGroup;
+  relativeForm!: FormGroup;
+  showRoundDialog = false;
+  showMedicineRequestDialog = false;
+  showRelativeDialog = false;
+
+  // Enhanced Data Properties
+  patientRounds: PatientRound[] = [];
+  roundSchedules: RoundSchedule[] = [];
+  medicineRequests: MedicineRequest[] = [];
+  patientRelatives: PatientRelative[] = [];
+
   // Chart Data
   vitalTrendsData = [
     { date: '2024-01-15', bp: 150, hr: 75, temp: 98.6, glucose: 200 },
@@ -776,10 +804,11 @@ export class PatientProfileComponent implements OnInit {
   ];
 
   constructor(
-    private fb: FormBuilder,
-    private router: Router,
-    private route: ActivatedRoute,
-    private customEventsService: CustomEventsService
+    private readonly fb: FormBuilder,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly customEventsService: CustomEventsService,
+    private readonly dialog: MatDialog
   ) {
     this.editForm = this.fb.group({
       name: ['', Validators.required],
@@ -833,6 +862,8 @@ export class PatientProfileComponent implements OnInit {
 
     this.initializeForm();
     this.initializeAdmissionForm();
+    this.initializeEnhancedForms();
+    this.loadEnhancedData();
     this.updateTabBadges();
     this.initializeSearchData();
     this.initializeNotifications();
@@ -981,8 +1012,85 @@ export class PatientProfileComponent implements OnInit {
   }
 
   scheduleAppointment(): void {
-    console.log('Schedule appointment');
-    // Implementation for scheduling appointment
+    const appointmentDialogRef = this.dialog.open(AppointmentBookingComponent, {
+      data: {
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        doctorId: 'DOC001', // Current doctor ID
+        doctorName: this.patientInfo.primaryDoctor,
+        doctorSpecialization: 'General Medicine',
+        doctorHospital: 'Shree Clinic',
+        doctorLocation: 'Texas, United States',
+        doctorImage: 'assets/avatars/default-avatar.jpg',
+        isReferral: false
+      },
+      width: '90%',
+      maxWidth: '800px',
+      height: '90%',
+      maxHeight: '90vh',
+      autoFocus: false,
+      disableClose: false
+    });
+
+    appointmentDialogRef.afterClosed().subscribe((result) => {
+      if (result && result.action === 'book') {
+        console.log('Appointment scheduled:', result.appointment);
+        // You can add a success message or notification here
+      }
+    });
+  }
+
+  referPatient(): void {
+    const dialogRef = this.dialog.open(DoctorSearchDialogComponent, {
+      data: {
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        currentDoctorId: this.patientInfo.primaryDoctor
+      },
+      width: '90%',
+      maxWidth: '1200px',
+      height: '90%',
+      maxHeight: '90vh',
+      autoFocus: false,
+      disableClose: false
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.action === 'refer') {
+        this.openAppointmentDialog(result.doctor, result.patientId, result.patientName);
+      }
+    });
+  }
+
+  private openAppointmentDialog(doctor: any, patientId: string, patientName: string): void {
+    const appointmentDialogRef = this.dialog.open(AppointmentBookingComponent, {
+      data: {
+        patientId: patientId,
+        patientName: patientName,
+        doctorId: doctor.id,
+        doctorName: doctor.name,
+        doctorSpecialization: doctor.specialization,
+        doctorHospital: doctor.hospital,
+        doctorLocation: 'Texas, United States', // You can get this from doctor data
+        doctorImage: doctor.profileImageUrl,
+        isReferral: true,
+        referringDoctor: this.patientInfo.primaryDoctor
+      },
+      width: '90%',
+      maxWidth: '800px',
+      height: '90%',
+      maxHeight: '90vh',
+      autoFocus: false,
+      disableClose: false
+    });
+
+    appointmentDialogRef.afterClosed().subscribe((result) => {
+      if (result && result.action === 'book') {
+        console.log('Appointment booked for referral:', result.appointment);
+        // You can add a success message or notification here
+        // this.showSuccessMessage(`Patient ${patientName} has been referred to ${doctor.name}`);
+      }
+    });
   }
 
   orderLabTest(): void {
@@ -1392,7 +1500,7 @@ export class PatientProfileComponent implements OnInit {
     }
 
     // Handle numeric values
-    const numericValue = typeof value === 'number' ? value : parseFloat(value as string);
+    const numericValue = typeof value === 'number' ? value : parseFloat(value);
     if (isNaN(numericValue)) return false;
 
     const ranges = {
@@ -1407,7 +1515,10 @@ export class PatientProfileComponent implements OnInit {
 
   getVitalTrend(type: string): string | null {
     const trend = this.vitalTrends.find(t => t.type === type);
-    return trend ? `${trend.change > 0 ? '+' : ''}${trend.change}` : null;
+    if (!trend) return null;
+    
+    const changePrefix = trend.change > 0 ? '+' : '';
+    return `${changePrefix}${trend.change}`;
   }
 
   getVitalTrendIcon(type: string): string {
@@ -1447,5 +1558,485 @@ export class PatientProfileComponent implements OnInit {
         this.refreshVitals();
       }
     }, 30000);
+  }
+
+  // Enhanced Features Methods
+  initializeEnhancedForms(): void {
+    this.roundForm = this.fb.group({
+      roundType: ['DOCTOR_ROUND', Validators.required],
+      performedBy: ['', Validators.required],
+      performedByRole: ['DOCTOR', Validators.required],
+      roundDate: [new Date(), Validators.required],
+      roundTime: [new Date(), Validators.required],
+      status: ['COMPLETED', Validators.required],
+      priority: ['MEDIUM', Validators.required],
+      notes: [''],
+      observations: [''],
+      vitalSigns: this.fb.group({
+        bloodPressure: [''],
+        heartRate: [''],
+        temperature: [''],
+        respiratoryRate: [''],
+        oxygenSaturation: [''],
+        painLevel: ['']
+      }),
+      medications: [''],
+      careInstructions: [''],
+      nextRoundScheduled: [''],
+      isCritical: [false],
+      requiresFollowUp: [false],
+      followUpNotes: ['']
+    });
+
+    this.medicineRequestForm = this.fb.group({
+      requestedBy: ['Patient', Validators.required],
+      requestedByRole: ['PATIENT', Validators.required],
+      medicineName: ['', Validators.required],
+      dosage: ['', Validators.required],
+      frequency: ['', Validators.required],
+      route: ['', Validators.required],
+      quantity: ['', Validators.required],
+      urgency: ['MEDIUM', Validators.required],
+      reason: ['', Validators.required],
+      currentSymptoms: [''],
+      notes: [''],
+      isPrescriptionRequired: [true]
+    });
+
+    this.relativeForm = this.fb.group({
+      relativeName: ['', Validators.required],
+      relationship: ['', Validators.required],
+      contactNumber: ['', Validators.required],
+      alternateContactNumber: [''],
+      email: [''],
+      address: [''],
+      emergencyContact: [false],
+      canMakeDecisions: [false],
+      canReceiveUpdates: [true],
+      canVisit: [true],
+      visitingHours: this.fb.group({
+        startTime: [''],
+        endTime: [''],
+        days: [[]]
+      }),
+      notes: ['']
+    });
+  }
+
+  loadEnhancedData(): void {
+    // Load patient rounds
+    this.patientRounds = [
+      {
+        id: 'R001',
+        patientId: this.patientInfo.id,
+        roundType: 'DOCTOR_ROUND',
+        performedBy: 'Dr. Sarah Johnson',
+        performedById: 'DOC001',
+        performedByRole: 'DOCTOR',
+        roundDate: new Date(),
+        roundTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        status: 'COMPLETED',
+        priority: 'HIGH',
+        notes: 'Patient showing improvement. Vital signs stable. Continue current treatment.',
+        observations: ['Patient alert and responsive', 'No signs of respiratory distress', 'Pain level decreased'],
+        vitalSigns: {
+          bloodPressure: '120/80',
+          heartRate: 75,
+          temperature: 36.8,
+          respiratoryRate: 18,
+          oxygenSaturation: 98,
+          painLevel: 3
+        },
+        medications: [
+          {
+            medicationName: 'Metformin',
+            dosage: '500mg',
+            route: 'Oral',
+            time: new Date(),
+            status: 'GIVEN',
+            notes: 'Taken with breakfast'
+          }
+        ],
+        careInstructions: ['Continue current medication', 'Monitor vital signs every 4 hours', 'Encourage mobility'],
+        nextRoundScheduled: new Date(Date.now() + 4 * 60 * 60 * 1000),
+        isCritical: false,
+        requiresFollowUp: true,
+        followUpNotes: 'Schedule follow-up appointment in 1 week'
+      },
+      {
+        id: 'R002',
+        patientId: this.patientInfo.id,
+        roundType: 'NURSE_ROUND',
+        performedBy: 'Nurse Williams',
+        performedById: 'NURSE001',
+        performedByRole: 'NURSE',
+        roundDate: new Date(),
+        roundTime: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        status: 'COMPLETED',
+        priority: 'MEDIUM',
+        notes: 'Patient comfortable. No complaints. Medications administered on time.',
+        observations: ['Patient resting comfortably', 'No pain complaints', 'Appetite good'],
+        vitalSigns: {
+          bloodPressure: '118/78',
+          heartRate: 72,
+          temperature: 36.6,
+          respiratoryRate: 16,
+          oxygenSaturation: 99,
+          painLevel: 2
+        },
+        medications: [
+          {
+            medicationName: 'Lisinopril',
+            dosage: '10mg',
+            route: 'Oral',
+            time: new Date(),
+            status: 'GIVEN',
+            notes: 'Taken as prescribed'
+          }
+        ],
+        careInstructions: ['Continue monitoring', 'Encourage fluid intake', 'Assist with mobility'],
+        nextRoundScheduled: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        isCritical: false,
+        requiresFollowUp: false
+      }
+    ];
+
+    // Load medicine requests
+    this.medicineRequests = [
+      {
+        id: 'MR001',
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        requestedBy: 'Patient',
+        requestedById: this.patientInfo.id,
+        requestedByRole: 'PATIENT',
+        requestDate: new Date(),
+        requestTime: new Date(Date.now() - 3 * 60 * 60 * 1000),
+        medicineName: 'Pain Relief',
+        dosage: '500mg',
+        frequency: 'As needed',
+        route: 'Oral',
+        quantity: 10,
+        urgency: 'MEDIUM',
+        reason: 'Headache and body pain',
+        currentSymptoms: ['Headache', 'Body aches'],
+        status: 'APPROVED',
+        approvedBy: 'Dr. Sarah Johnson',
+        approvedById: 'DOC001',
+        approvedDate: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        notes: 'Approved for pain management',
+        isPrescriptionRequired: true,
+        prescriptionId: 'RX001',
+        pharmacyNotes: 'Dispensed successfully',
+        cost: 25.50,
+        insuranceCovered: true
+      }
+    ];
+
+    // Load patient relatives
+    this.patientRelatives = [
+      {
+        id: 'REL001',
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        relativeName: 'John Johnson',
+        relationship: 'SPOUSE',
+        contactNumber: '+1-555-0123',
+        alternateContactNumber: '+1-555-0124',
+        email: 'john.johnson@email.com',
+        address: '123 Main Street, New York, NY 10001',
+        emergencyContact: true,
+        canMakeDecisions: true,
+        canReceiveUpdates: true,
+        canVisit: true,
+        visitingHours: {
+          startTime: '09:00',
+          endTime: '21:00',
+          days: ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY']
+        },
+        addedBy: 'Dr. Sarah Johnson',
+        addedDate: new Date(),
+        lastContactDate: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        notes: 'Primary emergency contact',
+        isActive: true,
+        verificationStatus: 'VERIFIED',
+        verificationNotes: 'Contact verified via phone call'
+      },
+      {
+        id: 'REL002',
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        relativeName: 'Mary Johnson',
+        relationship: 'CHILD',
+        contactNumber: '+1-555-0125',
+        email: 'mary.johnson@email.com',
+        address: '456 Oak Avenue, New York, NY 10002',
+        emergencyContact: false,
+        canMakeDecisions: false,
+        canReceiveUpdates: true,
+        canVisit: true,
+        visitingHours: {
+          startTime: '10:00',
+          endTime: '20:00',
+          days: ['SATURDAY', 'SUNDAY']
+        },
+        addedBy: 'Dr. Sarah Johnson',
+        addedDate: new Date(),
+        notes: 'Daughter - weekend visits only',
+        isActive: true,
+        verificationStatus: 'VERIFIED',
+        verificationNotes: 'Contact verified via email'
+      }
+    ];
+
+    // Load round schedules
+    this.roundSchedules = [
+      {
+        id: 'RS001',
+        patientId: this.patientInfo.id,
+        roundType: 'DOCTOR_ROUND',
+        scheduledTime: new Date(Date.now() + 4 * 60 * 60 * 1000),
+        frequency: 'DAILY',
+        assignedTo: 'Dr. Sarah Johnson',
+        assignedToId: 'DOC001',
+        assignedToRole: 'DOCTOR',
+        priority: 'HIGH',
+        isActive: true,
+        createdBy: 'Dr. Sarah Johnson',
+        createdDate: new Date(),
+        lastPerformed: new Date(Date.now() - 2 * 60 * 60 * 1000),
+        nextScheduled: new Date(Date.now() + 4 * 60 * 60 * 1000)
+      },
+      {
+        id: 'RS002',
+        patientId: this.patientInfo.id,
+        roundType: 'NURSE_ROUND',
+        scheduledTime: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        frequency: 'EVERY_4_HOURS',
+        assignedTo: 'Nurse Williams',
+        assignedToId: 'NURSE001',
+        assignedToRole: 'NURSE',
+        priority: 'MEDIUM',
+        isActive: true,
+        createdBy: 'Dr. Sarah Johnson',
+        createdDate: new Date(),
+        lastPerformed: new Date(Date.now() - 1 * 60 * 60 * 1000),
+        nextScheduled: new Date(Date.now() + 2 * 60 * 60 * 1000)
+      }
+    ];
+  }
+
+  // Round Management Methods
+  addNewRound(): void {
+    this.roundForm.patchValue({
+      performedBy: 'Dr. Sarah Johnson',
+      performedByRole: 'DOCTOR',
+      roundDate: new Date(),
+      roundTime: new Date()
+    });
+    this.showRoundDialog = true;
+  }
+
+  completeRound(): void {
+    if (this.roundForm.valid) {
+      const roundData = this.roundForm.value;
+      const newRound: PatientRound = {
+        id: `R${Date.now()}`,
+        patientId: this.patientInfo.id,
+        ...roundData,
+        performedById: 'DOC001',
+        observations: roundData.observations ? roundData.observations.split(',').map((o: string) => o.trim()) : [],
+        medications: [],
+        careInstructions: roundData.careInstructions ? roundData.careInstructions.split(',').map((c: string) => c.trim()) : [],
+        isCritical: roundData.isCritical || false,
+        requiresFollowUp: roundData.requiresFollowUp || false
+      };
+
+      this.patientRounds.unshift(newRound);
+      this.showRoundDialog = false;
+      this.roundForm.reset();
+      this.updateTabBadges();
+    }
+  }
+
+  cancelRound(): void {
+    this.showRoundDialog = false;
+    this.roundForm.reset();
+  }
+
+  // Medicine Request Methods
+  addMedicineRequest(): void {
+    this.medicineRequestForm.patchValue({
+      requestedBy: 'Patient',
+      requestedByRole: 'PATIENT',
+      requestDate: new Date(),
+      requestTime: new Date()
+    });
+    this.showMedicineRequestDialog = true;
+  }
+
+  submitMedicineRequest(): void {
+    if (this.medicineRequestForm.valid) {
+      const requestData = this.medicineRequestForm.value;
+      const newRequest: MedicineRequest = {
+        id: `MR${Date.now()}`,
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        ...requestData,
+        requestedById: this.patientInfo.id,
+        requestDate: new Date(),
+        requestTime: new Date(),
+        currentSymptoms: requestData.currentSymptoms ? requestData.currentSymptoms.split(',').map((s: string) => s.trim()) : [],
+        status: 'PENDING',
+        isPrescriptionRequired: requestData.isPrescriptionRequired || true
+      };
+
+      this.medicineRequests.unshift(newRequest);
+      this.showMedicineRequestDialog = false;
+      this.medicineRequestForm.reset();
+      this.updateTabBadges();
+    }
+  }
+
+  cancelMedicineRequest(): void {
+    this.showMedicineRequestDialog = false;
+    this.medicineRequestForm.reset();
+  }
+
+  approveMedicineRequest(request: MedicineRequest): void {
+    request.status = 'APPROVED';
+    request.approvedBy = 'Dr. Sarah Johnson';
+    request.approvedById = 'DOC001';
+    request.approvedDate = new Date();
+  }
+
+  rejectMedicineRequest(request: MedicineRequest): void {
+    request.status = 'REJECTED';
+    request.rejectionReason = 'Not medically necessary at this time';
+  }
+
+  // Relative Management Methods
+  addRelative(): void {
+    this.relativeForm.patchValue({
+      addedBy: 'Dr. Sarah Johnson',
+      addedDate: new Date(),
+      isActive: true,
+      verificationStatus: 'PENDING'
+    });
+    this.showRelativeDialog = true;
+  }
+
+  addRelativeSubmit(): void {
+    if (this.relativeForm.valid) {
+      const relativeData = this.relativeForm.value;
+      const newRelative: PatientRelative = {
+        id: `REL${Date.now()}`,
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        ...relativeData,
+        addedBy: 'Dr. Sarah Johnson',
+        addedDate: new Date(),
+        isActive: true,
+        verificationStatus: 'PENDING',
+        verificationNotes: 'Pending verification'
+      };
+
+      this.patientRelatives.push(newRelative);
+      this.showRelativeDialog = false;
+      this.relativeForm.reset();
+      this.updateTabBadges();
+    }
+  }
+
+  cancelRelative(): void {
+    this.showRelativeDialog = false;
+    this.relativeForm.reset();
+  }
+
+  contactRelative(relative: PatientRelative): void {
+    console.log('Contacting relative:', relative.relativeName, 'at', relative.contactNumber);
+    // Implementation for contacting relative
+  }
+
+  verifyRelative(relative: PatientRelative): void {
+    relative.verificationStatus = 'VERIFIED';
+    relative.verificationNotes = 'Verified via phone call';
+    relative.lastContactDate = new Date();
+  }
+
+  // Utility Methods for Enhanced Features
+  getRoundTypeIcon(roundType: string): string {
+    switch (roundType) {
+      case 'DOCTOR_ROUND': return 'person';
+      case 'NURSE_ROUND': return 'medical_services';
+      case 'CLEANING_ROUND': return 'cleaning_services';
+      case 'DIET_ROUND': return 'restaurant';
+      case 'PHYSIOTHERAPY_ROUND': return 'fitness_center';
+      default: return 'assessment';
+    }
+  }
+
+  getRoundTypeColor(roundType: string): string {
+    switch (roundType) {
+      case 'DOCTOR_ROUND': return '#3b82f6';
+      case 'NURSE_ROUND': return '#10b981';
+      case 'CLEANING_ROUND': return '#6b7280';
+      case 'DIET_ROUND': return '#f59e0b';
+      case 'PHYSIOTHERAPY_ROUND': return '#8b5cf6';
+      default: return '#6b7280';
+    }
+  }
+
+  getMedicineRequestStatusColor(status: string): string {
+    switch (status) {
+      case 'PENDING': return '#f59e0b';
+      case 'APPROVED': return '#10b981';
+      case 'REJECTED': return '#ef4444';
+      case 'DISPENSED': return '#3b82f6';
+      case 'CANCELLED': return '#6b7280';
+      default: return '#6b7280';
+    }
+  }
+
+  getRelativeRelationshipIcon(relationship: string): string {
+    switch (relationship) {
+      case 'SPOUSE': return 'favorite';
+      case 'PARENT': return 'family_restroom';
+      case 'CHILD': return 'child_care';
+      case 'SIBLING': return 'group';
+      case 'GRANDPARENT': return 'elderly';
+      case 'GRANDCHILD': return 'child_friendly';
+      case 'FRIEND': return 'person';
+      case 'GUARDIAN': return 'security';
+      default: return 'person';
+    }
+  }
+
+  getRelativeRelationshipColor(relationship: string): string {
+    switch (relationship) {
+      case 'SPOUSE': return '#e91e63';
+      case 'PARENT': return '#3f51b5';
+      case 'CHILD': return '#4caf50';
+      case 'SIBLING': return '#ff9800';
+      case 'GRANDPARENT': return '#9c27b0';
+      case 'GRANDCHILD': return '#00bcd4';
+      case 'FRIEND': return '#607d8b';
+      case 'GUARDIAN': return '#795548';
+      default: return '#6b7280';
+    }
+  }
+
+  formatTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
   }
 }

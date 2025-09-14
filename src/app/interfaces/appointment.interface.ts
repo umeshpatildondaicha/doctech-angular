@@ -9,6 +9,12 @@ export interface Appointment {
   slot_id: number;
   status: 'SCHEDULED' | 'CANCELED' | 'COMPLETED' | 'PENDING';
   
+  // Referral information
+  referred_by_doctor_id?: number;
+  referred_by_doctor_name?: string;
+  referral_notes?: string;
+  is_referred?: boolean;
+  
   // Additional display fields for UI
   patientName?: string;
   doctorName?: string;

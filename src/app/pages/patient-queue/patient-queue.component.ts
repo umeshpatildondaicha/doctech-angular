@@ -16,7 +16,6 @@ import { PatientQueueDisplay, QueueStatistics } from '../../interfaces/patient-q
 import { CustomEventsService } from '../../services/custom-events.service';
 import { PatientQueueService } from '../../services/patient-queue.service';
 import { IconComponent } from '../../tools/app-icon/icon.component';
-import { DialogboxComponent } from '../../tools/dialogbox/dialogbox.component';
 import { NotesDialogComponent } from '../../tools/notes-dialog';
 import { AppointmentRescheduleComponent } from '../appointment-reschedule/appointment-reschedule.component';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
@@ -67,14 +66,15 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
 
 
   private refreshInterval: any;
+  private delayUpdateInterval: any;
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private customEventsService: CustomEventsService,
-    private patientQueueService: PatientQueueService
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly dialog: MatDialog,
+    private readonly snackBar: MatSnackBar,
+    private readonly customEventsService: CustomEventsService,
+    private readonly patientQueueService: PatientQueueService
   ) {}
 
   ngOnInit(): void {
@@ -82,11 +82,15 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
     this.syncFiltersFromUrl();
     this.loadQueueData();
     this.startAutoRefresh();
+    this.startDelayUpdate();
   }
 
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
+    }
+    if (this.delayUpdateInterval) {
+      clearInterval(this.delayUpdateInterval);
     }
   }
 
@@ -167,20 +171,49 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
   }
 
   startConsultation(patient: PatientQueueDisplay): void {
-    this.router.navigate(['/consultation'], {
-      queryParams: { 
-        patientId: patient.patientId,
-        queueId: patient.queueInfo.queueId
-      }
-    });
+    this.navigateToPatientProfile(patient);
   }
 
   completeConsultation(patient: PatientQueueDisplay): void {
     this.patientQueueService.completeConsultation(patient.patientId);
     
+    // Show completion message
     this.snackBar.open(`Consultation completed for ${patient.firstName} ${patient.lastName}`, 'OK', {
       duration: 3000
     });
+
+    // Check if there's a next patient and show notification
+    setTimeout(() => {
+      this.checkAndNotifyNextPatient();
+    }, 1000);
+  }
+
+  private checkAndNotifyNextPatient(): void {
+    this.patientQueueService.currentPatient$.subscribe(currentPatient => {
+      if (currentPatient) {
+        this.snackBar.open(
+          `Next patient: ${currentPatient.firstName} ${currentPatient.lastName} is now ready for consultation`, 
+          'OK', 
+          {
+            duration: 5000,
+            panelClass: ['success-snackbar']
+          }
+        );
+      }
+    }).unsubscribe();
+  }
+
+  isAutoProgressed(patient: PatientQueueDisplay): boolean {
+    // Check if patient was recently started (within last 30 seconds)
+    if (!patient.queueInfo.actualStartTime) {
+      return false;
+    }
+    
+    const startTime = new Date(`1970-01-01 ${patient.queueInfo.actualStartTime}`);
+    const currentTime = new Date();
+    const timeDiff = (currentTime.getTime() - startTime.getTime()) / 1000; // in seconds
+    
+    return timeDiff <= 30; // Show indicator for 30 seconds after auto-start
   }
 
   reschedulePatient(patient: PatientQueueDisplay): void {
@@ -236,13 +269,63 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
   }
 
   viewPatientDetails(patient: PatientQueueDisplay): void {
-    this.selectedPatient = patient;
-    this.showPatientDetails = true;
+    this.navigateToPatientProfile(patient);
   }
 
   closePatientDetails(): void {
     this.showPatientDetails = false;
     this.selectedPatient = null;
+  }
+
+  private navigateToPatientProfile(patient: PatientQueueDisplay): void {
+    this.router.navigate(['/patient', patient.patientId], {
+      queryParams: { 
+        patientId: patient.patientId,
+        patientName: `${patient.firstName} ${patient.lastName}`,
+        queueId: patient.queueInfo.queueId,
+        fromQueue: 'true'
+      }
+    });
+  }
+
+  /**
+   * Calculate delay time for a patient
+   */
+  getDelayTime(patient: PatientQueueDisplay): number {
+    if (!patient.queueInfo.appointmentTime) {
+      return 0;
+    }
+
+    const appointmentTime = new Date(patient.queueInfo.appointmentTime);
+    const currentTime = new Date();
+    
+    // If current time is past appointment time, calculate delay
+    if (currentTime > appointmentTime) {
+      const delayMs = currentTime.getTime() - appointmentTime.getTime();
+      return Math.floor(delayMs / (1000 * 60)); // Convert to minutes
+    }
+    
+    return 0;
+  }
+
+  /**
+   * Update delay times for all patients in real-time
+   */
+  private updateDelayTimes(): void {
+    this.patientQueue.forEach(patient => {
+      const delayTime = this.getDelayTime(patient);
+      patient.queueInfo.delayTime = delayTime;
+    });
+  }
+
+  /**
+   * Start the delay update timer
+   */
+  private startDelayUpdate(): void {
+    // Update delay times every minute
+    this.delayUpdateInterval = setInterval(() => {
+      this.updateDelayTimes();
+    }, 60000); // 60 seconds
   }
 
   // Filtering and Sorting

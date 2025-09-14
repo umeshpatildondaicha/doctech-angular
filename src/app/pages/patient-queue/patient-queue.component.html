@@ -118,9 +118,15 @@
       </div>
       
       <div class="patient-info">
-        <h3 class="patient-name">
-          {{ currentPatient.firstName }} {{ currentPatient.lastName }}
-        </h3>
+        <div class="patient-name-row">
+          <h3 class="patient-name">
+            {{ currentPatient.firstName }} {{ currentPatient.lastName }}
+          </h3>
+          <div class="auto-progress-indicator" *ngIf="isAutoProgressed(currentPatient)">
+            <mat-icon>autorenew</mat-icon>
+            <span>Auto-started</span>
+          </div>
+        </div>
         <div class="patient-details">
           <span class="detail-item">
             <mat-icon>schedule</mat-icon>
@@ -217,6 +223,7 @@
              [class.current]="currentPatient?.patientId === patient.patientId"
              (click)="viewPatientDetails(patient)"
              tabindex="0"
+             role="button"
              (keydown.enter)="viewPatientDetails(patient)"
              (keydown.space)="$event.preventDefault(); viewPatientDetails(patient)">
           
@@ -262,6 +269,15 @@
               <span class="meta-item wait-badge" [class]="'wait-badge ' + getWaitBadgeClass(patient.queueInfo.waitTime)">
                 <mat-icon>timer</mat-icon>
                 {{ patient.queueInfo.waitTime }}m wait
+              </span>
+              <span class="meta-item appointment-time" [class.delayed]="getDelayTime(patient) > 0">
+                <mat-icon>{{ getDelayTime(patient) > 0 ? 'warning' : 'event' }}</mat-icon>
+                <span *ngIf="getDelayTime(patient) > 0; else showAppointmentTime">
+                  {{ getDelayTime(patient) }}m delay
+                </span>
+                <ng-template #showAppointmentTime>
+                  {{ patient.queueInfo.appointmentTime }}
+                </ng-template>
               </span>
               <span class="meta-item" *ngIf="patient.queueInfo.roomNumber">
                 <mat-icon>room</mat-icon>

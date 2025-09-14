@@ -17,6 +17,8 @@ export interface PatientQueue {
   isUrgent: boolean;
   hasInsurance: boolean;
   paymentStatus: 'PENDING' | 'PARTIAL' | 'COMPLETED';
+  appointmentTime: string; // Scheduled appointment time
+  delayTime?: number; // Delay in minutes (calculated)
 }
 
 export interface PatientQueueDisplay {

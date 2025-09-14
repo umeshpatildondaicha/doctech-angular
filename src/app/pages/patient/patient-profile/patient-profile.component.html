@@ -1005,6 +1005,259 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <!-- Rounds Tab -->
+    <div *ngIf="selectedTab === 'rounds'" class="rounds-tab">
+      <div class="rounds-header">
+        <h2>Patient Rounds</h2>
+        <div class="rounds-actions">
+          <app-button appearance="stroked" color="primary" (btnClick)="addNewRound()">
+            <app-icon fontIcon="add" [size]="16"></app-icon>
+            <span>Add Round</span>
+          </app-button>
+          <app-button appearance="basic" color="primary">
+            <app-icon fontIcon="schedule" [size]="16"></app-icon>
+            <span>Schedule Rounds</span>
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Round Schedules -->
+      <div class="round-schedules">
+        <h3>Upcoming Rounds</h3>
+        <div class="schedule-cards">
+          <div *ngFor="let schedule of roundSchedules" class="schedule-card">
+            <div class="schedule-header">
+              <div class="schedule-type" [style.background-color]="getRoundTypeColor(schedule.roundType)">
+                <app-icon [fontIcon]="getRoundTypeIcon(schedule.roundType)" [size]="16"></app-icon>
+                {{ schedule.roundType.replace('_', ' ') }}
+              </div>
+              <span class="schedule-priority" [style.background-color]="getPriorityColor(schedule.priority)">
+                {{ schedule.priority }}
+              </span>
+            </div>
+            <div class="schedule-details">
+              <p><strong>Assigned to:</strong> {{ schedule.assignedTo }}</p>
+              <p><strong>Frequency:</strong> {{ schedule.frequency.replace('_', ' ') }}</p>
+              <p><strong>Next:</strong> {{ formatTimeAgo(schedule.nextScheduled!) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completed Rounds -->
+      <div class="completed-rounds">
+        <h3>Recent Rounds</h3>
+        <div class="rounds-list">
+          <div *ngFor="let round of patientRounds" class="round-card">
+            <div class="round-header">
+              <div class="round-type" [style.background-color]="getRoundTypeColor(round.roundType)">
+                <app-icon [fontIcon]="getRoundTypeIcon(round.roundType)" [size]="16"></app-icon>
+                {{ round.roundType.replace('_', ' ') }}
+              </div>
+              <div class="round-meta">
+                <span class="round-performer">{{ round.performedBy }}</span>
+                <span class="round-time">{{ formatTimeAgo(round.roundTime) }}</span>
+              </div>
+            </div>
+            
+            <div class="round-content">
+              <div class="round-notes">
+                <h4>Notes:</h4>
+                <p>{{ round.notes }}</p>
+              </div>
+              
+              <div class="round-observations" *ngIf="round.observations.length > 0">
+                <h4>Observations:</h4>
+                <ul>
+                  <li *ngFor="let observation of round.observations">{{ observation }}</li>
+                </ul>
+              </div>
+
+              <div class="round-vitals" *ngIf="round.vitalSigns">
+                <h4>Vital Signs:</h4>
+                <div class="vitals-grid">
+                  <div class="vital-item" *ngIf="round.vitalSigns.bloodPressure">
+                    <span class="vital-label">BP:</span>
+                    <span class="vital-value">{{ round.vitalSigns.bloodPressure }}</span>
+                  </div>
+                  <div class="vital-item" *ngIf="round.vitalSigns.heartRate">
+                    <span class="vital-label">HR:</span>
+                    <span class="vital-value">{{ round.vitalSigns.heartRate }} bpm</span>
+                  </div>
+                  <div class="vital-item" *ngIf="round.vitalSigns.temperature">
+                    <span class="vital-label">Temp:</span>
+                    <span class="vital-value">{{ round.vitalSigns.temperature }}°C</span>
+                  </div>
+                  <div class="vital-item" *ngIf="round.vitalSigns.oxygenSaturation">
+                    <span class="vital-label">SpO2:</span>
+                    <span class="vital-value">{{ round.vitalSigns.oxygenSaturation }}%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="round-care-instructions" *ngIf="round.careInstructions.length > 0">
+                <h4>Care Instructions:</h4>
+                <ul>
+                  <li *ngFor="let instruction of round.careInstructions">{{ instruction }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medicine Requests Tab -->
+    <div *ngIf="selectedTab === 'medicine-requests'" class="medicine-requests-tab">
+      <div class="medicine-requests-header">
+        <h2>Medicine Requests</h2>
+        <app-button appearance="stroked" color="primary" (btnClick)="addMedicineRequest()">
+          <app-icon fontIcon="add" [size]="16"></app-icon>
+          <span>Request Medicine</span>
+        </app-button>
+      </div>
+
+      <div class="medicine-requests-list">
+        <div *ngFor="let request of medicineRequests" class="medicine-request-card">
+          <div class="request-header">
+            <div class="request-info">
+              <h4>{{ request.medicineName }}</h4>
+              <p>{{ request.dosage }} • {{ request.frequency }} • {{ request.route }}</p>
+            </div>
+            <div class="request-status" [style.background-color]="getMedicineRequestStatusColor(request.status)">
+              {{ request.status }}
+            </div>
+          </div>
+          
+          <div class="request-details">
+            <div class="request-meta">
+              <p><strong>Requested by:</strong> {{ request.requestedBy }}</p>
+              <p><strong>Reason:</strong> {{ request.reason }}</p>
+              <p><strong>Urgency:</strong> {{ request.urgency }}</p>
+              <p><strong>Requested:</strong> {{ formatTimeAgo(request.requestTime) }}</p>
+            </div>
+
+            <div class="request-symptoms" *ngIf="request.currentSymptoms && request.currentSymptoms.length > 0">
+              <h5>Current Symptoms:</h5>
+              <div class="symptoms-chips">
+                <mat-chip *ngFor="let symptom of request.currentSymptoms">{{ symptom }}</mat-chip>
+              </div>
+            </div>
+
+            <div class="request-notes" *ngIf="request.notes">
+              <h5>Notes:</h5>
+              <p>{{ request.notes }}</p>
+            </div>
+
+            <div class="request-actions" *ngIf="request.status === 'PENDING'">
+              <app-button appearance="stroked" color="primary" (btnClick)="approveMedicineRequest(request)">
+                <app-icon fontIcon="check" [size]="16"></app-icon>
+                <span>Approve</span>
+              </app-button>
+              <app-button appearance="stroked" color="warn" (btnClick)="rejectMedicineRequest(request)">
+                <app-icon fontIcon="close" [size]="16"></app-icon>
+                <span>Reject</span>
+              </app-button>
+            </div>
+
+            <div class="request-approval" *ngIf="request.status === 'APPROVED'">
+              <p><strong>Approved by:</strong> {{ request.approvedBy }}</p>
+              <p><strong>Approved on:</strong> {{ formatTimeAgo(request.approvedDate!) }}</p>
+              <p *ngIf="request.pharmacyNotes"><strong>Pharmacy Notes:</strong> {{ request.pharmacyNotes }}</p>
+            </div>
+
+            <div class="request-rejection" *ngIf="request.status === 'REJECTED'">
+              <p><strong>Rejection Reason:</strong> {{ request.rejectionReason }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relatives Tab -->
+    <div *ngIf="selectedTab === 'relatives'" class="relatives-tab">
+      <div class="relatives-header">
+        <h2>Patient Relatives</h2>
+        <app-button appearance="stroked" color="primary" (btnClick)="addRelative()">
+          <app-icon fontIcon="add" [size]="16"></app-icon>
+          <span>Add Relative</span>
+        </app-button>
+      </div>
+
+      <div class="relatives-list">
+        <div *ngFor="let relative of patientRelatives" class="relative-card">
+          <div class="relative-header">
+            <div class="relative-info">
+              <div class="relative-avatar" [style.background-color]="getRelativeRelationshipColor(relative.relationship)">
+                <app-icon [fontIcon]="getRelativeRelationshipIcon(relative.relationship)" [size]="20"></app-icon>
+              </div>
+              <div class="relative-details">
+                <h4>{{ relative.relativeName }}</h4>
+                <p>{{ relative.relationship }} • {{ relative.contactNumber }}</p>
+                <div class="relative-badges">
+                  <span *ngIf="relative.emergencyContact" class="emergency-badge">Emergency Contact</span>
+                  <span *ngIf="relative.canMakeDecisions" class="decision-badge">Can Make Decisions</span>
+                  <span class="verification-badge" [class.verified]="relative.verificationStatus === 'VERIFIED'">
+                    {{ relative.verificationStatus }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="relative-actions">
+              <app-button appearance="basic" color="primary" (btnClick)="contactRelative(relative)">
+                <app-icon fontIcon="call" [size]="16"></app-icon>
+                <span>Call</span>
+              </app-button>
+              <app-button appearance="basic" color="accent" *ngIf="relative.verificationStatus !== 'VERIFIED'" (btnClick)="verifyRelative(relative)">
+                <app-icon fontIcon="verified" [size]="16"></app-icon>
+                <span>Verify</span>
+              </app-button>
+            </div>
+          </div>
+
+          <div class="relative-details-expanded">
+            <div class="contact-info">
+              <h5>Contact Information</h5>
+              <p *ngIf="relative.alternateContactNumber"><strong>Alternate:</strong> {{ relative.alternateContactNumber }}</p>
+              <p *ngIf="relative.email"><strong>Email:</strong> {{ relative.email }}</p>
+              <p *ngIf="relative.address"><strong>Address:</strong> {{ relative.address }}</p>
+            </div>
+
+            <div class="permissions-info">
+              <h5>Permissions</h5>
+              <div class="permissions-grid">
+                <div class="permission-item">
+                  <app-icon fontIcon="notifications" [size]="16"></app-icon>
+                  <span>Receive Updates: {{ relative.canReceiveUpdates ? 'Yes' : 'No' }}</span>
+                </div>
+                <div class="permission-item">
+                  <app-icon fontIcon="visibility" [size]="16"></app-icon>
+                  <span>Can Visit: {{ relative.canVisit ? 'Yes' : 'No' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="visiting-hours" *ngIf="relative.visitingHours">
+              <h5>Visiting Hours</h5>
+              <p><strong>Time:</strong> {{ relative.visitingHours.startTime }} - {{ relative.visitingHours.endTime }}</p>
+              <p><strong>Days:</strong> {{ relative.visitingHours.days.join(', ') }}</p>
+            </div>
+
+            <div class="relative-notes" *ngIf="relative.notes">
+              <h5>Notes</h5>
+              <p>{{ relative.notes }}</p>
+            </div>
+
+            <div class="relative-verification" *ngIf="relative.verificationNotes">
+              <h5>Verification Notes</h5>
+              <p>{{ relative.verificationNotes }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Admission Dialog -->
@@ -1165,6 +1418,363 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Round Dialog -->
+  <div *ngIf="showRoundDialog" class="dialog-overlay">
+    <div class="round-dialog">
+      <div class="dialog-header">
+        <h3>Complete Patient Round</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelRound()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <form [formGroup]="roundForm" class="round-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="roundType">Round Type:</label>
+              <app-selectbox 
+                id="roundType"
+                formControlName="roundType"
+                [options]="['DOCTOR_ROUND', 'NURSE_ROUND', 'CLEANING_ROUND', 'DIET_ROUND', 'PHYSIOTHERAPY_ROUND']"
+                placeholder="Select Round Type">
+              </app-selectbox>
+            </div>
+            <div class="form-group">
+              <label for="performedBy">Performed By:</label>
+              <app-input 
+                id="performedBy"
+                formControlName="performedBy"
+                placeholder="Enter performer name">
+              </app-input>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="priority">Priority:</label>
+              <app-selectbox 
+                id="priority"
+                formControlName="priority"
+                [options]="['LOW', 'MEDIUM', 'HIGH', 'URGENT']"
+                placeholder="Select Priority">
+              </app-selectbox>
+            </div>
+            <div class="form-group">
+              <label for="status">Status:</label>
+              <app-selectbox 
+                id="status"
+                formControlName="status"
+                [options]="['SCHEDULED', 'IN_PROGRESS', 'COMPLETED', 'SKIPPED']"
+                placeholder="Select Status">
+              </app-selectbox>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes:</label>
+            <textarea 
+              id="notes"
+              formControlName="notes"
+              placeholder="Enter round notes"
+              rows="3">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="observations">Observations:</label>
+            <textarea 
+              id="observations"
+              formControlName="observations"
+              placeholder="Enter observations (comma separated)"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="careInstructions">Care Instructions:</label>
+            <textarea 
+              id="careInstructions"
+              formControlName="careInstructions"
+              placeholder="Enter care instructions (comma separated)"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>
+                <input type="checkbox" formControlName="isCritical">
+                Critical Round
+              </label>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" formControlName="requiresFollowUp">
+                Requires Follow-up
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="cancelRound()">
+          Cancel
+        </app-button>
+        <app-button 
+          appearance="raised" 
+          color="primary" 
+          (btnClick)="completeRound()"
+          [disabled]="!roundForm.valid">
+          Complete Round
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medicine Request Dialog -->
+  <div *ngIf="showMedicineRequestDialog" class="dialog-overlay">
+    <div class="medicine-request-dialog">
+      <div class="dialog-header">
+        <h3>Request Medicine</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelMedicineRequest()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <form [formGroup]="medicineRequestForm" class="medicine-request-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="medicineName">Medicine Name:</label>
+              <app-input 
+                id="medicineName"
+                formControlName="medicineName"
+                placeholder="Enter medicine name">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="dosage">Dosage:</label>
+              <app-input 
+                id="dosage"
+                formControlName="dosage"
+                placeholder="Enter dosage">
+              </app-input>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="frequency">Frequency:</label>
+              <app-input 
+                id="frequency"
+                formControlName="frequency"
+                placeholder="Enter frequency">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="route">Route:</label>
+              <app-selectbox 
+                id="route"
+                formControlName="route"
+                [options]="['Oral', 'IV', 'IM', 'Topical', 'Inhalation']"
+                placeholder="Select Route">
+              </app-selectbox>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="quantity">Quantity:</label>
+              <app-input 
+                id="quantity"
+                formControlName="quantity"
+                type="number"
+                placeholder="Enter quantity">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="urgency">Urgency:</label>
+              <app-selectbox 
+                id="urgency"
+                formControlName="urgency"
+                [options]="['LOW', 'MEDIUM', 'HIGH', 'URGENT']"
+                placeholder="Select Urgency">
+              </app-selectbox>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="reason">Reason:</label>
+            <textarea 
+              id="reason"
+              formControlName="reason"
+              placeholder="Enter reason for medicine request"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="currentSymptoms">Current Symptoms:</label>
+            <textarea 
+              id="currentSymptoms"
+              formControlName="currentSymptoms"
+              placeholder="Enter current symptoms (comma separated)"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes:</label>
+            <textarea 
+              id="notes"
+              formControlName="notes"
+              placeholder="Enter additional notes"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="isPrescriptionRequired">
+              Prescription Required
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="cancelMedicineRequest()">
+          Cancel
+        </app-button>
+        <app-button 
+          appearance="raised" 
+          color="primary" 
+          (btnClick)="submitMedicineRequest()"
+          [disabled]="!medicineRequestForm.valid">
+          Submit Request
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Relative Dialog -->
+  <div *ngIf="showRelativeDialog" class="dialog-overlay">
+    <div class="relative-dialog">
+      <div class="dialog-header">
+        <h3>Add Patient Relative</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelRelative()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <form [formGroup]="relativeForm" class="relative-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="relativeName">Relative Name:</label>
+              <app-input 
+                id="relativeName"
+                formControlName="relativeName"
+                placeholder="Enter relative name">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="relationship">Relationship:</label>
+              <app-selectbox 
+                id="relationship"
+                formControlName="relationship"
+                [options]="['SPOUSE', 'PARENT', 'CHILD', 'SIBLING', 'GRANDPARENT', 'GRANDCHILD', 'UNCLE', 'AUNT', 'COUSIN', 'FRIEND', 'GUARDIAN', 'OTHER']"
+                placeholder="Select Relationship">
+              </app-selectbox>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="contactNumber">Contact Number:</label>
+              <app-input 
+                id="contactNumber"
+                formControlName="contactNumber"
+                placeholder="Enter contact number">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="alternateContactNumber">Alternate Contact:</label>
+              <app-input 
+                id="alternateContactNumber"
+                formControlName="alternateContactNumber"
+                placeholder="Enter alternate contact">
+              </app-input>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <app-input 
+                id="email"
+                formControlName="email"
+                type="email"
+                placeholder="Enter email address">
+              </app-input>
+            </div>
+            <div class="form-group">
+              <label for="address">Address:</label>
+              <app-input 
+                id="address"
+                formControlName="address"
+                placeholder="Enter address">
+              </app-input>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notes:</label>
+            <textarea 
+              id="notes"
+              formControlName="notes"
+              placeholder="Enter additional notes"
+              rows="2">
+            </textarea>
+          </div>
+
+          <div class="permissions-section">
+            <h4>Permissions</h4>
+            <div class="permissions-grid">
+              <div class="permission-item">
+                <label>
+                  <input type="checkbox" formControlName="emergencyContact">
+                  Emergency Contact
+                </label>
+              </div>
+              <div class="permission-item">
+                <label>
+                  <input type="checkbox" formControlName="canMakeDecisions">
+                  Can Make Decisions
+                </label>
+              </div>
+              <div class="permission-item">
+                <label>
+                  <input type="checkbox" formControlName="canReceiveUpdates">
+                  Can Receive Updates
+                </label>
+              </div>
+              <div class="permission-item">
+                <label>
+                  <input type="checkbox" formControlName="canVisit">
+                  Can Visit
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="cancelRelative()">
+          Cancel
+        </app-button>
+        <app-button 
+          appearance="raised" 
+          color="primary" 
+          (btnClick)="addRelativeSubmit()"
+          [disabled]="!relativeForm.valid">
+          Add Relative
+        </app-button>
       </div>
     </div>
   </div>

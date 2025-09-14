@@ -97,6 +97,34 @@
       </div>
     </div>
 
+    <!-- Referral Information Card -->
+    <div class="referral-card" *ngIf="appointment?.is_referred">
+      <div class="card-header">
+        <h3 class="card-title">
+          <app-icon [fontIcon]="'person_add'" class="card-title-icon"></app-icon>
+          Referral Information
+        </h3>
+      </div>
+      <div class="card-content">
+        <div class="referral-info">
+          <div class="referral-item">
+            <div class="referral-label">
+              <app-icon [fontIcon]="'medical_services'" class="referral-icon"></app-icon>
+              Referred By
+            </div>
+            <div class="referral-value">{{ appointment?.referred_by_doctor_name }}</div>
+          </div>
+          <div class="referral-item" *ngIf="appointment?.referral_notes">
+            <div class="referral-label">
+              <app-icon [fontIcon]="'note'" class="referral-icon"></app-icon>
+              Referral Notes
+            </div>
+            <div class="referral-value">{{ appointment?.referral_notes }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Notes Card -->
     <div class="notes-card" *ngIf="appointment?.notes">
       <div class="card-header">
@@ -143,9 +171,10 @@
       <app-button
         type="button"
         appearance="basic"
-        [text]="'Edit'"
-        (btnClick)="onEdit()"
-        class="edit-btn">
+        [text]="'View Profile'"
+        (btnClick)="onViewProfile()"
+        class="profile-btn">
+        <app-icon fontIcon="person" [size]="16"></app-icon>
       </app-button>
       <app-button
         type="button"

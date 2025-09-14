@@ -7,7 +7,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Subject, takeUntil, finalize } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -53,15 +53,13 @@ export class LoginComponent implements OnInit, OnDestroy {
   // User type options
   public readonly userTypes = [
     { value: UserType.HOSPITAL, label: 'Hospital Admin', icon: 'business', description: 'Manage hospital operations and staff' },
-    { value: UserType.DOCTOR, label: 'Doctor', icon: 'medical_services', description: 'Access patient records and manage appointments' },
-    { value: UserType.PATIENT, label: 'Patient', icon: 'person', description: 'View appointments and medical records' }
+    { value: UserType.DOCTOR, label: 'Doctor', icon: 'medical_services', description: 'Access patient records and manage appointments' }
   ];
 
   // Demo credentials for testing
   public readonly demoCredentials: Record<string, { email: string; password: string }> = {
     [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
-    [UserType.DOCTOR]: { email: 'u513107@gmail.com', password: 'Umesh@123' },
-    [UserType.PATIENT]: { email: 'patient@shreephysio.com', password: 'Patient@123' }
+    [UserType.DOCTOR]: { email: 'u513107@gmail.com', password: 'Umesh@123' }
   };
 
   // Environment for template access
@@ -249,7 +247,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   public getErrorMessage(controlName: string): string {
     const control = this.getFormControl(controlName);
     
-    if (!control || !control.errors) {
+    if (!control?.errors) {
       return '';
     }
 
@@ -284,9 +282,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         break;
       case UserType.DOCTOR:
         this.router.navigate(['/dashboard']);
-        break;
-      case UserType.PATIENT:
-        this.router.navigate(['/patient-dashboard']);
         break;
       default:
         this.router.navigate(['/dashboard']);
@@ -353,5 +348,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     });
     this.errorMessage = '';
     this.successMessage = '';
+  }
+
+  /**
+   * Handle keyboard events for user type selection
+   */
+  public onUserTypeKeydown(event: KeyboardEvent, userType: string): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.selectUserType(userType);
+    }
   }
 } 

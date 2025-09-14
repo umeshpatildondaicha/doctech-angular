@@ -53,6 +53,13 @@ export class MenuService {
       userTypes: ['doctor']
     },
     { 
+      label: 'Admitted Patients', 
+      icon: 'local_hospital', 
+      route: '/doctor-treatment', 
+      section: 'main',
+      userTypes: ['doctor']
+    },
+    { 
       label: 'Exercises', 
       icon: 'fitness_center', 
       route: '/exercises', 

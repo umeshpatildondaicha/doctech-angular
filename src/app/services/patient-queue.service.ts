@@ -7,9 +7,9 @@ import { PatientQueueDisplay, QueueStatistics } from '../interfaces/patient-queu
 })
 export class PatientQueueService {
   
-  private queueDataSubject = new BehaviorSubject<PatientQueueDisplay[]>([]);
-  private currentPatientSubject = new BehaviorSubject<PatientQueueDisplay | null>(null);
-  private statisticsSubject = new BehaviorSubject<QueueStatistics>({
+  private readonly queueDataSubject = new BehaviorSubject<PatientQueueDisplay[]>([]);
+  private readonly currentPatientSubject = new BehaviorSubject<PatientQueueDisplay | null>(null);
+  private readonly statisticsSubject = new BehaviorSubject<QueueStatistics>({
     totalPatients: 0,
     waiting: 0,
     inProgress: 0,
@@ -58,7 +58,8 @@ export class PatientQueueService {
           reasonForVisit: 'Regular checkup',
           isUrgent: false,
           hasInsurance: true,
-          paymentStatus: 'COMPLETED'
+          paymentStatus: 'COMPLETED',
+          appointmentTime: '09:15'
         },
         medicalAlerts: ['Penicillin allergy'],
         lastVisitDate: '2024-01-10',
@@ -101,7 +102,8 @@ export class PatientQueueService {
           reasonForVisit: 'Chest pain',
           isUrgent: true,
           hasInsurance: true,
-          paymentStatus: 'PENDING'
+          paymentStatus: 'PENDING',
+          appointmentTime: '09:30'
         },
         medicalAlerts: ['Heart condition'],
         lastVisitDate: '2024-01-05',
@@ -144,7 +146,8 @@ export class PatientQueueService {
           reasonForVisit: 'Follow-up consultation',
           isUrgent: false,
           hasInsurance: false,
-          paymentStatus: 'PENDING'
+          paymentStatus: 'PENDING',
+          appointmentTime: '10:00'
         },
         medicalAlerts: [],
         lastVisitDate: '2024-01-12',
@@ -187,7 +190,8 @@ export class PatientQueueService {
           reasonForVisit: 'Annual checkup',
           isUrgent: false,
           hasInsurance: true,
-          paymentStatus: 'COMPLETED'
+          paymentStatus: 'COMPLETED',
+          appointmentTime: '10:30'
         },
         medicalAlerts: [],
         lastVisitDate: '2024-01-15',
@@ -230,7 +234,8 @@ export class PatientQueueService {
           reasonForVisit: 'Prescription renewal',
           isUrgent: false,
           hasInsurance: true,
-          paymentStatus: 'PENDING'
+          paymentStatus: 'PENDING',
+          appointmentTime: '11:00'
         },
         medicalAlerts: [],
         lastVisitDate: '2024-01-18',
@@ -312,7 +317,7 @@ export class PatientQueueService {
   // Complete consultation
   completeConsultation(patientId: number): void {
     const currentQueue = this.queueDataSubject.value;
-    const updatedQueue = currentQueue.map(patient => {
+    let updatedQueue = currentQueue.map(patient => {
       if (patient.patientId === patientId) {
         return {
           ...patient,
@@ -326,9 +331,32 @@ export class PatientQueueService {
       return patient;
     });
 
+    // Automatically move next waiting patient to IN_PROGRESS
+    const nextPatient = this.getNextWaitingPatient(updatedQueue);
+    if (nextPatient) {
+      updatedQueue = updatedQueue.map(patient => {
+        if (patient.patientId === nextPatient.patientId) {
+          return {
+            ...patient,
+            queueInfo: {
+              ...patient.queueInfo,
+              status: 'IN_PROGRESS' as const,
+              actualStartTime: new Date().toLocaleTimeString()
+            }
+          };
+        }
+        return patient;
+      });
+    }
+
     this.queueDataSubject.next(updatedQueue);
     this.updateCurrentPatient();
     this.calculateStatistics();
+    
+    // Emit event for automatic progression
+    if (nextPatient) {
+      this.emitPatientProgressionEvent(nextPatient);
+    }
   }
 
   // Update patient notes
@@ -409,9 +437,10 @@ export class PatientQueueService {
       switch (sortBy) {
         case 'queuePosition':
           return a.queueInfo.queuePosition - b.queueInfo.queuePosition;
-        case 'priority':
+        case 'priority': {
           const priorityOrder = { 'EMERGENCY': 4, 'HIGH': 3, 'NORMAL': 2, 'LOW': 1 };
           return priorityOrder[b.queueInfo.priority] - priorityOrder[a.queueInfo.priority];
+        }
         case 'waitTime':
           return b.queueInfo.waitTime - a.queueInfo.waitTime;
         case 'checkInTime':
@@ -420,6 +449,21 @@ export class PatientQueueService {
           return 0;
       }
     });
+  }
+
+  // Get next waiting patient in queue
+  private getNextWaitingPatient(queue: PatientQueueDisplay[]): PatientQueueDisplay | null {
+    const waitingPatients = queue
+      .filter(p => p.queueInfo.status === 'WAITING')
+      .sort((a, b) => a.queueInfo.queuePosition - b.queueInfo.queuePosition);
+    
+    return waitingPatients.length > 0 ? waitingPatients[0] : null;
+  }
+
+  // Emit patient progression event
+  private emitPatientProgressionEvent(nextPatient: PatientQueueDisplay): void {
+    // This could be used to show notifications or update UI
+    console.log(`Next patient automatically started: ${nextPatient.firstName} ${nextPatient.lastName}`);
   }
 
   // Update current patient

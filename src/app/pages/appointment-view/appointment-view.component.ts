@@ -71,8 +71,8 @@ export class AppointmentViewComponent implements OnInit {
     this.dialogRef.close({ action: 'reschedule', appointment: this.appointment });
   }
 
-  onEdit() {
-    this.dialogRef.close({ action: 'edit', appointment: this.appointment });
+  onViewProfile() {
+    this.dialogRef.close({ action: 'viewProfile', appointment: this.appointment });
   }
 
   onCancelAppointment() {
