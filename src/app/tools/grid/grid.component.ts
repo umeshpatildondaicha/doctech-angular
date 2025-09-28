@@ -100,6 +100,7 @@ export class GridComponent {
     this.gridOptions.theme = themeBalham;
     this.gridOptions.rowHeight = 50;
     this.gridOptions.headerHeight = 50;
+    this.gridOptions.pagination = true;
     this.gridOptions.context = { gridOptions: this.gridOptions as ExtendedGridOptions };
     this.filteredRowData = [...this.rowData];
     this.viewMode = this.defaultViewMode;

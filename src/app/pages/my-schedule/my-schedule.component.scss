@@ -1,48 +1,10 @@
+
 .my-schedule-container {
-  background: #f8f9fa;
+  background: var(--primary-background-color);
   min-height: 100vh;
-  padding: 24px;
-  
-  // Breadcrumb styling
-  app-breadcrumb {
-    margin-bottom: 24px;
-  }
+
 }
 
-// Header Section
-.schedule-header {
-  margin-bottom: 24px;
-  
-  .header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    
-    .header-title {
-      h1 {
-        margin: 0 0 8px 0;
-        font-size: 28px;
-        font-weight: 700;
-        color: #333;
-      }
-      
-      p {
-        margin: 0;
-        font-size: 16px;
-        color: #666;
-      }
-    }
-    
-    .header-actions {
-      display: flex;
-      gap: 12px;
-    }
-  }
-}
 
 // Priority Legend
 .priority-legend {
@@ -516,14 +478,12 @@
 
 // Priority Summary
 .priority-summary {
-  background: white;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   margin-bottom: 24px;
   overflow: hidden;
   
   .summary-header {
-    background: #f8f9fa;
     border-bottom: 1px solid #e9ecef;
     padding: 20px 24px;
     
@@ -817,9 +777,6 @@
 
 // Responsive Design
 @media (max-width: 768px) {
-  .my-schedule-container {
-    padding: 16px;
-  }
   
   .schedule-header {
     .header-content {

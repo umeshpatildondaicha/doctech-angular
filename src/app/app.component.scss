@@ -1,8 +1,9 @@
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100%;
   background: #f7f8fa;
   position: relative;
+  overflow: hidden;
 }
 
 app-sidebar {
@@ -27,9 +28,11 @@ app-sidebar {
   transition: margin 0.2s cubic-bezier(0.4,0,0.2,1);
   position: relative;
   z-index: 1;
+  height: 100%;
 }
 
 app-topbar {
+  height: 4em;
   width: 100%;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
@@ -37,6 +40,7 @@ app-topbar {
 }
 
 .main-content {
+  height: calc(100% - 4em);
   flex: 1;
   padding: var(--page-content-padding);
   background-color: var(--page-background-color);
@@ -155,6 +159,9 @@ app-right-sidebar {
   .mdc-tab__content{
     height: 2.5em !important;
     width: 100% !important;
+  }
+  .tab-content{
+    overflow-y: scroll;
   }
 }
 

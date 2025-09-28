@@ -1,6 +1,5 @@
 // Schedule Container
 .schedule-container {
-  padding: 24px;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
@@ -17,11 +16,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 32px;
+  margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 24px;
+  padding: 1em;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
 
@@ -60,7 +59,7 @@
 
   .header-right {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
     align-items: flex-end;
 
@@ -264,7 +263,6 @@
 
 // View Selection
 .view-selection {
-  margin-bottom: 24px;
   display: flex;
   justify-content: center;
   
@@ -1044,7 +1042,7 @@
 
 // List View
 .list-view {
-  padding: 24px;
+  padding: 1em;
 
   .list-header {
     display: flex;
@@ -1071,6 +1069,19 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       border-left: 4px solid;
       transition: all 0.2s ease;
+
+      ::ng-deep{
+        mat-chip{
+          .mdc-evolution-chip__cell{
+            .mdc-evolution-chip__text-label{
+              align-items: center;
+              place-content: center;
+              display: flex;
+            }
+          }
+        }
+      }
+
 
       &:hover {
         transform: translateY(-2px);
@@ -1133,19 +1144,18 @@
 
 // Board View
 .board-view {
-  padding: 24px;
+  padding: 1em;
 
   .board-columns {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-    height: calc(100vh - 400px);
+    gap: 1em;
     overflow-y: auto;
 
     .board-column {
       background: #f8f9fa;
       border-radius: 12px;
-      padding: 16px;
+      padding: 0.8em;
       display: flex;
       flex-direction: column;
 
@@ -1153,7 +1163,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 16px;
+        margin-bottom: 0.8em;
         padding-bottom: 12px;
         border-bottom: 2px solid #e9ecef;
 
@@ -1481,7 +1491,6 @@
 @media print {
   .schedule-container {
     background: white;
-    padding: 0;
   }
 
   .schedule-header,

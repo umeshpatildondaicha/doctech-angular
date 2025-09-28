@@ -1,25 +1,5 @@
 <div class="appointment-container">
 
-  <!-- My Schedule Button Section -->
-  <div class="my-schedule-section">
-    <div class="schedule-header">
-      <div class="schedule-info">
-        <h2>My Schedule</h2>
-        <p>Manage your appointment timings and availability</p>
-      </div>
-      <div class="schedule-actions">
-        <app-button 
-          [color]="'primary'" 
-          [appearance]="'raised'"
-          (btnClick)="navigateToMySchedule()"
-        >
-          <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="'schedule'"></app-icon>
-          Manage My Schedule
-        </app-button>
-      </div>
-    </div>
-  </div>
-
   <mat-tab-group 
     [selectedIndex]="selectedTabIndex"
     (selectedIndexChange)="onTabChange($event)"
@@ -57,6 +37,13 @@
           [searchPlaceholder]="'Search pending appointments...'"
           (rowClicked)="onPendingRowClick($event)"
         ></app-grid>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="My Schedule">
+      <div class="tab-content">
+        
+        <app-my-schedule></app-my-schedule>
       </div>
     </mat-tab>
   </mat-tab-group>

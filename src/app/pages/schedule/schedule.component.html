@@ -117,31 +117,34 @@
   
   <!-- Header Section -->
   <div class="schedule-header">
-    <div class="header-left">
-      <div class="date-navigation">
-        <app-button appearance="basic" (btnClick)="goToPreviousDay()">
-          <app-icon fontIcon="chevron_left" [size]="20"></app-icon>
-        </app-button>
-        <div class="current-date">
-          <h2>{{ selectedDate | date:'EEEE, MMMM d, y' }}</h2>
-          <app-button appearance="basic" (btnClick)="goToToday()">
-            Today
-          </app-button>
-        </div>
-        <app-button appearance="basic" (btnClick)="goToNextDay()">
-          <app-icon fontIcon="chevron_right" [size]="20"></app-icon>
-        </app-button>
-      </div>
+
+
+
+      <!-- View Selection -->
+  <div class="view-selection">
+    <div class="view-tabs">
+      <button 
+        *ngFor="let view of scheduleViews" 
+        class="view-tab" 
+        [class.active]="selectedView === view.id"
+        (click)="onViewChange(view.id)"
+        [matTooltip]="view.description">
+        <app-icon [fontIcon]="view.icon" [size]="18"></app-icon>
+        <span>{{ view.name }}</span>
+      </button>
     </div>
+  </div>
+
+
+
     
          <div class="header-right">
-       <div class="scheduling-type-info">
-         <div class="scheduling-badge">
-           <app-icon [fontIcon]="getSchedulingTypeIcon()" [size]="16"></app-icon>
-           <span>{{ getSchedulingTypeLabel() }}</span>
-         </div>
-       </div>
-       
+          <div class="scheduling-type-info">
+            <div class="scheduling-badge">
+              <app-icon [fontIcon]="getSchedulingTypeIcon()" [size]="16"></app-icon>
+              <span>{{ getSchedulingTypeLabel() }}</span>
+            </div>
+          </div>
        <div class="header-actions">
          <app-button appearance="basic" (btnClick)="toggleFilters()">
            <app-icon fontIcon="filter_list" [size]="16"></app-icon>
@@ -192,24 +195,6 @@
     </form>
   </div>
 
-  <!-- View Selection -->
-  <div class="view-selection">
-    <div class="view-tabs">
-      <button 
-        *ngFor="let view of scheduleViews" 
-        class="view-tab" 
-        [class.active]="selectedView === view.id"
-        (click)="onViewChange(view.id)"
-        [matTooltip]="view.description">
-        <app-icon [fontIcon]="view.icon" [size]="18"></app-icon>
-        <span>{{ view.name }}</span>
-      </button>
-    </div>
-  </div>
-
-  
-
-
   <!-- Main Content Area -->
   <div class="schedule-content">
     <!-- Timeline View -->
@@ -219,6 +204,10 @@
           <h3>Time</h3>
         </div>
         <div class="schedule-column">
+          <app-button appearance="basic" (btnClick)="goToPreviousDay()">
+            <app-icon fontIcon="chevron_left" [size]="20"></app-icon>
+          </app-button>
+
           <div class="schedule-info">
             <h3>Today's Schedule</h3>
             <p>{{ selectedDate | date:'EEEE, MMMM d, y' }}</p>
@@ -227,6 +216,10 @@
               <span>{{ getSchedulingTypeLabel() }}</span>
             </div>
           </div>
+
+          <app-button appearance="basic" (btnClick)="goToNextDay()">
+            <app-icon fontIcon="chevron_right" [size]="20"></app-icon>
+          </app-button>
         </div>
       </div>
 
@@ -311,12 +304,7 @@
       <mat-card>
         <div class="list-header">
           <h3>Appointments List</h3>
-          <div class="list-actions">
-            <app-button appearance="basic" (btnClick)="refreshSchedule()">
-              <app-icon fontIcon="refresh" [size]="16"></app-icon>
-              Refresh
-            </app-button>
-          </div>
+
         </div>
         
         <div class="appointments-list">
