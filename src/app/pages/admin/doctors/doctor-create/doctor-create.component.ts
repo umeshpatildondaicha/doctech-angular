@@ -138,11 +138,11 @@ export class AdminDoctorCreateComponent implements OnInit {
         updatedAt: now
       };
 
-      console.log('🚀 Sending doctor creation request to:', 'http://localhost:8080/api/doctors');
+      console.log('🚀 Sending doctor creation request to:', 'https://doctech.solutions/api/doctors');
       console.log('📦 Payload:', payload);
       console.log('🌐 CORS Origin:', window.location.origin);
 
-      this.httpService.sendPOSTRequest('http://localhost:8080/api/doctors', payload)
+      this.httpService.sendPOSTRequest('https://doctech.solutions/api/doctors', payload)
         .subscribe({
           next: (response) => {
             this.isLoading = false;
@@ -174,7 +174,7 @@ export class AdminDoctorCreateComponent implements OnInit {
             } else if (error.status === 500) {
               errorMessage = 'Server error. Please try again later.';
             } else if (error.status === 0) {
-              errorMessage = 'Cannot connect to server. Please check if Spring backend is running on localhost:8080.';
+              errorMessage = 'Cannot connect to server. Please check if Spring backend is running on doctech.solutions.';
             } else if (error.status === 403) {
               errorMessage = 'Access forbidden. CORS issue detected.';
             }
@@ -286,7 +286,7 @@ export class AdminDoctorCreateComponent implements OnInit {
 
     console.log('📱 Sending doctor invitation:', invitePayload);
 
-    this.httpService.sendPOSTRequest('http://localhost:8080/api/doctors/invite', JSON.stringify(invitePayload))
+    this.httpService.sendPOSTRequest('https://doctech.solutions/api/doctors/invite', JSON.stringify(invitePayload))
       .subscribe({
         next: (response) => {
           this.isInviting = false;
@@ -348,7 +348,7 @@ export class AdminDoctorCreateComponent implements OnInit {
 
   testBackendConnection() {
     console.log('🔍 Testing backend connection...');
-    this.httpService.sendGETRequest('http://localhost:8080/api/ping')
+    this.httpService.sendGETRequest('https://doctech.solutions/api/ping')
       .subscribe({
         next: (response) => {
           console.log('✅ Backend connection successful:', response);

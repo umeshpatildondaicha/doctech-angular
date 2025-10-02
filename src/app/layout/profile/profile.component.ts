@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AppButtonComponent } from '../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../tools/app-input/app-input.component';
@@ -104,15 +104,16 @@ interface Affiliation {
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   profileForm: FormGroup;
   isEditing = false;
   isSaving = false;
+  isLoading = false;
   selectedTab = 0;
   profileCompletion = 0;
 
-  // Doctor Profile Data - Initialize with authenticated user data
-  doctorProfile: DoctorProfile = this.initializeDoctorProfile();
+  // Doctor Profile Data - Initialize in constructor
+  doctorProfile: DoctorProfile;
 
   // Grid Configuration for Pricing (keeping existing)
   pricingItems: PricingItemData[] = [
@@ -196,6 +197,9 @@ export class ProfileComponent implements OnInit {
     private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {
+    // Initialize doctor profile after services are injected
+    this.doctorProfile = this.initializeDoctorProfile();
+    
     this.profileForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       contactNumber: ['', [Validators.required, Validators.pattern(/^[0-9+\-\s()]+$/)]],
@@ -211,8 +215,30 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('ProfileComponent ngOnInit called');
     this.loadDoctorProfile();
     this.calculateProfileCompletion();
+  }
+
+  ngOnDestroy(): void {
+    console.log('ProfileComponent ngOnDestroy called');
+  }
+
+  /**
+   * Handle image loading errors to prevent infinite loops
+   */
+  onImageError(event: any): void {
+    const img = event.target;
+    const defaultAvatar = 'assets/avatars/default-avatar.jpg';
+    
+    // Only set to default if it's not already the default
+    if (img.src && !img.src.includes('default-avatar.jpg')) {
+      img.src = defaultAvatar;
+    } else {
+      // If default avatar also fails, remove the src to stop the loop
+      img.src = '';
+      img.style.display = 'none';
+    }
   }
 
   /**
@@ -316,6 +342,16 @@ export class ProfileComponent implements OnInit {
    * Load doctor profile data
    */
   private loadDoctorProfile(): void {
+    console.log('loadDoctorProfile called, isLoading:', this.isLoading);
+    
+    // Prevent multiple simultaneous calls
+    if (this.isLoading) {
+      console.log('Profile already loading, skipping...');
+      return;
+    }
+    
+    this.isLoading = true;
+    
     // Get the authenticated user's registration number
     const currentUser = this.authService.getCurrentUser();
     const registrationNumber = currentUser?.userType === 'DOCTOR' ? currentUser.id : this.doctorProfile.registrationNumber;
@@ -366,6 +402,7 @@ export class ProfileComponent implements OnInit {
         });
         
         console.log('Form updated with professionalBio:', this.profileForm.get('professionalBio')?.value);
+        this.isLoading = false;
       },
       error: (error: any) => {
         console.error('Error loading doctor profile:', error);
@@ -382,6 +419,7 @@ export class ProfileComponent implements OnInit {
           experienceYears: this.doctorProfile.experienceYears,
           certifications: this.doctorProfile.certifications
         });
+        this.isLoading = false;
       }
     });
   }
@@ -390,6 +428,14 @@ export class ProfileComponent implements OnInit {
    * Calculate profile completion percentage
    */
   private calculateProfileCompletion(): void {
+    console.log('calculateProfileCompletion called');
+    
+    // Prevent unnecessary calculations if profile is not loaded
+    if (!this.doctorProfile) {
+      this.profileCompletion = 0;
+      return;
+    }
+    
     const totalFields = 10; // Total number of profile fields
     let completedFields = 0;
 
@@ -405,7 +451,12 @@ export class ProfileComponent implements OnInit {
     if (this.doctorProfile.affiliations?.length > 0) completedFields++;
     if (this.doctorProfile.certifications?.length > 0) completedFields++;
 
-    this.profileCompletion = Math.round((completedFields / totalFields) * 100);
+    const newCompletion = Math.round((completedFields / totalFields) * 100);
+    
+    // Only update if the value has changed
+    if (this.profileCompletion !== newCompletion) {
+      this.profileCompletion = newCompletion;
+    }
   }
 
   /**
@@ -413,7 +464,7 @@ export class ProfileComponent implements OnInit {
    */
   startEditing(): void {
     this.isEditing = true;
-    this.loadDoctorProfile();
+    // Don't reload profile when starting to edit - use current data
   }
 
   /**
@@ -421,7 +472,18 @@ export class ProfileComponent implements OnInit {
    */
   cancelEditing(): void {
     this.isEditing = false;
-    this.loadDoctorProfile(); // Reset to original values
+    // Reset form to current profile values instead of reloading
+    this.profileForm.patchValue({
+      email: this.doctorProfile.email,
+      contactNumber: this.doctorProfile.contactNumber,
+      professionalBio: this.doctorProfile.professionalBio,
+      specialization: this.doctorProfile.specialization,
+      additionalSpecializations: this.doctorProfile.additionalSpecializations,
+      qualifications: this.doctorProfile.qualifications,
+      workStartDate: this.doctorProfile.workStartDate,
+      experienceYears: this.doctorProfile.experienceYears,
+      certifications: this.doctorProfile.certifications
+    });
   }
 
   /**
@@ -493,11 +555,7 @@ export class ProfileComponent implements OnInit {
           
           console.log('Profile updated successfully. New bio:', this.doctorProfile.professionalBio);
           
-          // Small delay to ensure data is properly updated
-          setTimeout(() => {
-            // Trigger change detection to update the view
-            this.cdr.detectChanges();
-          }, 100);
+          // No need for manual change detection - Angular will handle it automatically
           
           // Update form values after save
           this.profileForm.patchValue({
@@ -582,27 +640,20 @@ export class ProfileComponent implements OnInit {
    * Get error message for form field
    */
   getErrorMessage(fieldName: string): string {
+    // Optimize to prevent change detection issues
     const control = this.profileForm.get(fieldName);
-    if (control?.errors) {
-      if (control.errors['required']) {
-        return 'This field is required';
-      }
-      if (control.errors['email']) {
-        return 'Please enter a valid email address';
-      }
-      if (control.errors['pattern']) {
-        return 'Please enter a valid phone number';
-      }
-      if (control.errors['maxlength']) {
-        return `Maximum length is ${control.errors['maxlength'].requiredLength} characters`;
-      }
-      if (control.errors['min']) {
-        return `Minimum value is ${control.errors['min'].min}`;
-      }
-      if (control.errors['max']) {
-        return `Maximum value is ${control.errors['max'].max}`;
-      }
+    if (!control?.errors || !control.touched) {
+      return '';
     }
+    
+    const errors = control.errors;
+    if (errors['required']) return 'This field is required';
+    if (errors['email']) return 'Please enter a valid email address';
+    if (errors['pattern']) return 'Please enter a valid phone number';
+    if (errors['maxlength']) return `Maximum length is ${errors['maxlength'].requiredLength} characters`;
+    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
+    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
+    
     return '';
   }
 

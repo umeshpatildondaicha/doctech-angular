@@ -1,0 +1,11 @@
+{
+  "/api/*": {
+    "target": "https://www.doctech.solutions",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "headers": {
+      "Origin": "https://www.doctech.solutions"
+    }
+  }
+}

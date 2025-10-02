@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://www.doctech.solutions',
+  apiUrl: 'https://www.doctech.solutions', // Use www subdomain to avoid redirects
   appName: 'Shree Clinic Management System',
   version: '1.0.0',
   buildNumber: '2024.1.0',
@@ -56,4 +56,3 @@ export const environment = {
     maxFileSize: 10 * 1024 * 1024 // 10MB
   }
 };
-

@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   // Demo credentials for testing
   public readonly demoCredentials: Record<string, { email: string; password: string }> = {
     [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
-    [UserType.DOCTOR]: { email: 'u513107@gmail.com', password: 'Umesh@123' }
+    [UserType.DOCTOR]: { email: 'swapnil@gmail.com', password: 'Swapnil@123' }
   };
 
   // Environment for template access

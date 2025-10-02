@@ -107,7 +107,21 @@ export class AuthService {
   public login(loginRequest: LoginRequest, rememberMe: boolean = false): Observable<boolean> {
     this.updateAuthState({ ...this._authState.value, isLoading: true, error: null });
 
-    return this.http.post<any>(`${environment.apiUrl}/api/auth/login`, loginRequest).pipe(
+    // Create HTTP options with proper headers
+    const httpOptions = {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      withCredentials: false // Don't send credentials for CORS
+    };
+
+    console.log('Making login request to:', `${environment.apiUrl}/api/auth/login`);
+    console.log('Request payload:', loginRequest);
+    console.log('HTTP options:', httpOptions);
+
+    return this.http.post<any>(`${environment.apiUrl}/api/auth/login`, loginRequest, httpOptions).pipe(
       tap((response: any) => {
         console.log('Backend response:', response);
         console.log('Response type:', typeof response);
@@ -117,6 +131,26 @@ export class AuthService {
       map((): boolean => true),
       catchError((error: HttpErrorResponse) => {
         console.error('Login error:', error);
+        console.error('Error details:', {
+          status: error.status,
+          statusText: error.statusText,
+          message: error.message,
+          url: error.url,
+          error: error.error,
+          headers: error.headers
+        });
+        
+        // Handle parsing errors (status 200 but can't parse JSON)
+        if (error.status === 200 && error.message.includes('Http failure during parsing')) {
+          console.error('Server returned 200 but response is not valid JSON. Response:', error.error);
+          const errorMessage = 'Server returned invalid response format. Please check server configuration.';
+          this.updateAuthState({ 
+            ...this._authState.value, 
+            isLoading: false, 
+            error: errorMessage 
+          });
+          return throwError(() => new Error(errorMessage));
+        }
         
         // Check if it's a connection error and try mock login
         if (error.status === 0 || error.status === 502 || error.status === 503) {
@@ -260,7 +294,7 @@ export class AuthService {
     // Mock credentials for demo purposes
     const mockCredentials = {
       [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
-      [UserType.DOCTOR]: { email: 'u513107@gmail.com', password: 'Umesh@123' },
+      [UserType.DOCTOR]: { email: 'swapnil@gmail.com', password: 'Swapnil@123' },
       [UserType.PATIENT]: { email: 'patient@shreephysio.com', password: 'Patient@123' }
     };
 
@@ -278,7 +312,7 @@ export class AuthService {
           case UserType.DOCTOR:
             return {
               id: 'DOC-12332',
-              fullName: 'Dr. Umesh Patil',
+              fullName: 'Dr. Swapnil',
               phoneNumber: '8788802334'
             };
           case UserType.HOSPITAL:

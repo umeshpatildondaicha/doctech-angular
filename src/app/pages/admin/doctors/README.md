@@ -20,7 +20,7 @@ This module provides comprehensive doctor management functionality for hospital 
 
 ### Endpoint
 ```
-POST http://localhost:8080/api/doctors
+POST https://doctech.solutions/api/doctors
 ```
 
 ### Mandatory Fields

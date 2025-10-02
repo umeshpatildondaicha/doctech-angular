@@ -24,7 +24,7 @@ import { AdminDoctorCreateComponent } from '../doctor-create/doctor-create.compo
       
       <div class="info-section">
         <h3>API Endpoint:</h3>
-        <code>POST http://localhost:8080/api/doctors</code>
+        <code>POST https://doctech.solutions/api/doctors</code>
         
         <h3>Mandatory Fields:</h3>
         <ul>
