@@ -14,7 +14,7 @@
             [src]="doctorProfile.profileImageUrl || 'assets/avatars/default-avatar.jpg'" 
             alt="Doctor Profile"
             class="avatar-image"
-            (error)="onImageError($event)">
+            >
           <div class="avatar-overlay" *ngIf="isEditing">
             <mat-icon>camera_alt</mat-icon>
             <span>Change Photo</span>

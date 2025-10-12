@@ -1,8 +1,6 @@
 // Service Details Page - Simplified & User-Friendly Design
 .service-details-page {
-  min-height: 100vh;
-  background: #f8fafc;
-  padding: 24px;
+  height: 100%;
 
   .loading-container {
     display: flex;
@@ -30,8 +28,8 @@
   .service-header {
     background: white;
     border-radius: 12px;
-    padding: 24px;
-    margin-bottom: 24px;
+    padding: 1em;
+    margin-bottom: 1em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: flex;
     justify-content: space-between;
@@ -45,8 +43,8 @@
       gap: 16px;
 
       .service-icon {
-        width: 64px;
-        height: 64px;
+        width: 3em;
+        height: 3em;
         border-radius: 12px;
         display: flex;
         align-items: center;
@@ -54,7 +52,7 @@
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
-      .service-details {
+      .service-details-header {
         h1 {
           font-size: 28px;
           font-weight: 700;
@@ -138,17 +136,17 @@
       .stat-item {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 16px;
+        gap: 1em;
+        padding: 1em;
         background: #f8fafc;
-        border-radius: 8px;
+        border-radius: 0.7em;
         border: 1px solid #e2e8f0;
 
         .stat-icon {
-          width: 40px;
-          height: 40px;
-          background: #3b82f6;
-          border-radius: 8px;
+          width: 2.5em;
+          height: 2.5em;
+          background: var(--primary-color);
+          border-radius: 0.7em;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -222,7 +220,7 @@
   .service-details {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 1em;
 
     // Metrics Section
     .metrics-section {
@@ -283,8 +281,8 @@
     // Capacity Section
     .capacity-section {
       background: white;
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: 0.7em;
+      padding: 1em;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
       h3 {

@@ -439,9 +439,9 @@
     // Patient Content - Compact Grid Layout
       .patient-content {
         .patient-info-grid {
-          display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
-        gap: 12px;
+          display: flex;
+
+        gap: 1.5em;
         align-items: start;
 
           @media (max-width: 1200px) {
@@ -451,18 +451,18 @@
 
         @media (max-width: 768px) {
             grid-template-columns: 1fr;
-          gap: 12px;
+          gap: 0.7em;
           }
 
             .meta-cards {
               display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 8px;
+              gap: 0.7em;
 
               .meta-card {
                 background: var(--background-color);
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 0.7em 1em;
+            border-radius: 0.7em;
+            min-width: 10em;
                 border: 1px solid var(--border-color);
                 transition: var(--transition-base);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -500,8 +500,9 @@
 
               .stat-card {
                 background: var(--background-color);
-            padding: 12px;
-            border-radius: 8px;
+            padding: 1em;
+            border-radius: 0.7em;
+            min-width: 12em;
                 border: 1px solid var(--border-color);
                 transition: var(--transition-base);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -531,6 +532,7 @@
             }
 
             .quick-actions-panel {
+              width: 25em;
               background: var(--background-color);
           border-radius: 8px;
           padding: 12px;
@@ -546,16 +548,15 @@
               }
 
               .quick-actions-grid {
-                display: grid;
-            grid-template-columns: 1fr;
-            gap: 6px;
+                display: flex;
+                flex-wrap: wrap;
+            gap: 0.5em;
 
                 .quick-action-btn {
                   display: flex;
                   align-items: center;
-              gap: 6px;
-              padding: 8px 12px;
-              border-radius: 6px;
+              gap: 0.5em;
+              border-radius: 0.5em;
                   background: var(--page-background-color);
                   border: 1px solid var(--border-color);
                   color: var(--text-primary);

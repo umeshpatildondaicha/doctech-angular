@@ -238,11 +238,11 @@ export class ScheduleComponent implements OnInit {
   
   // Schedule Templates
   scheduleTemplates: ScheduleTemplate[] = [
-    { id: 'consultation', name: 'Consultation', description: 'Regular patient consultation', duration: 30, color: '#4CAF50', icon: 'medical_services' },
+    { id: 'consultation', name: 'Consultation', description: 'Regular patient consultation', duration: 30, color: '#4CAF50', icon: 'today' },
     { id: 'followup', name: 'Follow-up', description: 'Follow-up appointment', duration: 20, color: '#2196F3', icon: 'update' },
-    { id: 'emergency', name: 'Emergency', description: 'Emergency consultation', duration: 45, color: '#F44336', icon: 'emergency' },
+    { id: 'emergency', name: 'Emergency', description: 'Emergency consultation', duration: 45, color: '#F44336', icon: 'priority_high' },
     { id: 'surgery', name: 'Surgery', description: 'Surgical procedure', duration: 120, color: '#9C27B0', icon: 'local_hospital' },
-    { id: 'admin', name: 'Admin Time', description: 'Administrative work', duration: 60, color: '#FF9800', icon: 'admin_panel_settings' }
+    { id: 'admin', name: 'Admin Time', description: 'Administrative work', duration: 60, color: '#FF9800', icon: 'settings' }
   ];
   
   // Mock data
@@ -726,6 +726,71 @@ export class ScheduleComponent implements OnInit {
   toggleFilters() {
     this.showFilters = !this.showFilters;
   }
+
+  resetFilters() {
+    this.filterForm.reset({
+      dateRange: null,
+      status: 'all',
+      searchTerm: ''
+    });
+    
+    // Restore original appointments if they were saved
+    if (this.originalAppointments.length > 0) {
+      this.mockAppointments = [...this.originalAppointments];
+      this.loadDoctorSchedule();
+    }
+    
+    this.showFilters = false;
+  }
+
+  applyFilters() {
+    const filters = this.filterForm.value;
+    
+    // Store a copy of original appointments if not already stored
+    if (!this.originalAppointments) {
+      this.originalAppointments = [...this.mockAppointments];
+    }
+    
+    // Start with all appointments
+    let filteredAppointments = [...this.originalAppointments];
+
+    // Filter by status
+    if (filters.status && filters.status !== 'all') {
+      filteredAppointments = filteredAppointments.filter(
+        apt => apt.status.toLowerCase() === filters.status.toLowerCase()
+      );
+    }
+
+    // Filter by search term
+    if (filters.searchTerm && filters.searchTerm.trim()) {
+      const searchTerm = filters.searchTerm.toLowerCase();
+      filteredAppointments = filteredAppointments.filter(apt =>
+        apt.patientName?.toLowerCase().includes(searchTerm) ||
+        apt.doctorName?.toLowerCase().includes(searchTerm) ||
+        apt.notes?.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Filter by date range
+    if (filters.dateRange) {
+      const selectedDate = new Date(filters.dateRange);
+      filteredAppointments = filteredAppointments.filter(apt => {
+        const aptDate = new Date(apt.appointment_date_time);
+        return aptDate.toDateString() === selectedDate.toDateString();
+      });
+    }
+
+    // Update the display with filtered results
+    this.mockAppointments = filteredAppointments;
+    
+    // Reload the schedule to reflect filtered data
+    this.loadDoctorSchedule();
+    
+    // Close the filter dialog
+    this.showFilters = false;
+  }
+  
+  private originalAppointments: Appointment[] = [];
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;

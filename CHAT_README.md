@@ -26,7 +26,7 @@ The chat feature allows doctors to communicate with their patients through a mod
 - **Futuristic Design**: Dark theme with gradient accents
 - **Glass Morphism**: Modern glass effect design elements
 - **Smooth Animations**: Fluid transitions and hover effects
-- **Material Icons**: Consistent iconography throughout
+- **Material Icons & Icomoon**: Consistent iconography with support for custom icons
 
 ## File Structure
 
@@ -69,7 +69,7 @@ src/app/interfaces/
 ### Dependencies
 - Angular 17+ (Standalone Components)
 - RxJS for reactive programming
-- Material Icons for UI elements
+- Material Icons & Icomoon for UI elements
 - Inter font family for typography
 
 ### State Management
@@ -115,6 +115,22 @@ src/app/interfaces/
 - Screen reader compatibility
 - High contrast mode support
 - Responsive touch targets
+
+## Icon System
+
+### Icomoon Integration
+The application now supports custom Icomoon icons alongside Material Icons. See `ICOMOON_SETUP.md` for detailed setup instructions.
+
+### Using Icons
+```html
+<!-- Material Icon -->
+<app-icon fontIcon="chat" [size]="24" color="#667eea"></app-icon>
+
+<!-- Icomoon Icon -->
+<app-icon iconType="icomoon" icomoonClass="icon-chat" [size]="24" color="#667eea"></app-icon>
+```
+
+For more examples, see `ICOMOON_EXAMPLES.html`.
 
 ---
 

@@ -14,7 +14,7 @@
   <div class="dialog-content">
     <form [formGroup]="appointmentForm" (ngSubmit)="onSubmit()" class="form">
       <div class="section-title-wrapper"><h4 class="section-title">Appointment Details</h4></div>
-      <div class="form-row">
+      <div class="form-row top-space">
         <div class="patient-search-section">
           <label class="form-label" for="patient-search-input">Patient <span class="required">*</span></label>
           <div class="patient-search-input" [class.error-state]="!selectedPatient && appointmentForm.get('patient_id')?.touched">
@@ -27,11 +27,10 @@
               (keydown)="onPatientInputKeydown($event)"
               (input)="onPatientInput($event)"
               [required]="true"
-              [errorMessage]="getPatientErrorMessage()">
+              [errorMessage]="getPatientErrorMessage()"
+              [suffixIconName]="'search'"
+              >
             </app-input>
-            <button type="button" class="search-btn" (click)="openPatientSearch()">
-              <app-icon [fontIcon]="'search'" [size]="20"></app-icon>
-            </button>
           </div>
           
           <!-- Patient Selection Required Message -->

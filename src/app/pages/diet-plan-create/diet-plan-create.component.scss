@@ -1,7 +1,6 @@
 .diet-plan-create {
   background: #f8f9fa;
-  min-height: 100vh;
-  padding: 24px;
+  height: 100%;
   font-family: 'Roboto', sans-serif;
 
   .plan-details-section {
@@ -328,11 +327,11 @@
 
   .plan-actions {
     background: white;
-    border-radius: 16px;
+    border-radius: 1em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    padding: 24px;
+    padding: 1em;
     display: flex;
-    justify-content: center;
+    justify-content: end;
 
     .save-btn {
       display: flex;

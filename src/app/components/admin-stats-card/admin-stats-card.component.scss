@@ -1,11 +1,11 @@
 .admin-stats-grid {
   display: grid;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-sm);
   
   .stat-card {
     background: var(--admin-card-bg);
-    padding: var(--spacing-2xl);
+    padding: var(--spacing-md);
     border-radius: var(--input-radius);
     box-shadow: var(--primary-shadow);
     border: var(--admin-border);
@@ -46,7 +46,6 @@
         font-size: var(--primary-font-size);
         font-weight: var(--primary-font-weight);
         color: var(--admin-text-primary);
-        margin-bottom: var(--spacing-xs);
         line-height: 1.1;
       }
       

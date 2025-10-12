@@ -3,6 +3,14 @@
     vertical-align: middle;
   } 
 
+// Icomoon icon styles
+i[class^="icon-"],
+i[class*=" icon-"] {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+
 .icon-covered {
   display: flex;
   align-items: center;
@@ -14,6 +22,13 @@
   background: var(--secondary-color);
   box-shadow: var(--primary-shadow);
   cursor: pointer;
+  
+  i[class^="icon-"],
+  i[class*=" icon-"] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 } 
 .icon-blink{
   animation: blink 1s infinite;

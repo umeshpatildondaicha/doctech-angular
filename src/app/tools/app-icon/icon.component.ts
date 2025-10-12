@@ -13,6 +13,8 @@ import { CommonUtils } from '../../utils/CommonUtils';
 export class IconComponent {
   @Input() fontSet: string = '';
   @Input() fontIcon: string = '';
+  @Input() iconType: 'material' | 'icomoon' = 'material'; // Type of icon to use
+  @Input() icomoonClass: string = ''; // Icomoon icon class (e.g., 'icon-home')
   @Input() size: number = 24;
   @Input() isBlink: boolean = false;
   @Input() fontBold: boolean = false;

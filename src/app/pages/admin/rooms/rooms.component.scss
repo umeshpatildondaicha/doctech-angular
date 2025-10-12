@@ -1,4 +1,9 @@
-.rooms-page { padding: 20px; }
+.rooms-page { 
+
+  .grid-wrap{
+    max-height: 30em;
+  }
+ }
 
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .header-actions { display: flex; gap: 12px; }

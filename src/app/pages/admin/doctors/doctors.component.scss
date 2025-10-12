@@ -1,9 +1,9 @@
 .doctor-management-page {
-  padding: var(--spacing-xl);
   background-color: var(--page-background-color);
-  min-height: 100vh;
+  height: 100%;
 
   .grid-section {
+    height: calc(100% - 5em);
     background: var(--background-color);
     border-radius: var(--card-border-radius);
     box-shadow: var(--card-shadow);
@@ -22,3 +22,8 @@
     padding: var(--spacing-md);
   }
 } 
+
+.admin-stats-card {
+  height: 5em;
+  display: grid;
+}

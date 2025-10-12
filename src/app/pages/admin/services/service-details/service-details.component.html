@@ -25,7 +25,7 @@
         <div class="service-icon" [style.background]="service.backgroundColor">
           <app-icon [fontIcon]="service.icon" [size]="32" style="color: white;"></app-icon>
         </div>
-        <div class="service-details">
+        <div class="service-details-header">
           <h1>{{ service.name }}</h1>
           <div class="service-meta">
             <span class="category">{{ getCategoryLabel(service.category) }}</span>
@@ -64,7 +64,7 @@
         <div class="overview-stats">
           <div class="stat-item">
             <div class="stat-icon">
-              <app-icon fontIcon="attach_money" [size]="24"></app-icon>
+              <app-icon fontIcon="attach_money" [size]="24" [color]="'white'"></app-icon>
             </div>
             <div class="stat-content">
               <div class="stat-value">${{ service.price }}</div>

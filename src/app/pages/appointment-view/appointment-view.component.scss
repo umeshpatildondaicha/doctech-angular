@@ -317,48 +317,7 @@
     }
   }
 
-  .dialog-footer {
-    border-top: 1px solid var(--border-color);
-    background: var(--surface-color);
-    padding: 20px;
 
-    .footer-actions {
-      display: flex;
-      gap: 12px;
-      justify-content: flex-end;
-
-      .profile-btn {
-        background: var(--primary-color);
-        color: white;
-        border: 1px solid var(--primary-color);
-
-        &:hover {
-          background: var(--primary-dark-color);
-          border-color: var(--primary-dark-color);
-        }
-      }
-
-      .cancel-appointment-btn {
-        background: #ffebee;
-        color: #d32f2f;
-        border: 1px solid #ffcdd2;
-
-        &:hover {
-          background: #ffcdd2;
-        }
-      }
-
-      .close-btn {
-        background: var(--secondary-color);
-        color: var(--text-color);
-        border: 1px solid var(--border-color);
-
-        &:hover {
-          background: var(--secondary-background-color);
-        }
-      }
-    }
-  }
 }
 
 // Responsive design

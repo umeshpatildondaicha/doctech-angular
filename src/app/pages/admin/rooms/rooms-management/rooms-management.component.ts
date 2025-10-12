@@ -37,7 +37,7 @@ interface Ward {
   styleUrl: './rooms-management.component.scss'
 })
 export class RoomsManagementComponent implements OnInit, AfterViewInit {
-  activeTab: 'floors' | 'wards' | 'rooms' | 'beds' = 'floors';
+  activeTab: 'floors' | 'wards' | 'rooms' | 'beds' | 'preview' = 'floors';
   
   // Forms
   floorForm: FormGroup;
@@ -50,6 +50,11 @@ export class RoomsManagementComponent implements OnInit, AfterViewInit {
   isEditingBed = false;
   selectedRoom: any = null;
   selectedBed: any = null;
+  
+  // Bed Details Dialog State
+  showBedDetailsDialog = false;
+  selectedBedForDetails: any = null;
+  selectedRoomForDetails: any = null;
   
   // Data
   floors: Floor[] = [
@@ -171,7 +176,7 @@ export class RoomsManagementComponent implements OnInit, AfterViewInit {
     this.rooms = this.roomsService.getRooms();
   }
 
-  setActiveTab(tab: 'floors' | 'wards' | 'rooms' | 'beds') {
+  setActiveTab(tab: 'floors' | 'wards' | 'rooms' | 'beds' | 'preview') {
     this.activeTab = tab;
   }
 
@@ -467,6 +472,123 @@ export class RoomsManagementComponent implements OnInit, AfterViewInit {
       case 'Maintenance': return 'var(--room-maintenance-color)';
       default: return 'var(--room-available-color)';
     }
+  }
+
+  // Preview Helper Methods
+  getFloorsReversed() {
+    return [...this.floors].reverse();
+  }
+
+  getTotalBeds(): number {
+    return this.rooms.reduce((total, room) => total + (room.beds?.length || 0), 0);
+  }
+
+  getAvailableBeds(): number {
+    return this.rooms.reduce((total, room) => {
+      const availableBeds = room.beds?.filter((bed: any) => 
+        bed.status === 'Available'
+      ).length || 0;
+      return total + availableBeds;
+    }, 0);
+  }
+
+  getBedsByFloor(floorNumber: number): number {
+    return this.getRoomsByFloor(floorNumber)
+      .reduce((total, room) => total + (room.beds?.length || 0), 0);
+  }
+
+  getRoomIcon(roomType: string): string {
+    switch (roomType) {
+      case 'ICU': return 'local_hospital';
+      case 'General Ward': return 'hotel';
+      case 'Private': return 'single_bed';
+      case 'Semi-Private': return 'king_bed';
+      default: return 'meeting_room';
+    }
+  }
+
+  getRoomColor(roomType: string): string {
+    switch (roomType) {
+      case 'ICU': return '#e74c3c';
+      case 'General Ward': return '#3498db';
+      case 'Private': return '#9b59b6';
+      case 'Semi-Private': return '#f39c12';
+      default: return '#95a5a6';
+    }
+  }
+
+  getBedColor(status: string): string {
+    switch (status) {
+      case 'Available': return '#27ae60';
+      case 'Occupied': return '#e74c3c';
+      case 'Reserved': return '#f39c12';
+      case 'Cleaning': return '#3498db';
+      case 'Maintenance': return '#95a5a6';
+      default: return '#95a5a6';
+    }
+  }
+
+  getBedLetter(bedId: string): string {
+    // Extract letter from bed ID (e.g., 'ICU-01-A' -> 'A')
+    const parts = bedId.split('-');
+    return parts[parts.length - 1];
+  }
+
+  getRoomCapacityColor(occupied: number, capacity: number): string {
+    const percentage = (occupied / capacity) * 100;
+    if (percentage >= 100) return '#e74c3c';
+    if (percentage >= 75) return '#f39c12';
+    if (percentage >= 50) return '#3498db';
+    return '#27ae60';
+  }
+
+  // Bed Details Dialog Methods
+  showBedDetails(bed: any, room: any) {
+    this.selectedBedForDetails = bed;
+    this.selectedRoomForDetails = room;
+    this.showBedDetailsDialog = true;
+  }
+
+  closeBedDetails() {
+    this.showBedDetailsDialog = false;
+    this.selectedBedForDetails = null;
+    this.selectedRoomForDetails = null;
+  }
+
+  getFloorName(floorNumber: number): string {
+    const floor = this.floors.find(f => f.number === floorNumber);
+    return floor ? floor.name : `Floor ${floorNumber}`;
+  }
+
+  getBedFacilitiesList(facilities: any): any[] {
+    if (!facilities) return [];
+    
+    return this.bedFacilitiesOptions.map(option => ({
+      ...option,
+      available: facilities[option.key] || false
+    }));
+  }
+
+  editBedDetails() {
+    // Close bed details dialog
+    this.closeBedDetails();
+    
+    // Switch to beds tab and open bed form for editing
+    this.setActiveTab('beds');
+    this.isEditingBed = true;
+    this.selectedBed = this.selectedBedForDetails;
+    this.selectedRoom = this.selectedRoomForDetails;
+    
+    // Populate the bed form with existing data
+    this.bedForm.patchValue({
+      floor: this.selectedRoomForDetails?.floor,
+      room: this.selectedRoomForDetails?.id,
+      bedId: this.getBedLetter(this.selectedBedForDetails.id),
+      status: this.selectedBedForDetails.status,
+      facilities: this.selectedBedForDetails.facilities || {}
+    });
+    
+    this.showBedForm = true;
   }
 
 }

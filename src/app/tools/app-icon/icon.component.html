@@ -1,13 +1,23 @@
 @if(isCovered && !counter){ 
   <div class="icon-covered">
-    <mat-icon
-      [fontIcon]="fontIcon"
-      [ngClass]="class"
-      [style.fontSize.px]="size"
-      [style.color]="color"
-      (click)="onClick($event)"
-      style="vertical-align: middle; cursor: pointer;"
-    ></mat-icon>
+    @if(iconType === 'icomoon') {
+      <i 
+        [class]="icomoonClass + ' ' + class"
+        [style.fontSize.px]="size"
+        [style.color]="color"
+        (click)="onClick($event)"
+        style="vertical-align: middle; cursor: pointer;"
+      ></i>
+    } @else {
+      <mat-icon
+        [fontIcon]="fontIcon"
+        [ngClass]="class"
+        [style.fontSize.px]="size"
+        [style.color]="color"
+        (click)="onClick($event)"
+        style="vertical-align: middle; cursor: pointer;"
+      ></mat-icon>
+    }
   </div>
 }
 @else if(counter){
@@ -16,12 +26,23 @@
   </div>
 }
 @else{
+  @if(iconType === 'icomoon') {
+    <i 
+      [class]="'icon-' + fontIcon + ' ' + class"
+      [style.fontSize.px]="size"
+      [style.color]="color"
+      (click)="onClick($event)"
+      style="vertical-align: middle; cursor: pointer;"
+    ></i>
+  } @else {
     <mat-icon
-    [fontIcon]="fontIcon"
-    [ngClass]="class"
-    [style.fontSize.px]="size"
-    [style.color]="color"
-    (click)="onClick($event)"
-    style="vertical-align: middle; cursor: pointer;"
-  ></mat-icon>
+      [fontIcon]="fontIcon"
+      [ngClass]="class"
+      [style.fontSize.px]="size"
+      [style.color]="color"
+      [color]="color"
+      (click)="onClick($event)"
+      style="vertical-align: middle; cursor: pointer;"
+    ></mat-icon>
+  }
 }

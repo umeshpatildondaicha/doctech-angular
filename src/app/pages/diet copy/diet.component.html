@@ -57,21 +57,24 @@
           </div>
         </div>
 
-        <!-- View Toggle -->
-        <div class="view-toggle">
-          <button mat-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
-            <mat-icon>grid_view</mat-icon>
-            Grid View
-          </button>
-          <button mat-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
-            <mat-icon>view_list</mat-icon>
-            List View
-          </button>
-        </div>
+
 
         <!-- Diets Filters -->
         <div class="diets-filters">
           <div class="filters-content">
+
+         <!-- View Toggle -->
+          <div class="view-toggle">
+            <button mat-button [class.active]="viewMode === 'grid'" (click)="setViewMode('grid')">
+              <mat-icon>grid_view</mat-icon>
+              Grid View
+            </button>
+            <button mat-button [class.active]="viewMode === 'list'" (click)="setViewMode('list')">
+              <mat-icon>view_list</mat-icon>
+              List View
+            </button>
+          </div>
+
             <div class="filter-group">
               <mat-form-field appearance="outline" class="filter-field">
                 <mat-label>Diet Type</mat-label>

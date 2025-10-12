@@ -1,32 +1,5 @@
 <div class="patient-queue-container">
-  <!-- Header Section -->
-  <div class="queue-header">
-    <div class="header-left">
-      <h1 class="page-title">
-        <mat-icon class="title-icon">queue</mat-icon>
-        Patient Queue
-      </h1>
-      <p class="page-subtitle">Manage patient flow and consultations</p>
-    </div>
-    
-    <div class="header-actions">
-      <button mat-button 
-              class="refresh-btn"
-              [disabled]="isRefreshing"
-              (click)="manualRefresh()">
-        <mat-icon [class.rotating]="isRefreshing">refresh</mat-icon>
-        {{ isRefreshing ? 'Refreshing...' : 'Refresh' }}
-      </button>
-      
-      <button mat-raised-button 
-              color="primary"
-              class="export-btn"
-              (click)="exportQueue()">
-        <mat-icon>download</mat-icon>
-        Export
-      </button>
-    </div>
-  </div>
+
 
   <!-- Statistics Cards -->
   <div class="stats-section">
@@ -339,13 +312,33 @@
     
     <!-- Right Sidebar - Patient Details -->
     <div class="patient-details-sidebar" *ngIf="showPatientDetails && selectedPatient">
-      <div class="sidebar-header">
-        <h3 class="sidebar-title">Patient Details</h3>
-        <button mat-icon-button 
-                class="close-btn"
-                (click)="closePatientDetails()">
-          <mat-icon>close</mat-icon>
-        </button>
+      <div class="sidebar-content">
+        <div class="sidebar-header">
+          <h3 class="sidebar-title">Patient Details</h3>
+          <button mat-icon-button 
+                  class="close-btn"
+                  (click)="closePatientDetails()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+
+        <div class="sidebar-actions">
+          <button mat-button 
+                  class="refresh-btn"
+                  [disabled]="isRefreshing"
+                  (click)="manualRefresh()">
+            <mat-icon [class.rotating]="isRefreshing">refresh</mat-icon>
+            {{ isRefreshing ? 'Refreshing...' : 'Refresh' }}
+          </button>
+          
+          <button mat-raised-button 
+                  color="primary"
+                  class="export-btn"
+                  (click)="exportQueue()">
+            <mat-icon>download</mat-icon>
+            Export
+          </button>
+        </div>
       </div>
       
       <div class="patient-details-content">

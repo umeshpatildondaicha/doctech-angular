@@ -170,7 +170,7 @@
     <div class="footer-actions">
       <app-button
         type="button"
-        appearance="basic"
+        [appearance]="'flat'"
         [text]="'View Profile'"
         (btnClick)="onViewProfile()"
         class="profile-btn">
@@ -178,14 +178,14 @@
       </app-button>
       <app-button
         type="button"
-        appearance="basic"
+        [appearance]="'stroked'"
         [text]="'Cancel Appointment'"
         (btnClick)="onCancelAppointment()"
         class="cancel-appointment-btn">
       </app-button>
       <app-button
         type="button"
-        appearance="raised"
+        [appearance]="'raised'"
         [text]="'Close'"
         (btnClick)="onClose()"
         class="close-btn">

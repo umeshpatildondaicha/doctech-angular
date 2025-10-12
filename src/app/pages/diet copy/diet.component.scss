@@ -1,6 +1,6 @@
 .diet-dashboard {
   background: #f8f9fa;
-  min-height: 100vh;
+  height: 100%;
   font-family: 'Roboto', sans-serif;
 }
 
@@ -8,17 +8,13 @@
 
 // Diets Filters
 .diets-filters {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  margin-bottom: 24px;
   overflow: hidden;
 
   .filters-content {
-    padding: 16px 20px;
+    padding: 1em 0.5em;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 1em;
     flex-wrap: nowrap;
 
     .filter-group {
@@ -27,6 +23,7 @@
 
       .filter-field {
         width: 100%;
+        height: 3.5em;
         
         ::ng-deep .mat-mdc-form-field {
           .mat-mdc-text-field-wrapper {
@@ -42,6 +39,7 @@
 
         .search-field {
           width: 100%;
+          height: 3.5em;
           
           ::ng-deep .mat-mdc-form-field {
             .mat-mdc-text-field-wrapper {
@@ -100,8 +98,7 @@
 .stats-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 1.5em;
 
   .stat-card {
     background: white;
@@ -117,15 +114,15 @@
     }
 
     .stat-content {
-      padding: 24px;
+      padding: 0.5em;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 1em;
 
       .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
+        width: 3em;
+        height: 3em;
+        border-radius: 0.7em;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -143,15 +140,14 @@
         flex: 1;
 
         .stat-number {
-          font-size: 32px;
+          font-size: 1.5em;
           font-weight: 600;
           color: #495057;
-          margin-bottom: 4px;
           line-height: 1;
         }
 
         .stat-label {
-          font-size: 14px;
+          font-size: 1em;
           color: #6c757d;
           font-weight: 500;
           text-transform: uppercase;
@@ -182,14 +178,10 @@
 .view-toggle {
   display: flex;
   justify-content: center;
-  margin-bottom: 32px;
   background: white;
-  border-radius: 12px;
-  padding: 6px;
+  border-radius: 0.7em;
+  padding: 0.5em;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
 
   button {
     display: flex;
@@ -678,6 +670,7 @@
     .filter-group {
       flex: 1;
       min-width: 150px;
+      height: 3.5em;
 
       .filter-field {
         width: 100%;
@@ -1029,10 +1022,10 @@
 // Tabs Section
 .diet-tabs {
   background: white;
-  border-radius: 12px;
+  border-radius: 1em;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 24px;
   overflow: hidden;
+  height: 100%;
 
   ::ng-deep {
     .mat-mdc-tab-header {
@@ -1047,14 +1040,6 @@
 
         &.mat-mdc-tab-label-active {
           color: var(--primary-color);;
-        }
-      }
-    }
-
-    .mat-mdc-tab-body-wrapper {
-      .mat-mdc-tab-body {
-        .mat-mdc-tab-body-content {
-          padding: 24px;
         }
       }
     }
@@ -1450,7 +1435,7 @@
 .tab-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 1em;
 }
 
 @media (max-width: 768px) {
@@ -1507,7 +1492,8 @@
 
   .stats-cards {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 16px;
+    gap: 1em;
+    padding: 0.5em;
 
     .stat-card {
       .stat-content {

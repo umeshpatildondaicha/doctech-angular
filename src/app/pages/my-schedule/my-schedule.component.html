@@ -203,6 +203,14 @@
         </div>
       </div>
       <div class="view-toggle">
+        <div class="grid-actions">
+          <app-icon 
+            [fontSet]="'material-icons-outlined'" 
+            [isCovered]="true" 
+            [fontIcon]="'add'" 
+            (click)="createTimingSlot()"
+          ></app-icon>
+        </div>
         <button 
           class="toggle-btn" 
           [class.active]="selectedView === 'weekly'"
@@ -300,7 +308,6 @@
         [gridOptions]="timingGridOptions"
         [height]="'500px'"
         [showHeader]="true"
-        [rightTooltemplateRef]="rightTooltemplateTiming"
         [searchPlaceholder]="'Search timing slots...'"
         (rowClicked)="onTimingRowClick($event)"
       ></app-grid>
@@ -308,15 +315,3 @@
   </div>
 
 </div>
-
-<!-- Grid Actions Template -->
-<ng-template #rightTooltemplateTiming>
-  <div class="grid-actions">
-    <app-icon 
-      [fontSet]="'material-icons-outlined'" 
-      [isCovered]="true" 
-      [fontIcon]="'add'" 
-      (click)="createTimingSlot()"
-    ></app-icon>
-  </div>
-</ng-template>

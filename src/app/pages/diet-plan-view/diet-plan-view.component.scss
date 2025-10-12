@@ -1,7 +1,6 @@
 .diet-plan-view {
   background: #f8f9fa;
   min-height: 100vh;
-  padding: 24px;
   font-family: 'Roboto', sans-serif;
 
   .plan-overview {
@@ -352,6 +351,7 @@
     }
 
     .nutrition-content {
+      padding: 1em;
       .nutrition-overview {
         margin-bottom: 32px;
 
@@ -445,6 +445,7 @@
     }
 
     .details-content {
+      padding: 1em;
       .detail-section {
         h3 {
           margin: 0 0 20px 0;

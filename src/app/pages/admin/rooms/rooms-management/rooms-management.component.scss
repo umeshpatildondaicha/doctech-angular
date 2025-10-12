@@ -1,7 +1,6 @@
 .rooms-management-page {
-  min-height: 100vh;
+  height: 100%;
   background: linear-gradient(135deg, var(--page-background-color) 0%, var(--secondary-background-color) 100%);
-  padding: var(--spacing-2xl);
   font-family: var(--primary-font-family);
 }
 
@@ -9,7 +8,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-md);
   background: var(--background-color);
   padding: var(--spacing-xl) var(--spacing-2xl);
   border-radius: var(--card-border-radius);
@@ -47,7 +46,7 @@
   background: var(--background-color);
   border-radius: var(--card-border-radius);
   padding: var(--spacing-sm);
-  margin-bottom: var(--spacing-3xl);
+  margin-bottom: var(--spacing-lg);
   box-shadow: var(--card-shadow);
   border: var(--card-border);
   
@@ -99,7 +98,6 @@
 
 .management-section {
   .section-header {
-    margin-bottom: 24px;
     
     h2 {
       margin: 0 0 4px 0;
@@ -122,9 +120,9 @@
 
 .add-form-card {
   background: white;
-  border-radius: 20px;
-  padding: 28px;
-  margin-bottom: 32px;
+  border-radius: 0.7em;
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.04);
   
@@ -824,8 +822,718 @@
   }
 }
 
+// Preview Section Styles
+.preview-section {
+
+
+  // Building Stats Cards
+  .building-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5em;
+    margin-bottom: 2em;
+
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 1em;
+      padding: 1.5em;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      }
+
+      .stat-info {
+        display: flex;
+        flex-direction: column;
+
+        .stat-value {
+          font-size: 32px;
+          font-weight: 700;
+          color: #2c3e50;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: #7f8c8d;
+          margin-top: 4px;
+        }
+      }
+    }
+  }
+
+  // Building Container
+  .building-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    padding: 1em 0;
+  }
+
+  // Floor Card (Rectangle for each floor)
+  .floor-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 3px solid #667eea;
+    border-radius: 16px;
+    padding: 1.5em;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+      transform: translateX(4px);
+    }
+
+    &.ground-floor {
+      border-color: #27ae60;
+      background: linear-gradient(135deg, #e8f8f5 0%, #d5f4e6 100%);
+    }
+
+    .floor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5em;
+      padding-bottom: 1em;
+      border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+
+      .floor-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        h3 {
+          margin: 0;
+          font-size: 24px;
+          font-weight: 700;
+          color: #2c3e50;
+        }
+
+        .floor-number {
+          padding: 4px 12px;
+          background: #667eea;
+          color: white;
+          border-radius: 20px;
+          font-size: 12px;
+          font-weight: 600;
+        }
+      }
+
+      .floor-info {
+        display: flex;
+        gap: 1em;
+
+        .info-badge {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          background: white;
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #2c3e50;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+        }
+      }
+    }
+
+    // Rooms Container
+    .rooms-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5em;
+
+      // Room Card (Square for each room)
+      .room-card {
+        background: white;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1em;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        &.room-available {
+          border-color: #27ae60;
+          background: linear-gradient(135deg, #ffffff 0%, #e8f8f5 100%);
+        }
+
+        &.room-full {
+          border-color: #e74c3c;
+          background: linear-gradient(135deg, #ffffff 0%, #fadbd8 100%);
+        }
+
+        &.room-maintenance {
+          border-color: #95a5a6;
+          background: linear-gradient(135deg, #ffffff 0%, #ecf0f1 100%);
+        }
+
+        .room-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.75em;
+
+          .room-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            .room-number {
+              font-size: 16px;
+              font-weight: 700;
+              color: #2c3e50;
+            }
+          }
+
+          .room-status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+
+            &.status-available {
+              background: #d5f4e6;
+              color: #27ae60;
+            }
+
+            &.status-full {
+              background: #fadbd8;
+              color: #e74c3c;
+            }
+
+            &.status-maintenance {
+              background: #ecf0f1;
+              color: #95a5a6;
+            }
+          }
+        }
+
+        .room-type {
+          margin-bottom: 1em;
+
+          .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+        }
+
+        // Beds Container
+        .beds-container {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-bottom: 1em;
+          flex: 1;
+          align-content: flex-start;
+
+          // Bed Item (Small icon with status color)
+          .bed-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-width: 60px;
+
+            &:hover {
+              transform: scale(1.1);
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .bed-id {
+              font-size: 11px;
+              font-weight: 700;
+              margin-top: 4px;
+              color: #2c3e50;
+            }
+
+            &.bed-available {
+              background: #d5f4e6;
+              border-color: #27ae60;
+            }
+
+            &.bed-occupied {
+              background: #fadbd8;
+              border-color: #e74c3c;
+            }
+
+            &.bed-reserved {
+              background: #fef3cd;
+              border-color: #f39c12;
+            }
+
+            &.bed-cleaning {
+              background: #d1ecf1;
+              border-color: #3498db;
+            }
+
+            &.bed-maintenance {
+              background: #ecf0f1;
+              border-color: #95a5a6;
+            }
+          }
+        }
+
+        // Room Capacity Bar
+        .room-capacity {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding-top: 0.75em;
+          border-top: 1px solid #e9ecef;
+
+          .capacity-bar {
+            flex: 1;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+
+            .capacity-fill {
+              height: 100%;
+              transition: width 0.3s ease;
+              border-radius: 4px;
+            }
+          }
+
+          .capacity-text {
+            font-size: 13px;
+            font-weight: 700;
+            color: #2c3e50;
+            min-width: 45px;
+            text-align: right;
+          }
+        }
+      }
+
+      // Empty State
+      .empty-rooms {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3em;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        color: #95a5a6;
+
+        p {
+          margin: 8px 0 0 0;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  // Legend
+  .preview-legend {
+    margin-top: 3em;
+    padding: 1.5em;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 1em 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .legend-color {
+          width: 40px;
+          height: 24px;
+          border-radius: 6px;
+          border: 2px solid;
+
+          &.bed-available {
+            background: #d5f4e6;
+            border-color: #27ae60;
+          }
+
+          &.bed-occupied {
+            background: #fadbd8;
+            border-color: #e74c3c;
+          }
+
+          &.bed-reserved {
+            background: #fef3cd;
+            border-color: #f39c12;
+          }
+
+          &.bed-cleaning {
+            background: #d1ecf1;
+            border-color: #3498db;
+          }
+
+          &.bed-maintenance {
+            background: #ecf0f1;
+            border-color: #95a5a6;
+          }
+        }
+
+        span {
+          font-size: 14px;
+          font-weight: 600;
+          color: #2c3e50;
+        }
+      }
+    }
+  }
+}
+
+// Bed Details Dialog
+.bed-details-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .bed-details-dialog {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    max-width: 700px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5em;
+      border-bottom: 1px solid #e9ecef;
+
+      h3 {
+        display: flex;
+        align-items: center;
+        gap: 1em;
+        margin: 0;
+        font-size: 1.2em;
+        font-weight: 600;
+      }
+    }
+
+    .dialog-content {
+      padding: 2em;
+      overflow-y: auto;
+      flex: 1;
+
+      // Bed Details Section
+      .bed-details-section {
+        margin-bottom: 2em;
+
+        h4 {
+          margin: 0 0 1em 0;
+          font-size: 18px;
+          font-weight: 700;
+          color: #2c3e50;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          &::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #667eea;
+            border-radius: 2px;
+          }
+        }
+
+        .detail-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5em;
+          margin-bottom: 1em;
+
+          .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            label {
+              font-size: 12px;
+              font-weight: 600;
+              color: #7f8c8d;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .detail-value {
+              font-size: 16px;
+              font-weight: 600;
+              color: #2c3e50;
+
+              &.status-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+
+                &.status-available {
+                  background: #d5f4e6;
+                  color: #27ae60;
+                }
+
+                &.status-occupied {
+                  background: #fadbd8;
+                  color: #e74c3c;
+                }
+
+                &.status-reserved {
+                  background: #fef3cd;
+                  color: #f39c12;
+                }
+
+                &.status-cleaning {
+                  background: #d1ecf1;
+                  color: #3498db;
+                }
+
+                &.status-maintenance {
+                  background: #ecf0f1;
+                  color: #95a5a6;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      // Patient Information Section
+      .patient-info-section {
+        margin-bottom: 2em;
+        padding: 1.5em;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border-left: 4px solid #3498db;
+
+        h4 {
+          margin: 0 0 1em 0;
+          font-size: 18px;
+          font-weight: 700;
+          color: #2c3e50;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          &::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #3498db;
+            border-radius: 2px;
+          }
+        }
+
+        .detail-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1em;
+
+          .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+
+            label {
+              font-size: 12px;
+              font-weight: 600;
+              color: #7f8c8d;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+
+            .detail-value {
+              font-size: 14px;
+              font-weight: 600;
+              color: #2c3e50;
+            }
+          }
+        }
+      }
+
+      // Facilities Section
+      .facilities-section {
+        h4 {
+          margin: 0 0 1em 0;
+          font-size: 18px;
+          font-weight: 700;
+          color: #2c3e50;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          &::before {
+            content: '';
+            width: 4px;
+            height: 20px;
+            background: #27ae60;
+            border-radius: 2px;
+          }
+        }
+
+        .facilities-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1em;
+
+          .facility-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+
+            &:hover {
+              border-color: #667eea;
+              box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+            }
+
+            .facility-checkbox {
+              width: 24px;
+              height: 24px;
+              border: 2px solid #dee2e6;
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background: white;
+              transition: all 0.2s ease;
+
+              &.checked {
+                background: #27ae60;
+                border-color: #27ae60;
+              }
+            }
+
+            .facility-name {
+              font-size: 14px;
+              font-weight: 600;
+              color: #95a5a6;
+              transition: color 0.2s ease;
+
+              &.available {
+                color: #2c3e50;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 1.5em;
+      border-top: 1px solid #e9ecef;
+      background: #f8f9fa;
+
+      app-button {
+        min-width: 100px;
+      }
+    }
+  }
+}
+
 @media (max-width: 480px) {
   .room-card .beds-grid-compact {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .preview-section {
+    .building-stats {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .floor-card .rooms-container {
+      grid-template-columns: 1fr;
+    }
+
+    .floor-header {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 1em;
+    }
+  }
+
+  // Bed Details Dialog Mobile
+  .bed-details-overlay .bed-details-dialog {
+    width: 95%;
+    max-height: 95vh;
+
+    .dialog-content {
+      padding: 1em;
+
+      .bed-details-section .detail-row {
+        grid-template-columns: 1fr;
+      }
+
+      .patient-info-section .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .facilities-section .facilities-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 }

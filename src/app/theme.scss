@@ -289,4 +289,32 @@
     --admin-gradient-danger: linear-gradient(135deg, var(--status-danger-bg) 0%, #f8d7da 100%);
     --admin-gradient-info: linear-gradient(135deg, var(--secondary-background-color) 0%, #e2e3e5 100%);
     --admin-gradient-light: linear-gradient(135deg, #f8f9fa 0%, var(--secondary-background-color) 100%);
+
+
+    // Admin UI Colors
+
+    --admin-primary: #3b82f6;
+    --admin-primary-dark: #2563eb;
+    --admin-secondary: #64748b;
+    --admin-success: #10b981;
+    --admin-warning: #f59e0b;
+    --admin-danger: #ef4444;
+    --admin-info: #06b6d4;
+    
+    --admin-bg-primary: #ffffff;
+    --admin-bg-secondary: #f8fafc;
+    --admin-bg-tertiary: #f1f5f9;
+    
+    --admin-text-primary: #1e293b;
+    --admin-text-secondary: #64748b;
+    --admin-text-muted: #94a3b8;
+    
+    --admin-border: #e2e8f0;
+    --admin-border-light: #f1f5f9;
+    
+    --admin-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --admin-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    --admin-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --admin-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --admin-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }

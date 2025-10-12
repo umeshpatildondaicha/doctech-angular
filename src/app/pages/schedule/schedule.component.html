@@ -151,9 +151,9 @@
            Filters
          </app-button>
          
-         <app-button appearance="basic" (btnClick)="toggleDarkMode()">
+         <!-- <app-button appearance="basic" (btnClick)="toggleDarkMode()">
            <app-icon [fontIcon]="isDarkMode ? 'light_mode' : 'dark_mode'" [size]="16"></app-icon>
-         </app-button>
+         </app-button> -->
          
          <app-button appearance="basic" (btnClick)="refreshSchedule()" [disabled]="isLoading">
            <app-icon fontIcon="refresh" [size]="16"></app-icon>
@@ -167,32 +167,46 @@
      </div>
   </div>
 
-  <!-- Filter Section -->
-  <div class="filter-section" *ngIf="showFilters">
-    <form [formGroup]="filterForm" class="filter-form">
-      <div class="filter-row">
-        <mat-form-field>
-          <mat-label>Date Range</mat-label>
-          <input matInput formControlName="dateRange" type="date">
-        </mat-form-field>
-        
-        <mat-form-field>
-          <mat-label>Status</mat-label>
-          <mat-select formControlName="status">
-            <mat-option value="all">All</mat-option>
-            <mat-option value="scheduled">Scheduled</mat-option>
-            <mat-option value="completed">Completed</mat-option>
-            <mat-option value="pending">Pending</mat-option>
-            <mat-option value="canceled">Canceled</mat-option>
-          </mat-select>
-        </mat-form-field>
-        
-        <mat-form-field>
-          <mat-label>Search</mat-label>
-          <input matInput formControlName="searchTerm" placeholder="Search appointments...">
-        </mat-form-field>
+  <!-- Filter Dialog -->
+  <div class="filter-overlay" *ngIf="showFilters" (click)="toggleFilters()">
+    <div class="filter-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-header">
+        <h3>Filter Appointments</h3>
+        <app-icon fontIcon="close" (iconClick)="toggleFilters()"></app-icon>
       </div>
-    </form>
+      
+      <div class="dialog-content">
+        <form [formGroup]="filterForm" class="filter-form">
+          <div class="filter-row">
+            <mat-form-field>
+              <mat-label>Date Range</mat-label>
+              <input matInput formControlName="dateRange" type="date">
+            </mat-form-field>
+            
+            <mat-form-field>
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="all">All</mat-option>
+                <mat-option value="scheduled">Scheduled</mat-option>
+                <mat-option value="completed">Completed</mat-option>
+                <mat-option value="pending">Pending</mat-option>
+                <mat-option value="canceled">Canceled</mat-option>
+              </mat-select>
+            </mat-form-field>
+            
+            <mat-form-field>
+              <mat-label>Search</mat-label>
+              <input matInput formControlName="searchTerm" placeholder="Search appointments...">
+            </mat-form-field>
+          </div>
+        </form>
+      </div>
+      
+      <div class="dialog-footer">
+        <app-button appearance="basic" (btnClick)="resetFilters()">Reset</app-button>
+        <app-button appearance="raised" (btnClick)="applyFilters()">Apply Filters</app-button>
+      </div>
+    </div>
   </div>
 
   <!-- Main Content Area -->
@@ -407,7 +421,7 @@
                  *ngFor="let template of scheduleTemplates"
                  (click)="quickAddAppointment(template)">
               <div class="template-icon" [style.background-color]="template.color">
-                <app-icon [fontIcon]="template.icon" [size]="24"></app-icon>
+                <app-icon [fontIcon]="template.icon" [size]="24" [color]="'#fff'"></app-icon>
               </div>
               <div class="template-info">
                 <h5>{{ template.name }}</h5>
