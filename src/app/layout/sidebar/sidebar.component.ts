@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { SidebarMenuItem } from '../../interfaces/sidebarmenu.interface';
@@ -23,6 +23,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   menuList: SidebarMenuItem[] = [];
   private subscriptions = new Subscription();
+  
+  // Responsive properties
+  isMobile = false;
+  isTablet = false;
+  screenWidth = 0;
 
   constructor(
     private router: Router,
@@ -31,6 +36,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Initialize screen size
+    this.checkScreenSize();
+    
     // Subscribe to menu changes
     this.subscriptions.add(
       this.menuService.getMenu().subscribe(menu => {
@@ -63,10 +71,6 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  navigateTo(path: string) {
-    this.router.navigate([path]);
-  }
-
   isActive(path: string): boolean {
     return this.router.url === path;
   }
@@ -84,5 +88,60 @@ export class SidebarComponent implements OnInit, OnDestroy {
       'tools': 'Tools'
     };
     return sectionTitles[section] || section;
+  }
+
+  // Screen size detection
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    this.screenWidth = window.innerWidth;
+    this.isMobile = this.screenWidth <= 768;
+    this.isTablet = this.screenWidth > 768 && this.screenWidth <= 1024;
+    
+    // Auto-collapse on mobile/tablet
+    if (this.isMobile || this.isTablet) {
+      if (!this.collapsed) {
+        this.toggle.emit();
+      }
+    }
+  }
+
+  // Get sidebar classes for responsive behavior
+  getSidebarClasses(): string {
+    let classes = 'sidebar';
+    
+    if (this.collapsed) {
+      classes += ' collapsed';
+    }
+    
+    if (this.isMobile) {
+      classes += ' mobile-overlay';
+    } else if (this.isTablet) {
+      classes += ' tablet-overlay';
+    } else {
+      classes += ' desktop-sidebar';
+    }
+    
+    return classes;
+  }
+
+  // Handle navigation with auto-close on mobile
+  navigateTo(path: string) {
+    this.router.navigate([path]);
+    
+    // Auto-close sidebar on mobile after navigation
+    if (this.isMobile && !this.collapsed) {
+      this.toggle.emit();
+    }
+  }
+
+  // Handle backdrop click to close sidebar
+  onBackdropClick() {
+    if ((this.isMobile || this.isTablet) && !this.collapsed) {
+      this.toggle.emit();
+    }
   }
 }

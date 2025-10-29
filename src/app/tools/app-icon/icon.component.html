@@ -2,7 +2,7 @@
   <div class="icon-covered">
     @if(iconType === 'icomoon') {
       <i 
-        [class]="icomoonClass + ' ' + class"
+        [class]="'icomoon ' + icomoonClass + ' ' + class"
         [style.fontSize.px]="size"
         [style.color]="color"
         (click)="onClick($event)"
@@ -11,7 +11,7 @@
     } @else {
       <mat-icon
         [fontIcon]="fontIcon"
-        [ngClass]="class"
+        [ngClass]="'material-icon ' + class"
         [style.fontSize.px]="size"
         [style.color]="color"
         (click)="onClick($event)"
@@ -28,7 +28,7 @@
 @else{
   @if(iconType === 'icomoon') {
     <i 
-      [class]="'icon-' + fontIcon + ' ' + class"
+      [class]="'icomoon icon-' + fontIcon + ' ' + class"
       [style.fontSize.px]="size"
       [style.color]="color"
       (click)="onClick($event)"
@@ -37,10 +37,10 @@
   } @else {
     <mat-icon
       [fontIcon]="fontIcon"
-      [ngClass]="class"
+      [ngClass]="'material-icon ' + class"
       [style.fontSize.px]="size"
-      [style.color]="color"
-      [color]="color"
+      [style.color]="color === 'primary' ? 'var(--primary-color)' : color"
+      [color]="color === 'primary' ? 'var(--primary-color)' : color"
       (click)="onClick($event)"
       style="vertical-align: middle; cursor: pointer;"
     ></mat-icon>

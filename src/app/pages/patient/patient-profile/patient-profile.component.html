@@ -4,566 +4,301 @@
 
   <!-- Navigation Tabs -->
   <div class="tabs-container">
-    <mat-tab-group (selectedIndexChange)="onTabChange(tabs[$event].id)">
+    <!-- Desktop Vertical Tabs -->
+    <mat-tab-group class="desktop-tabs" (selectedIndexChange)="onTabChange(tabs[$event].id)" orientation="vertical">
       <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
         <ng-template mat-tab-label>
           <div class="tab-label">
-            <app-icon [fontIcon]="tab.icon" [size]="18"></app-icon>
+            <app-icon [fontIcon]="tab.icon" [size]="18" [color]="selectedTab === tab.id ? 'white' : 'var(--text-muted)'"></app-icon>
             {{ tab.label }}
             <span class="tab-badge" *ngIf="tab.badge > 0">{{ tab.badge }}</span>
           </div>
         </ng-template>
       </mat-tab>
     </mat-tab-group>
+
+    <!-- Mobile Horizontal Tabs -->
+    <div class="mobile-tabs">
+      <div class="tabs-scroll-container">
+        <div class="tabs-scroll-content">
+          <button 
+            *ngFor="let tab of tabs; let i = index" 
+            class="mobile-tab-button"
+            [class.active]="selectedTab === tab.id"
+            (click)="onTabChange(tab.id)">
+            <app-icon [fontIcon]="tab.icon" [size]="16" [color]="selectedTab === tab.id ? 'white' : 'var(--text-muted)'"></app-icon>
+            <span class="tab-text">{{ tab.label }}</span>
+            <span class="tab-badge" *ngIf="tab.badge > 0">{{ tab.badge }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Tab Content -->
   <div class="tab-content">
     <!-- Overview Tab -->
     <div *ngIf="selectedTab === 'overview'" class="overview-tab">
-        <!-- IPD Management Header -->
-    <div *ngIf="viewMode === 'ipd'" class="ipd-header">
-      <div class="ipd-header-content">
-        <div class="ipd-title">
-          <h1>Inpatient Management</h1>
-          <div class="ipd-status">
-            <span class="days-left">{{ ipdAdmissionDetails.daysLeft }} Days Left</span>
+      <!-- Modern Patient Overview -->
+      <div class="modern-overview">
+        
+        <!-- Patient Header Card -->
+        <div class="patient-header-card">
+          <div class="header-content">
+            <div class="patient-avatar-section">
+              <div class="patient-avatar">
+                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&crop=face" 
+                     alt="Patient Profile" 
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="avatar-fallback">
+                  <app-icon fontIcon="person" [size]="48" color="var(--text-muted)"></app-icon>
+                </div>
+                <div class="status-indicator" [class]="patientInfo.admissionStatus.toLowerCase()">
+                  <app-icon fontIcon="circle" [size]="14" [color]="patientInfo.admissionStatus === 'IPD' ? 'var(--status-success-color)' : 'var(--status-warning-color)'"></app-icon>
+                </div>
+              </div>
+              <div class="patient-info">
+                <h1 class="patient-name">{{ patientInfo.name }}</h1>
+                <div class="patient-id">
+                  <app-icon fontIcon="assignment_ind" [size]="16" color="var(--primary-color)"></app-icon>
+                  <span>{{ patientInfo.id }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="patient-status-badges">
+              <div class="status-badge" [class]="patientInfo.admissionStatus.toLowerCase()">
+                <app-icon fontIcon="personal_injury" [color]="'var(--primary-text-color)'" [size]="14"></app-icon>
+                <span>{{ patientInfo.admissionStatus }}</span>
+              </div>
+              <div class="status-badge department">
+                <app-icon fontIcon="business" [color]="'var(--primary-text-color)'" [size]="14"></app-icon>
+                <span>{{ patientInfo.department }}</span>
+              </div>
+              <div class="status-badge alert" *ngIf="getAbnormalVitalSigns().length > 0">
+                <app-icon fontIcon="warning" [color]="'var(--primary-text-color)'" [size]="14"></app-icon>
+                <span>{{ getAbnormalVitalSigns().length }} Abnormal Vitals</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patient Details Card -->
+        <div class="patient-details-card">
+          <div class="card-header">
+            <h2 class="card-title">Patient Details</h2>
+            <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="actions-menu-btn">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
+          
+          <!-- Angular Material Menu -->
+          <mat-menu #actionsMenu="matMenu" class="actions-menu">
+            <button mat-menu-item *ngFor="let action of quickActions" (click)="action.action()">
+              <app-icon [fontIcon]="action.icon" [color]="action.color" [size]="25"></app-icon>
+              <span>{{ action.label }}</span>
+            </button>
+          </mat-menu>
+
+          <div class="card-content">
+            <div class="details-grid">
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="person" [size]="25" color="var(--primary-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Age & Gender</span>
+                  <span class="detail-value">{{ patientInfo.age }} years, {{ patientInfo.gender }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="invert_colors" [size]="25" color="var(--status-danger-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Blood Group</span>
+                  <span class="detail-value">{{ patientInfo.bloodGroup }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="phone" [size]="25" color="var(--status-success-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Contact</span>
+                  <span class="detail-value">{{ patientInfo.contactNumber }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="local_hospital" [size]="25" color="var(--status-info-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Primary Doctor</span>
+                  <span class="detail-value">{{ patientInfo.primaryDoctor }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="priority_high" [size]="25" color="var(--status-warning-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Emergency Contact</span>
+                  <span class="detail-value">{{ patientInfo.emergencyContact }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item stat-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="event" [size]="25" color="var(--primary-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Total Appointments</span>
+                  <span class="detail-value stat-number">{{ patientStats.totalAppointments }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item stat-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="healing" [size]="25" color="var(--status-success-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Active Medications</span>
+                  <span class="detail-value stat-number">{{ patientStats.activeMedications }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item stat-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="assessment" [size]="25" color="var(--status-info-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Lab Reports</span>
+                  <span class="detail-value stat-number">{{ patientStats.labReports }}</span>
+                </div>
+              </div>
+              
+              <div class="detail-item stat-item">
+                <div class="detail-icon">
+                  <app-icon fontIcon="note" [size]="25" color="var(--status-warning-color)"></app-icon>
+                </div>
+                <div class="detail-info">
+                  <span class="detail-label">Clinical Notes</span>
+                  <span class="detail-value stat-number">{{ patientStats.clinicalNotes }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="selectedTab === 'medical-record'" class="medical-record-tab">
+      <!-- Summary Cards -->
+      <div class="summary-cards">
+        <div class="summary-card appointments">
+          <div class="card-icon">
+            <app-icon fontIcon="event" [size]="20" color="var(--primary-color)"></app-icon>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{ patientStats.pendingAppointments }}</div>
+            <div class="card-label">UPCOMING APPOINTMENTS</div>
           </div>
         </div>
         
-        <!-- Care Team Quick Access -->
-        <div class="care-team-quick">
-          <div class="team-member" *ngFor="let member of careTeam.slice(0, 3)">
-            <div class="member-avatar" [style.background-color]="member.color">
-              {{ member.name.charAt(0) }}
-            </div>
-            <span class="member-role">{{ member.role }}</span>
+        <div class="summary-card vitals">
+          <div class="card-icon">
+            <app-icon fontIcon="favorite" [size]="20" color="var(--status-warning-color)"></app-icon>
           </div>
-          <app-button 
-            appearance="stroked" 
-            color="primary" 
-            (btnClick)="viewFullCareTeam()"
-            class="view-team-btn">
-            <app-icon fontIcon="people" [size]="16"></app-icon>
-            <span>View Team</span>
-          </app-button>
-        </div>
-      </div>
-    </div>
-
-      <!-- IPD Care Schedule -->
-  <div *ngIf="viewMode === 'ipd'" class="ipd-care-schedule">
-    <div class="care-schedule-header">
-      <h2>Care Schedule</h2>
-      <div class="schedule-actions">
-        <app-button appearance="stroked" color="primary" (btnClick)="addSchedule()">
-          <app-icon fontIcon="add" [size]="16"></app-icon>
-          <span>Add Schedule</span>
-        </app-button>
-        <app-button appearance="basic" color="primary" (btnClick)="viewFullSchedule()">
-          <app-icon fontIcon="list" [size]="16"></app-icon>
-          <span>View Full Schedule</span>
-        </app-button>
-      </div>
-    </div>
-    
-    <div class="care-schedule-cards">
-      <div *ngFor="let item of ipdCareSchedule" class="care-schedule-card">
-        <div class="schedule-time">{{ item.time }}</div>
-        <div class="schedule-content">
-          <div class="schedule-activity">{{ item.activity }}</div>
-          <div class="schedule-description">{{ item.description }}</div>
-          <div class="schedule-meta">
-            <span class="schedule-type" [style.background-color]="getTypeColor(item.type)">
-              <app-icon [fontIcon]="getTypeIcon(item.type)" [size]="12"></app-icon>
-              {{ item.type }}
-            </span>
-            <span class="schedule-assignee">{{ item.assignedTo }}</span>
+          <div class="card-content">
+            <div class="card-number">{{ getAbnormalVitalSigns().length }}</div>
+            <div class="card-label">ABNORMAL VITALS</div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-
-    <!-- patient-overview with Quick Actions -->
-    <div class="patient-overview" [class.ipd-mode]="viewMode === 'ipd'">
-      <div class="patient-overview-background">
-        <div class="header-pattern"></div>
-        <div class="header-overlay"></div>
-      </div>
-      
-      <div class="patient-overview-content">
-        <!-- Patient Avatar and Name -->
-        <div class="patient-header">
-          <div class="patient-avatar-container">
-            <div class="patient-avatar">
-              <div class="avatar-placeholder">
-                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face" 
-                    alt="Patient Profile" 
-                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <app-icon fontIcon="person" [size]="40" style="display: none;"></app-icon>
-              </div>
-              <div class="status-indicator" [class]="patientInfo.admissionStatus.toLowerCase()">
-                <app-icon fontIcon="circle" [size]="12"></app-icon>
-              </div>
-            </div>
-            <div class="avatar-badge" *ngIf="getAbnormalVitalSigns().length > 0">
-              <app-icon fontIcon="warning" [size]="14"></app-icon>
-              <span>{{ getAbnormalVitalSigns().length }}</span>
-            </div>
+        
+        <div class="summary-card labs">
+          <div class="card-icon">
+            <app-icon fontIcon="report_problem" [size]="20" color="var(--status-danger-color)"></app-icon>
           </div>
-
-          <div class="patient-name-section">
-            <h1 class="patient-name">{{ patientInfo.name }}</h1>
-            <div class="patient-id-badge">
-              <app-icon fontIcon="badge" [size]="14"></app-icon>
-              <span>{{ patientInfo.id }}</span>
-            </div>
-          </div>
-          
-          <div class="patient-badges">
-            <span class="badge admission-status" [class]="patientInfo.admissionStatus.toLowerCase()">
-              <app-icon fontIcon="medical_services" [size]="12"></app-icon>
-              {{ patientInfo.admissionStatus }}
-            </span>
-            <span class="badge department">
-              <app-icon fontIcon="business" [size]="12"></app-icon>
-              {{ patientInfo.department }}
-            </span>
-            <span class="badge priority" *ngIf="getAbnormalVitalSigns().length > 0">
-              <app-icon fontIcon="warning" [size]="12"></app-icon>
-              {{ getAbnormalVitalSigns().length }} Abnormal Vitals
-            </span>
-            <span class="badge days-in-hospital" *ngIf="patientInfo.admissionStatus === 'IPD'">
-              <app-icon fontIcon="schedule" [size]="12"></app-icon>
-              {{ getDaysInHospital() }} Days
-            </span>
+          <div class="card-content">
+            <div class="card-number">{{ patientStats.abnormalLabReports }}</div>
+            <div class="card-label">ABNORMAL LAB RESULTS</div>
           </div>
         </div>
-
-        <!-- IPD Management Content -->
-        <div *ngIf="viewMode === 'ipd'" class="ipd-content">
-          <div class="ipd-grid">
-            <!-- Admission Details -->
-            <div class="ipd-section admission-details">
-              <h3>Admission Details</h3>
-              <div class="ipd-details-grid">
-                <div class="ipd-detail-item">
-                  <span class="label">Ward:</span>
-                  <span class="value">{{ ipdAdmissionDetails.ward }}</span>
-                </div>
-                <div class="ipd-detail-item">
-                  <span class="label">Admission Date:</span>
-                  <span class="value">{{ ipdAdmissionDetails.admissionDate | date:'MMM dd, yyyy' }}</span>
-                </div>
-                <div class="ipd-detail-item">
-                  <span class="label">Attending Doctor:</span>
-                  <span class="value">{{ ipdAdmissionDetails.attendingDoctor }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Patient Specifics -->
-            <div class="ipd-section patient-specifics">
-              <h3>Patient Specifics</h3>
-              <div class="ipd-details-grid">
-                <div class="ipd-detail-item">
-                  <span class="label">Bed Number:</span>
-                  <span class="value">Bed-{{ patientInfo.bedNumber }}</span>
-                </div>
-                <div class="ipd-detail-item">
-                  <span class="label">Expected Discharge:</span>
-                  <span class="value">{{ ipdAdmissionDetails.expectedDischarge | date:'MMM dd, yyyy' }}</span>
-                </div>
-                <div class="ipd-detail-item">
-                  <span class="label">Length of Stay:</span>
-                  <span class="value">{{ ipdAdmissionDetails.lengthOfStay }} Days</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="ipd-section quick-actions-section">
-              <h3>Quick Actions</h3>
-              <div class="ipd-quick-actions">
-                <app-button 
-                  *ngFor="let action of ipdQuickActions"
-                  [appearance]="'raised'"
-                  [color]="'primary'"
-                  (btnClick)="action.action()"
-                  [matTooltip]="action.label"
-                  class="ipd-action-btn"
-                  [style.background-color]="action.color">
-                  <app-icon [fontIcon]="action.icon" [size]="16"></app-icon>
-                  <span>{{ action.label }}</span>
-                </app-button>
-              </div>
-            </div>
-
-            <!-- Latest Vitals with Real-time Updates -->
-            <div class="ipd-section latest-vitals">
-              <div class="vitals-header">
-                <h3>Latest Vitals</h3>
-                <div class="vitals-controls">
-                  <span class="vitals-timestamp">Today, {{ ipdVitalSigns.lastUpdated | date:'hh:mm a' }}</span>
-                  <button class="refresh-vitals-btn" (click)="refreshVitals()">
-                    <app-icon fontIcon="refresh" [size]="16"></app-icon>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Real-time Vital Signs -->
-              <div class="vitals-grid">
-                <div class="vital-item" [class.abnormal]="isVitalAbnormal('pulse', ipdVitalSigns.pulse)">
-                  <app-icon fontIcon="favorite" [size]="20"></app-icon>
-                  <div class="vital-info">
-                    <span class="vital-value">{{ ipdVitalSigns.pulse }} bpm</span>
-                    <span class="vital-label">Pulse</span>
-                    <span class="vital-trend" *ngIf="getVitalTrend('pulse')">
-                      <app-icon [fontIcon]="getVitalTrendIcon('pulse')" [size]="12"></app-icon>
-                      {{ getVitalTrend('pulse') }}
-                    </span>
-                  </div>
-                  <div class="vital-alert" *ngIf="isVitalAbnormal('pulse', ipdVitalSigns.pulse)">
-                    <app-icon fontIcon="warning" [size]="16"></app-icon>
-                  </div>
-                </div>
-                
-                <div class="vital-item" [class.abnormal]="isVitalAbnormal('temperature', ipdVitalSigns.temperature)">
-                  <app-icon fontIcon="thermostat" [size]="20"></app-icon>
-                  <div class="vital-info">
-                    <span class="vital-value">{{ ipdVitalSigns.temperature }}°C</span>
-                    <span class="vital-label">Temperature</span>
-                    <span class="vital-trend" *ngIf="getVitalTrend('temperature')">
-                      <app-icon [fontIcon]="getVitalTrendIcon('temperature')" [size]="12"></app-icon>
-                      {{ getVitalTrend('temperature') }}
-                    </span>
-                  </div>
-                  <div class="vital-alert" *ngIf="isVitalAbnormal('temperature', ipdVitalSigns.temperature)">
-                    <app-icon fontIcon="warning" [size]="16"></app-icon>
-                  </div>
-                </div>
-                
-                <div class="vital-item" [class.abnormal]="isVitalAbnormal('bp', ipdVitalSigns.bloodPressure)">
-                  <app-icon fontIcon="show_chart" [size]="20"></app-icon>
-                  <div class="vital-info">
-                    <span class="vital-value">{{ ipdVitalSigns.bloodPressure }}</span>
-                    <span class="vital-label">BP</span>
-                    <span class="vital-trend" *ngIf="getVitalTrend('bp')">
-                      <app-icon [fontIcon]="getVitalTrendIcon('bp')" [size]="12"></app-icon>
-                      {{ getVitalTrend('bp') }}
-                    </span>
-                  </div>
-                  <div class="vital-alert" *ngIf="isVitalAbnormal('bp', ipdVitalSigns.bloodPressure)">
-                    <app-icon fontIcon="warning" [size]="16"></app-icon>
-                  </div>
-                </div>
-                
-                <div class="vital-item" [class.abnormal]="isVitalAbnormal('spO2', ipdVitalSigns.spO2)">
-                  <app-icon fontIcon="air" [size]="20"></app-icon>
-                  <div class="vital-info">
-                    <span class="vital-value">{{ ipdVitalSigns.spO2 }}%</span>
-                    <span class="vital-label">SpO2</span>
-                    <span class="vital-trend" *ngIf="getVitalTrend('spO2')">
-                      <app-icon [fontIcon]="getVitalTrendIcon('spO2')" [size]="12"></app-icon>
-                      {{ getVitalTrend('spO2') }}
-                    </span>
-                  </div>
-                  <div class="vital-alert" *ngIf="isVitalAbnormal('spO2', ipdVitalSigns.spO2)">
-                    <app-icon fontIcon="warning" [size]="16"></app-icon>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Vital Signs Trend Chart -->
-              <div class="vitals-chart-container">
-                <div class="chart-header">
-                  <h4>24-Hour Trend</h4>
-                  <div class="chart-controls">
-                    <button class="chart-period-btn" [class.active]="chartPeriod === '24h'" (click)="setChartPeriod('24h')">24H</button>
-                    <button class="chart-period-btn" [class.active]="chartPeriod === '7d'" (click)="setChartPeriod('7d')">7D</button>
-                  </div>
-                </div>
-                <div class="vitals-chart">
-                  <!-- Chart placeholder - would integrate with Chart.js or similar -->
-                  <div class="chart-placeholder">
-                    <app-icon fontIcon="show_chart" [size]="48"></app-icon>
-                    <p>Vital Signs Trend Chart</p>
-                    <small>Real-time data visualization</small>
-                  </div>
-                </div>
-              </div>
-            </div>
+        
+        <div class="summary-card medications">
+          <div class="card-icon">
+            <app-icon fontIcon="local_pharmacy" [size]="20" color="var(--status-success-color)"></app-icon>
           </div>
-        </div>
-
-        <!-- Patient Information and Actions (Profile Mode) -->
-        <div *ngIf="viewMode === 'profile'" class="patient-content">
-          <div class="patient-info-grid">
-            <div class="meta-cards">
-              <div class="meta-card">
-                <span class="meta-label">Age & Gender</span>
-                <span class="meta-value">{{ patientInfo.age }} years, {{ patientInfo.gender }}</span>
-              </div>
-              
-              <div class="meta-card">
-                <span class="meta-label">Blood Group</span>
-                <span class="meta-value">{{ patientInfo.bloodGroup }}</span>
-              </div>
-              
-              <div class="meta-card">
-                <span class="meta-label">Contact</span>
-                <span class="meta-value">{{ patientInfo.contactNumber }}</span>
-              </div>
-              
-              <div class="meta-card" *ngIf="patientInfo.admissionStatus === 'IPD'">
-                <span class="meta-label">Room & Bed</span>
-                <span class="meta-value">Room {{ patientInfo.roomNumber }}, Bed {{ patientInfo.bedNumber }}</span>
-              </div>
-
-              <div class="meta-card">
-                <span class="meta-label">Primary Doctor</span>
-                <span class="meta-value">{{ patientInfo.primaryDoctor }}</span>
-              </div>
-
-              <div class="meta-card">
-                <span class="meta-label">Emergency Contact</span>
-                <span class="meta-value">{{ patientInfo.emergencyContact }}</span>
-              </div>
-            </div>
-
-            <div class="stats-cards">
-              <div class="stat-card">
-                <div class="stat-number">{{ patientStats.totalAppointments }}</div>
-                <div class="stat-label">Total Appointments</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">{{ patientStats.activeMedications }}</div>
-                <div class="stat-label">Active Medications</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">{{ patientStats.labReports }}</div>
-                <div class="stat-label">Lab Reports</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-number">{{ patientStats.clinicalNotes }}</div>
-                <div class="stat-label">Clinical Notes</div>
-              </div>
-            </div>
-
-            <div class="quick-actions-panel">
-              <h3 class="actions-title">Quick Actions</h3>
-              <div class="quick-actions-grid">
-                <app-button 
-                  *ngFor="let action of quickActions"
-                  [appearance]="action.disabled ? 'basic' : 'raised'"
-                  [color]="action.color"
-                  [disabled]="action.disabled || false"
-                  (btnClick)="action.action()"
-                  [matTooltip]="action.label"
-                  class="quick-action-btn">
-                  <app-icon [fontIcon]="action.icon" [size]="16"></app-icon>
-                  <span>{{ action.label }}</span>
-                </app-button>
-              </div>
-            </div>
-
-            <!-- <div class="edit-actions-panel">
-              <div class="edit-buttons">
-                <app-button 
-                  appearance="stroked" 
-                  color="primary"
-                  (btnClick)="toggleEditMode()"
-                  [disabled]="isLoading"
-                  class="edit-btn">
-                  <app-icon fontIcon="edit" [size]="16"></app-icon>
-                  <span>{{ isEditing ? 'Cancel Edit' : 'Edit Profile' }}</span>
-                </app-button>
-                <app-button 
-                  appearance="raised" 
-                  color="primary"
-                  (btnClick)="saveChanges()"
-                  [disabled]="!isEditing || isLoading"
-                  class="save-btn">
-                  <app-icon fontIcon="save" [size]="16"></app-icon>
-                  <span>Save Changes</span>
-                </app-button>
-              </div>
-            </div> -->
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-    <div *ngIf="selectedTab === 'medical-record'" class="medical-record-tab">
-      <!-- Key Metrics Dashboard -->
-      <div class="metrics-dashboard">
-        <div class="metric-card primary">
-          <div class="metric-icon">
-            <app-icon fontIcon="event" [size]="24"></app-icon>
-          </div>
-          <div class="metric-content">
-            <div class="metric-value">{{ patientStats.pendingAppointments }}</div>
-            <div class="metric-label">Upcoming Appointments</div>
-          </div>
-        </div>
-        <div class="metric-card warning">
-          <div class="metric-icon">
-            <app-icon fontIcon="favorite" [size]="24"></app-icon>
-          </div>
-          <div class="metric-content">
-            <div class="metric-value">{{ getAbnormalVitalSigns().length }}</div>
-            <div class="metric-label">Abnormal Vitals</div>
-          </div>
-        </div>
-        <div class="metric-card danger">
-          <div class="metric-icon">
-            <app-icon fontIcon="science" [size]="24"></app-icon>
-          </div>
-          <div class="metric-content">
-            <div class="metric-value">{{ patientStats.abnormalLabReports }}</div>
-            <div class="metric-label">Abnormal Lab Results</div>
-          </div>
-        </div>
-        <div class="metric-card success">
-          <div class="metric-icon">
-            <app-icon fontIcon="local_pharmacy" [size]="24"></app-icon>
-          </div>
-          <div class="metric-content">
-            <div class="metric-value">{{ patientStats.activeMedications }}</div>
-            <div class="metric-label">Active Medications</div>
+          <div class="card-content">
+            <div class="card-number">{{ patientStats.activeMedications }}</div>
+            <div class="card-label">ACTIVE MEDICATIONS</div>
           </div>
         </div>
       </div>
 
-      <!-- Two Column Layout -->
-      <div class="overview-layout">
-        <!-- Left Column -->
-        <div class="left-column">
-          <!-- Vital Signs Summary -->
-          <mat-card class="vitals-summary-card">
-            <mat-card-header>
-              <mat-card-title>
-                <app-icon fontIcon="favorite" [size]="24"></app-icon>
-                Latest Vital Signs
-              </mat-card-title>
-    
-            </mat-card-header>
-            <mat-card-content>
-              <div class="vitals-grid">
-                <div *ngFor="let vital of vitalSigns" class="vital-item" [class.abnormal]="!vital.isNormal">
-                  <div class="vital-header">
-                    <span class="vital-type">{{ vital.type }}</span>
-                    <span class="vital-status" [class]="vital.isNormal ? 'normal' : 'abnormal'">
-                      <app-icon [fontIcon]="vital.isNormal ? 'check_circle' : 'warning'" [size]="16"></app-icon>
-                    </span>
+      <!-- Main Content Layout -->
+      <div class="medical-content">
+        <!-- Left Panel - Latest Vital Signs -->
+        <div class="left-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <app-icon fontIcon="favorite" [size]="18" color="var(--primary-color)"></app-icon>
+              <h3>Latest Vital Signs</h3>
+            </div>
+            <div class="panel-content">
+              <div class="vitals-list">
+                <div *ngFor="let vital of vitalSigns" class="vital-card" [class.abnormal]="!vital.isNormal">
+                  <div class="vital-left">
+                    <div class="vital-label">{{ vital.type }}</div>
+                    <div class="vital-value">{{ vital.value }} {{ vital.unit }}</div>
+                    <div class="vital-time">{{ vital.time | date:'shortTime' }}</div>
                   </div>
-                  <div class="vital-value">
-                    {{ vital.value }} {{ vital.unit }}
+                  <div class="vital-right">
+                    <div class="vital-status" [class]="vital.isNormal ? 'normal' : 'abnormal'">
+                      <app-icon [fontIcon]="vital.isNormal ? 'check_circle' : 'warning'" [size]="16" [color]="vital.isNormal ? 'var(--status-success-color)' : 'var(--status-danger-color)'"></app-icon>
+                    </div>
                   </div>
-                  <div class="vital-time">{{ vital.time | date:'shortTime' }}</div>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Upcoming Appointments -->
-          <mat-card class="appointments-card">
-            <mat-card-header>
-              <mat-card-title>
-                <app-icon fontIcon="event" [size]="24"></app-icon>
-                Upcoming Appointments
-              </mat-card-title>
-    
-            </mat-card-header>
-            <mat-card-content>
-              <div class="appointments-list">
-                <div *ngFor="let appointment of getUpcomingAppointments()" class="appointment-item">
-                  <div class="appointment-date">
-                    <div class="date">{{ appointment.date | date:'MMM dd' }}</div>
-                    <div class="time">{{ appointment.time | date:'shortTime' }}</div>
-                  </div>
-                  <div class="appointment-details">
-                    <div class="appointment-type">{{ appointment.type }}</div>
-                    <div class="appointment-doctor">{{ appointment.doctor }}</div>
-                    <div class="appointment-department">{{ appointment.department }}</div>
-                  </div>
-                  <div class="appointment-status" [class]="appointment.status">
-                    {{ appointment.status }}
-                  </div>
-                </div>
-                <div *ngIf="getUpcomingAppointments().length === 0" class="no-appointments">
-                  <app-icon fontIcon="event_busy" [size]="48"></app-icon>
-                  <p>No upcoming appointments</p>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
+            </div>
+          </div>
         </div>
 
-        <!-- Right Column -->
-        <div class="right-column">
-          <!-- Care Schedule Timeline -->
-          <mat-card class="care-schedule-card">
-            <mat-card-header>
-              <mat-card-title>
-                <app-icon fontIcon="schedule" [size]="24"></app-icon>
-                Today's Care Schedule
-              </mat-card-title>
-    
-            </mat-card-header>
-            <mat-card-content>
+        <!-- Right Panel - Today's Care Schedule -->
+        <div class="right-panel">
+          <div class="panel-card">
+            <div class="panel-header">
+              <app-icon fontIcon="schedule" [size]="18" color="var(--primary-color)"></app-icon>
+              <h3>Today's Care Schedule</h3>
+            </div>
+            <div class="panel-content">
               <div class="care-timeline">
                 <div *ngFor="let item of careSchedule" class="timeline-item">
                   <div class="timeline-marker" [style.background-color]="getStatusColor(item.status)">
-                    <app-icon [fontIcon]="getStatusIcon(item.status)" [size]="24"  color="white"></app-icon>
+                    <app-icon [fontIcon]="getStatusIcon(item.status)" [size]="14" color="white"></app-icon>
                   </div>
                   <div class="timeline-content">
                     <div class="timeline-header">
-                      <h4>{{ item.title }}</h4>
-                      <div class="timeline-meta">
-                        <span class="time">{{ item.startTime | date:'shortTime' }}</span>
-                        <span class="priority" [style.background-color]="getPriorityColor(item.priority)">
-                          {{ item.priority }}
-                        </span>
+                      <div class="timeline-time">{{ item.startTime | date:'shortTime' }}</div>
+                      <div class="timeline-priority" [style.background-color]="getPriorityColor(item.priority)">
+                        {{ item.priority }}
                       </div>
                     </div>
-                    <p>{{ item.description }}</p>
+                    <div class="timeline-title">{{ item.title }}</div>
+                    <div class="timeline-description">{{ item.description }}</div>
                     <div class="timeline-footer">
-                      <span class="assignee">{{ item.assignee }}</span>
-                      <span class="status" [style.color]="getStatusColor(item.status)">
-                        {{ item.status }}
-                      </span>
+                      <span class="timeline-assignee">{{ item.assignee }}</span>
+                      <span class="timeline-status" [style.color]="getStatusColor(item.status)">{{ item.status }}</span>
                     </div>
                   </div>
                 </div>
               </div>
-            </mat-card-content>
-          </mat-card>
-
-          <!-- Recent Clinical Notes -->
-          <mat-card class="clinical-notes-card">
-            <mat-card-header>
-              <mat-card-title>
-                <app-icon fontIcon="note" [size]="24"></app-icon>
-                Recent Clinical Notes
-              </mat-card-title>
-    
-            </mat-card-header>
-            <mat-card-content>
-              <div class="notes-list">
-                <div *ngFor="let note of clinicalNotes.slice(0, 3)" class="note-item">
-                  <div class="note-header">
-                    <span class="note-type">{{ note.type }}</span>
-                    <span class="note-date">{{ note.date | date:'shortDate' }}</span>
-                  </div>
-                  <div class="note-title">{{ note.title }}</div>
-                  <div class="note-content">{{ note.content | slice:0:100 }}...</div>
-                  <div class="note-author">{{ note.author }}</div>
-                </div>
-              </div>
-            </mat-card-content>
-          </mat-card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -575,7 +310,7 @@
         <mat-card class="profile-card personal-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="person" [size]="20"></app-icon>
+              <app-icon fontIcon="person" [size]="20" [color]="'var(--primary-text-color)'"></app-icon>
               Personal Information
             </mat-card-title>
           </mat-card-header>
@@ -645,7 +380,7 @@
         <mat-card class="profile-card medical-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="medical_services" [size]="20"></app-icon>
+              <app-icon fontIcon="medical_services" [size]="20" [color]="'var(--primary-text-color)'"></app-icon>
               Medical Information
             </mat-card-title>
           </mat-card-header>
@@ -689,7 +424,7 @@
         <mat-card class="profile-card insurance-info">
           <mat-card-header>
             <mat-card-title>
-              <app-icon fontIcon="security" [size]="20"></app-icon>
+              <app-icon fontIcon="security" [size]="20" [color]="'var(--primary-text-color)'"></app-icon>
               Insurance Information
             </mat-card-title>
           </mat-card-header>
@@ -1029,7 +764,7 @@
           <div *ngFor="let schedule of roundSchedules" class="schedule-card">
             <div class="schedule-header">
               <div class="schedule-type" [style.background-color]="getRoundTypeColor(schedule.roundType)">
-                <app-icon [fontIcon]="getRoundTypeIcon(schedule.roundType)" [size]="16"></app-icon>
+                <app-icon [fontIcon]="getRoundTypeIcon(schedule.roundType)" [size]="16" [color]="'var(--primary-text-color)'"></app-icon>
                 {{ schedule.roundType.replace('_', ' ') }}
               </div>
               <span class="schedule-priority" [style.background-color]="getPriorityColor(schedule.priority)">
@@ -1052,7 +787,7 @@
           <div *ngFor="let round of patientRounds" class="round-card">
             <div class="round-header">
               <div class="round-type" [style.background-color]="getRoundTypeColor(round.roundType)">
-                <app-icon [fontIcon]="getRoundTypeIcon(round.roundType)" [size]="16"></app-icon>
+                <app-icon [fontIcon]="getRoundTypeIcon(round.roundType)" [size]="16" [color]="'var(--primary-text-color)'"></app-icon>
                 {{ round.roundType.replace('_', ' ') }}
               </div>
               <div class="round-meta">
@@ -1180,7 +915,7 @@
       <div class="relatives-header">
         <h2>Patient Relatives</h2>
         <app-button appearance="stroked" color="primary" (btnClick)="addRelative()">
-          <app-icon fontIcon="add" [size]="16"></app-icon>
+          <app-icon fontIcon="add" [size]="16" [color]="'var(--primary-text-color)'"></app-icon>
           <span>Add Relative</span>
         </app-button>
       </div>
@@ -1190,7 +925,7 @@
           <div class="relative-header">
             <div class="relative-info">
               <div class="relative-avatar" [style.background-color]="getRelativeRelationshipColor(relative.relationship)">
-                <app-icon [fontIcon]="getRelativeRelationshipIcon(relative.relationship)" [size]="20"></app-icon>
+                <app-icon [fontIcon]="getRelativeRelationshipIcon(relative.relationship)" [size]="25" [color]="'var(--primary-text-color)'"></app-icon>
               </div>
               <div class="relative-details">
                 <h4>{{ relative.relativeName }}</h4>
@@ -1528,6 +1263,167 @@
           (btnClick)="completeRound()"
           [disabled]="!roundForm.valid">
           Complete Round
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medication Prescription Dialog -->
+  <div *ngIf="showPrescriptionDialog" class="dialog-overlay">
+    <div class="prescription-dialog">
+      <div class="dialog-header">
+        <h3>Prescribe Medication</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="cancelPrescription()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <form [formGroup]="prescriptionForm" class="prescription-form">
+          <div class="form-section">
+            <h4>Patient Information</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Patient Name:</label>
+                <span class="patient-info">{{ patientInfo.name }}</span>
+              </div>
+              <div class="form-group">
+                <label>Patient ID:</label>
+                <span class="patient-info">{{ patientInfo.id }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Medication Details</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="medicineName">Medicine Name:</label>
+                <app-input 
+                  id="medicineName"
+                  formControlName="medicineName"
+                  placeholder="Enter medicine name">
+                </app-input>
+              </div>
+              <div class="form-group">
+                <label for="dosage">Dosage:</label>
+                <app-input 
+                  id="dosage"
+                  formControlName="dosage"
+                  placeholder="e.g., 500mg, 10ml">
+                </app-input>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="frequency">Frequency:</label>
+                <app-selectbox 
+                  id="frequency"
+                  formControlName="frequency"
+                  [options]="['Once daily', 'Twice daily', 'Three times daily', 'Four times daily', 'Every 4 hours', 'Every 6 hours', 'Every 8 hours', 'As needed', 'Before meals', 'After meals']"
+                  placeholder="Select frequency">
+                </app-selectbox>
+              </div>
+              <div class="form-group">
+                <label for="route">Route:</label>
+                <app-selectbox 
+                  id="route"
+                  formControlName="route"
+                  [options]="['Oral', 'IV', 'IM', 'Subcutaneous', 'Topical', 'Inhalation', 'Rectal', 'Ophthalmic', 'Otic', 'Nasal']"
+                  placeholder="Select route">
+                </app-selectbox>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="duration">Duration:</label>
+                <app-input 
+                  id="duration"
+                  formControlName="duration"
+                  placeholder="e.g., 7 days, 2 weeks, 1 month">
+                </app-input>
+              </div>
+              <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <app-input 
+                  id="quantity"
+                  formControlName="quantity"
+                  type="number"
+                  placeholder="Enter quantity">
+                </app-input>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="instructions">Instructions:</label>
+                <app-input 
+                  id="instructions"
+                  formControlName="instructions"
+                  placeholder="Special instructions for taking the medication">
+                </app-input>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="isSubstitutable">
+                  <span class="checkmark"></span>
+                  Allow generic substitution
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h4>Diagnosis & Notes</h4>
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="diagnosis">Diagnosis:</label>
+                <app-input 
+                  id="diagnosis"
+                  formControlName="diagnosis"
+                  placeholder="Enter diagnosis or condition">
+                </app-input>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="notes">Additional Notes:</label>
+                <app-input 
+                  id="notes"
+                  formControlName="notes"
+                  placeholder="Any additional notes or precautions">
+                </app-input>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="followUpDate">Follow-up Date:</label>
+                <app-input 
+                  id="followUpDate"
+                  formControlName="followUpDate"
+                  type="date"
+                  placeholder="Select follow-up date">
+                </app-input>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="dialog-actions">
+        <app-button 
+          [text]="'Cancel'" 
+          [appearance]="'stroked'" 
+          (click)="cancelPrescription()">
+        </app-button>
+        <app-button 
+          [text]="'Prescribe Medication'" 
+          [appearance]="'raised'" 
+          [disabled]="prescriptionForm.invalid"
+          (click)="submitPrescription()">
         </app-button>
       </div>
     </div>

@@ -85,7 +85,6 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
 
 // Main Container
 .patient-queue-container {
-  padding: 1.5rem;
   background: $bg-secondary;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -118,15 +117,11 @@ $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, var(--status-info-color), var(--status-success-color));
       opacity: 0;
       transition: opacity 0.3s ease;
     }
     
     &:hover {
-      transform: translateY(-4px);
-      box-shadow: $shadow-lg;
-      border-color: $border-color;
       
       &::before {
         opacity: 1;

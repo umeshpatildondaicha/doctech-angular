@@ -136,7 +136,6 @@
   .add-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
   }
   
   .form-row {
@@ -148,6 +147,10 @@
   .form-field {
     display: flex;
     flex-direction: column;
+
+    app-input{
+      height: 3.5em;
+    }
   }
 }
 
@@ -442,7 +445,6 @@
   }
   
   .add-form-card {
-    padding: 20px;
     
     .form-row {
       grid-template-columns: 1fr;
@@ -1467,7 +1469,7 @@
             .facility-name {
               font-size: 14px;
               font-weight: 600;
-              color: #95a5a6;
+              color: var(--text-color);
               transition: color 0.2s ease;
 
               &.available {
@@ -1533,6 +1535,179 @@
 
       .facilities-section .facilities-grid {
         grid-template-columns: 1fr;
+      }
+    }
+  }
+}
+
+// Bed Form Dialog
+.bed-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .bed-form-dialog {
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideDown 0.3s ease-out;
+
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5em;
+      border-bottom: 1px solid #e9ecef;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+      h3 {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: white;
+      }
+
+      app-icon {
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+
+        ::ng-deep mat-icon {
+          color: white !important;
+        }
+      }
+    }
+
+    .dialog-content {
+      padding: 2em;
+      overflow-y: auto;
+      flex: 1;
+
+      .bed-form {
+        .form-row {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1.5em;
+          margin-bottom: 2em;
+
+          .form-field {
+            display: flex;
+            flex-direction: column;
+
+            app-input {
+              height: 3.5em;
+            }
+          }
+        }
+
+        .facilities-section {
+          margin-top: 2em;
+
+          h4 {
+            margin: 0 0 1em 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            &::before {
+              content: '';
+              width: 4px;
+              height: 20px;
+              background: #27ae60;
+              border-radius: 2px;
+            }
+          }
+
+          .facilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1em;
+
+            .facility-item {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 12px;
+              background: #f8f9fa;
+              border: 2px solid #e9ecef;
+              border-radius: 8px;
+              transition: all 0.2s ease;
+
+              &:hover {
+                border-color: #667eea;
+                box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+              }
+
+              .facility-checkbox {
+                width: 20px;
+                height: 20px;
+                border: 2px solid #dee2e6;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:checked {
+                  background: #27ae60;
+                  border-color: #27ae60;
+                }
+              }
+
+              .facility-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                color: #2c3e50;
+                flex: 1;
+
+                app-icon {
+                  color: #667eea;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 1.5em;
+      border-top: 1px solid #e9ecef;
+      background: #f8f9fa;
+
+      app-button {
+        min-width: 100px;
       }
     }
   }

@@ -1,4 +1,10 @@
-<nav class="sidebar" [class.collapsed]="collapsed">
+<!-- Backdrop for overlay sidebar -->
+<div class="sidebar-backdrop" 
+     [class.show]="(isMobile || isTablet) && !collapsed" 
+     (click)="onBackdropClick()">
+</div>
+
+<nav [class]="getSidebarClasses()">
   <div class="sidebar-header">
     <span class="logo">
       @if (!collapsed) {
@@ -14,7 +20,8 @@
     </button>
   </div>
   
-  <!-- Main Navigation -->
+  <div class="sidebar-content">
+      <!-- Main Navigation -->
   <div class="sidebar-section">
     <ul class="sidebar-nav">
       <ng-container *ngFor="let item of getMenuItemsBySection('main')">
@@ -22,7 +29,7 @@
             [class.active]="item.route && isActive(item.route)" 
             (click)="item.route && navigateTo(item.route)">
           <div>
-            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'" [color]="item.route && isActive(item.route) ? 'var(--secondary-color)' : ''"></app-icon>
             <ng-container *ngIf="!collapsed">
               <span class="label">{{ item.label }}</span>
             </ng-container>
@@ -43,7 +50,7 @@
             [class.active]="item.route && isActive(item.route)" 
             (click)="item.route && navigateTo(item.route)">
           <div>
-            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'" [color]="item.route && isActive(item.route) ? 'var(--secondary-color)' : ''"></app-icon>
             <ng-container *ngIf="!collapsed">
               <span class="label">{{ item.label }}</span>
             </ng-container>
@@ -64,7 +71,7 @@
             [class.active]="item.route && isActive(item.route)" 
             (click)="item.route && navigateTo(item.route)">
           <div>
-            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'" [color]="item.route && isActive(item.route) ? 'var(--secondary-color)' : ''"></app-icon>
             <ng-container *ngIf="!collapsed">
               <span class="label">{{ item.label }}</span>
             </ng-container>
@@ -85,7 +92,7 @@
             [class.active]="item.route && isActive(item.route)" 
             (click)="item.route && navigateTo(item.route)">
           <div>
-            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'" [color]="item.route && isActive(item.route) ? 'var(--secondary-color)' : ''"></app-icon>
             <ng-container *ngIf="!collapsed">
               <span class="label">{{ item.label }}</span>
             </ng-container>
@@ -106,7 +113,7 @@
             [class.active]="item.route && isActive(item.route)" 
             (click)="item.route && navigateTo(item.route)">
           <div>
-            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'"></app-icon>
+            <app-icon [fontSet]="'material-icons-outlined'" [fontIcon]="item.icon" [size]="collapsed ? iconSizeOnCollapsed : iconSizeOnExpanded" [class]="collapsed ? 'icon-collapsed' : 'icon'" [color]="item.route && isActive(item.route) ? 'var(--secondary-color)' : ''"></app-icon>
             <ng-container *ngIf="!collapsed">
               <span class="label">{{ item.label }}</span>
             </ng-container>
@@ -114,5 +121,6 @@
         </li>
       </ng-container>
     </ul>
+  </div>
   </div>
 </nav>

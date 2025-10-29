@@ -303,16 +303,16 @@ export class PatientProfileComponent implements OnInit {
   // Navigation
   tabs = [
     { id: 'overview', label: 'Overview', icon: 'dashboard', badge: 0 },
-    { id: 'medical-record', label: 'Medical Record', icon: 'medical_information', badge: 0 },
+    { id: 'medical-record', label: 'Medical Record', icon: 'receipt', badge: 0 },
     { id: 'profile', label: 'Profile', icon: 'person', badge: 0 },
     { id: 'vitals', label: 'Vitals', icon: 'favorite', badge: 3 },
     { id: 'medications', label: 'Medications', icon: 'local_pharmacy', badge: 0 },
     { id: 'appointments', label: 'Appointments', icon: 'event', badge: 2 },
-    { id: 'lab-reports', label: 'Lab Reports', icon: 'science', badge: 1 },
+    { id: 'lab-reports', label: 'Lab Reports', icon: 'assessment', badge: 1 },
     { id: 'clinical-notes', label: 'Clinical Notes', icon: 'note', badge: 0 },
-    { id: 'care-plan', label: 'Care Plan', icon: 'medical_services', badge: 0 },
-    { id: 'rounds', label: 'Rounds', icon: 'assessment', badge: 0 },
-    { id: 'medicine-requests', label: 'Medicine Requests', icon: 'medication', badge: 0 },
+    { id: 'care-plan', label: 'Care Plan', icon: 'date_range', badge: 0 },
+    { id: 'rounds', label: 'Rounds', icon: 'access_time', badge: 0 },
+    { id: 'medicine-requests', label: 'Medicine Requests', icon: 'healing', badge: 0 },
     { id: 'relatives', label: 'Relatives', icon: 'people', badge: 0 }
   ];
 
@@ -751,7 +751,7 @@ export class PatientProfileComponent implements OnInit {
     {
       id: 'order-lab',
       label: 'Order Lab Test',
-      icon: 'science',
+      icon: 'add_shopping_cart',
       action: () => this.orderLabTest(),
       color: 'warn'
     },
@@ -775,9 +775,11 @@ export class PatientProfileComponent implements OnInit {
   roundForm!: FormGroup;
   medicineRequestForm!: FormGroup;
   relativeForm!: FormGroup;
+  prescriptionForm!: FormGroup;
   showRoundDialog = false;
   showMedicineRequestDialog = false;
   showRelativeDialog = false;
+  showPrescriptionDialog = false;
 
   // Enhanced Data Properties
   patientRounds: PatientRound[] = [];
@@ -1100,7 +1102,55 @@ export class PatientProfileComponent implements OnInit {
 
   prescribeMedication(): void {
     console.log('Prescribe medication');
-    // Implementation for prescribing medication
+    this.showPrescriptionDialog = true;
+  }
+
+  cancelPrescription(): void {
+    this.showPrescriptionDialog = false;
+    this.prescriptionForm.reset();
+  }
+
+  submitPrescription(): void {
+    if (this.prescriptionForm.valid) {
+      const prescriptionData = {
+        ...this.prescriptionForm.value,
+        patientId: this.patientInfo.id,
+        patientName: this.patientInfo.name,
+        doctorId: 'current-doctor-id', // This should come from auth service
+        doctorName: 'Dr. Current Doctor', // This should come from auth service
+        prescriptionDate: new Date(),
+        status: 'ACTIVE'
+      };
+
+      console.log('Prescription submitted:', prescriptionData);
+      
+      // Here you would typically send the prescription to your backend service
+      // this.prescriptionService.createPrescription(prescriptionData).subscribe({
+      //   next: (response) => {
+      //     console.log('Prescription created successfully:', response);
+      //     this.showPrescriptionDialog = false;
+      //     this.prescriptionForm.reset();
+      //     // Show success message
+      //   },
+      //   error: (error) => {
+      //     console.error('Error creating prescription:', error);
+      //     // Show error message
+      //   }
+      // });
+
+      // For now, just close the dialog
+      this.showPrescriptionDialog = false;
+      this.prescriptionForm.reset();
+      
+      // Show success message (you can implement a toast service)
+      alert('Prescription created successfully!');
+    } else {
+      console.log('Form is invalid');
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.prescriptionForm.controls).forEach(key => {
+        this.prescriptionForm.get(key)?.markAsTouched();
+      });
+    }
   }
 
   onBreadcrumbClick(): void {
@@ -1620,6 +1670,20 @@ export class PatientProfileComponent implements OnInit {
         days: [[]]
       }),
       notes: ['']
+    });
+
+    this.prescriptionForm = this.fb.group({
+      medicineName: ['', Validators.required],
+      dosage: ['', Validators.required],
+      frequency: ['', Validators.required],
+      route: ['', Validators.required],
+      duration: ['', Validators.required],
+      quantity: ['', [Validators.required, Validators.min(1)]],
+      instructions: [''],
+      isSubstitutable: [false],
+      diagnosis: ['', Validators.required],
+      notes: [''],
+      followUpDate: ['']
     });
   }
 

@@ -1,5 +1,7 @@
 :root {
     --primary-color: #10b3b3;
+    --primary-color-hover: #10b3b35c;
+    --primary-text-color: #fff;
     --background-color: #ffffff;
     --page-background-color: #f8fafc;
     --text-color: #000000;
@@ -37,6 +39,7 @@
   .primary-theme {
     --primary-color: #10b3b3;
     --background-color: #ffffff;
+    --primary-text-color: #fff;
     --text-color: #000000;
     --button-radius: 4px;
     --input-radius: 8px;
