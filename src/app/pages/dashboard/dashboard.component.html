@@ -1,162 +1,386 @@
 <div class="dashboard-page">
+  <!-- Dashboard Header -->
   <div class="dashboard-header">
     <div>
-      <h2>Dashboard</h2>
-      <div class="subtitle">Overview of all your patients</div>
+      <h2>Doctor Dashboard</h2>
+      <div class="subtitle">Welcome back! Here's what's happening today</div>
+    </div>
+    <div class="header-actions">
+      <button mat-button class="action-btn" (click)="navigateToBookAppointment()">
+        <mat-icon>add</mat-icon>
+        Book Appointment
+      </button>
     </div>
   </div>
 
+  <!-- Stats Cards -->
   <div class="dashboard-cards">
-    <div class="stat-card">
-      <div class="stat-title">Overall visitors</div>
-      <div class="stat-value">1.210 <span class="stat-growth">+15%</span></div>
-      <div class="stat-desc">Obtaining data for 1 month</div>
-      <button class="stat-btn" (click)="openDetails('patients')">See details →</button>
+    <div class="stat-card card-room" (click)="openDetails('billing')">
+      <div class="stat-icon">
+        <mat-icon>meeting_room</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-title">Room Availability</div>
+        <div class="stat-value">{{ stats.roomAvailability }}/<span class="stat-secondary">{{ stats.totalRooms }}</span></div>
+        
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-title">Total Patients</div>
-      <div class="stat-value">871</div>
-      <div class="stat-desc">Data per 20 jan 2025</div>
-      <button class="stat-btn" (click)="openDetails('patients')">See details →</button>
+
+    <div class="stat-card card-appointment" (click)="navigateToAppointments()">
+      <div class="stat-icon">
+        <mat-icon>event</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-title">Book Appointment</div>
+        <div class="stat-value">{{ stats.bookAppointment }}</div>
+        
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-title">Book appointment</div>
-      <div class="stat-value">291</div>
-      <div class="stat-desc">Data per 20 jan 2025</div>
-      <button class="stat-btn" (click)="openDetails('appointments')">See details →</button>
+
+    <div class="stat-card card-patients" (click)="openDetails('patients')">
+      <div class="stat-icon">
+        <mat-icon>people</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-title">Total Patients</div>
+        <div class="stat-value">{{ stats.totalPatients }}</div>
+        
+      </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-title">Room availability</div>
-      <div class="stat-value">50/<span class="stat-secondary">100</span></div>
-      <div class="stat-desc">Data per 20 jan 2025</div>
-      <button class="stat-btn" (click)="openDetails('billing')">See details →</button>
+
+    <div class="stat-card card-visitors" (click)="openDetails('patients')">
+      <div class="stat-icon">
+        <mat-icon>trending_up</mat-icon>
+      </div>
+      <div class="stat-content">
+        <div class="stat-title">Overall Visitors</div>
+        <div class="stat-value">{{ stats.overallVisitors | number }} <span class="stat-growth">+15%</span></div>
+        
+      </div>
     </div>
   </div>
 
+  <!-- Main Content Grid -->
   <div class="dashboard-main">
+    <!-- Left Column -->
     <div class="main-left">
-      <div class="card patient-visit-card">
+      <!-- Today's Appointments -->
+      <div class="card appointments-card">
         <div class="card-header">
-          <div>Patient Visit</div>
-          <div class="sort-by">Sort by <b>Monthly</b></div>
+          <div>
+            <h3>Today's Appointments</h3>
+            <span class="card-subtitle">{{ todayAppointments.length }} scheduled</span>
+          </div>
+          <button mat-icon-button class="icon-btn" (click)="navigateToAppointments()">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
         </div>
-        <div class="chart-placeholder">
+        <div class="appointments-list">
+          <div class="appointment-item" *ngFor="let appointment of todayAppointments">
+            <div class="appointment-avatar">
+              <img [src]="appointment.patientAvatar || 'assets/avatars/default-avatar.jpg'" [alt]="appointment.patientName" />
+            </div>
+            <div class="appointment-info">
+              <div class="appointment-name">{{ appointment.patientName }}</div>
+              <div class="appointment-symptoms">{{ appointment.symptoms }}</div>
+            </div>
+            <div class="appointment-time">{{ appointment.time }}</div>
+            <div class="appointment-status">
+              <span class="status-badge" [ngClass]="getStatusClass(appointment.status)">
+                {{ appointment.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Appointment Requests (below Patient Visit) -->
+      <div class="card requests-card">
+        <div class="card-header">
+          <div>
+            <h3>Appointment Requests</h3>
+            <span class="card-subtitle">{{ appointmentRequests.length }} pending</span>
+          </div>
+        </div>
+
+        <div class="requests-toolbar">
+          <div class="requests-filters">
+            <button mat-stroked-button class="chip is-active">
+              <mat-icon>list_alt</mat-icon>
+              All
+            </button>
+            <button mat-stroked-button class="chip">
+              <mat-icon>priority_high</mat-icon>
+              High Priority
+            </button>
+            <button mat-stroked-button class="chip">
+              <mat-icon>payments</mat-icon>
+              Pending Payment
+            </button>
+          </div>
+          <div class="requests-search">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input type="text" placeholder="Search patient or reason" />
+          </div>
+        </div>
+
+        <div class="requests-grid-header">
+          <div class="col-patient">Patient</div>
+          <div class="col-when">When</div>
+          <div class="col-reason">Reason</div>
+          <div class="col-payment">Payment</div>
+          <div class="col-actions">Actions</div>
+        </div>
+
+        <div class="requests-grid">
+          <div class="request-row" *ngFor="let request of appointmentRequests">
+            <div class="col-patient patient-cell">
+              <div class="request-avatar">
+                <img [src]="request.patientAvatar || 'assets/avatars/default-avatar.jpg'" [alt]="request.patientName" />
+                <div class="avatar-badge" [ngClass]="getStatusClass(request.priority)">
+                  <mat-icon>{{ request.priority === 'HIGH' ? 'priority_high' : request.priority === 'MEDIUM' ? 'star' : 'lens' }}</mat-icon>
+                </div>
+              </div>
+              <div class="patient-meta">
+                <div class="name">{{ request.patientName }}</div>
+                <div class="badges">
+                  <span class="priority-badge" [ngClass]="getStatusClass(request.priority)">{{ request.priority }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-when when-cell">
+              <div class="when-line">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ request.requestedDate }}</span>
+              </div>
+              <div class="when-line">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ request.requestedTime }}</span>
+              </div>
+            </div>
+
+            <div class="col-reason reason-cell">
+              <mat-icon>description</mat-icon>
+              <span class="truncate">{{ request.reason }}</span>
+            </div>
+
+            <div class="col-payment">
+              <span class="payment-badge" [ngClass]="getPaymentStatusClass(request.paymentStatus)">
+                <mat-icon>payments</mat-icon>
+                {{ request.paymentStatus }}
+              </span>
+            </div>
+
+            <div class="col-actions actions-cell">
+              <button mat-stroked-button class="action-btn approve-btn" (click)="approveAppointmentRequest(request)" title="Approve">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-stroked-button class="action-btn reschedule-btn" (click)="rescheduleAppointmentRequest(request)" title="Reschedule">
+                <mat-icon>event_available</mat-icon>
+              </button>
+              <button mat-stroked-button class="action-btn reject-btn" (click)="rejectAppointmentRequest(request)" title="Reject">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Patient Visit Chart -->
+      <div class="card chart-card">
+        <div class="chart-container">
           @if(isBrowser) {
             <highcharts-chart
               [Highcharts]="Highcharts"
-              [options]="chartOptions"
-              style="width: 100%; height: 120px; display: block;">
+              [options]="patientVisitChartOptions"
+              style="width: 100%; height: 300px; display: block;">
             </highcharts-chart>
           } @else {
-            <!-- Fallback for SSR -->
-            <div style="width: 100%; height: 120px; background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 100%); display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">
-              Loading chart...
-            </div>
+            <div class="chart-placeholder">Loading chart...</div>
           }
         </div>
       </div>
-      <div class="card patient-appointment-card">
-        <div class="card-header">
-          <div>Patient Appointment</div>
-          <div class="search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" placeholder="Search..." />
-          </div>
+
+      <!-- Revenue Chart -->
+      <div class="card chart-card">
+        <div class="chart-container">
+          @if(isBrowser) {
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="revenueChartOptions"
+              style="width: 100%; height: 280px; display: block;">
+            </highcharts-chart>
+          } @else {
+            <div class="chart-placeholder">Loading chart...</div>
+          }
         </div>
-        <table class="appointment-table">
-          <thead>
-            <tr>
-              <th>Patient name</th>
-              <th>Date In</th>
-              <th>Symptoms</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><img class="avatar" src="https://randomuser.me/api/portraits/women/44.jpg" /> Jenny Wilson</td>
-              <td>Dec 18, 2021</td>
-              <td>Geriatrician</td>
-              <td><span class="status confirmed">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td><img class="avatar" src="https://randomuser.me/api/portraits/men/45.jpg" /> Albert Flores</td>
-              <td>Dec 18, 2021</td>
-              <td>Internist</td>
-              <td><span class="status pending">Pending</span></td>
-            </tr>
-            <tr>
-              <td><img class="avatar" src="https://randomuser.me/api/portraits/men/46.jpg" /> Floyd Miles</td>
-              <td>Dec 18, 2021</td>
-              <td>Urogynecologist</td>
-              <td><span class="status confirmed">Confirmed</span></td>
-            </tr>
-            <tr>
-              <td><img class="avatar" src="https://randomuser.me/api/portraits/men/47.jpg" /> Marvin McKinney</td>
-              <td>Dec 18, 2021</td>
-              <td>Cardiologist</td>
-              <td><span class="status cancelled">Cancelled</span></td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
+
+    <!-- Right Column -->
     <div class="main-right">
-      <div class="card doctor-schedule-card">
+      <!-- Next Patient -->
+      <div class="card next-patient-card" *ngIf="nextPatient">
         <div class="card-header">
-          <div>Doctor's Schedule</div>
-          <span class="more">⋯</span>
+          <h3>Next Patient</h3>
         </div>
-        <div class="schedule-stats">
-          <div><b>45</b> <span>Total</span><br /><span class="stat-label">Available</span></div>
-          <div><b>21</b> <span>Total</span><br /><span class="stat-label">Unavailable</span></div>
-          <div><b>10</b> <span>Total</span><br /><span class="stat-label">Leave</span></div>
+        <div class="next-patient-content">
+          <div class="next-patient-header">
+            <div class="next-patient-avatar">
+              <img [src]="nextPatient.avatar || 'assets/avatars/default-avatar.jpg'" [alt]="nextPatient.name" />
+            </div>
+            <div class="next-patient-basic-info">
+              <div class="next-patient-name">{{ nextPatient.name }}</div>
+              <div class="next-patient-appointment-time">
+                <mat-icon>schedule</mat-icon>
+                <span>{{ nextPatient.appointmentTime }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-patient-details-grid">
+            <div class="detail-item">
+              <mat-icon>person</mat-icon>
+              <div>
+                <span class="detail-label">Age & Gender</span>
+                <span class="detail-value">{{ nextPatient.age }} years, {{ nextPatient.gender }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>height</mat-icon>
+              <div>
+                <span class="detail-label">Height</span>
+                <span class="detail-value">{{ nextPatient.height || 'N/A' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>monitor_weight</mat-icon>
+              <div>
+                <span class="detail-label">Weight</span>
+                <span class="detail-value">{{ nextPatient.weight || 'N/A' }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>cake</mat-icon>
+              <div>
+                <span class="detail-label">DOB</span>
+                <span class="detail-value">{{ formatDate(nextPatient.dateOfBirth) }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>event</mat-icon>
+              <div>
+                <span class="detail-label">Last Appointment</span>
+                <span class="detail-value">{{ formatDate(nextPatient.lastAppointment || '') }}</span>
+              </div>
+            </div>
+            <div class="detail-item">
+              <mat-icon>how_to_reg</mat-icon>
+              <div>
+                <span class="detail-label">Registration Date</span>
+                <span class="detail-value">{{ formatDate(nextPatient.registrationDate) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="next-patient-history" *ngIf="nextPatient.lastDiseases && nextPatient.lastDiseases.length > 0">
+            <div class="history-label">
+              <mat-icon>history</mat-icon>
+              <span>Patient History - Last Diseases</span>
+            </div>
+            <div class="disease-tags">
+              <span class="disease-tag" *ngFor="let disease of nextPatient.lastDiseases">{{ disease }}</span>
+            </div>
+          </div>
+
+          <div class="next-patient-reason">
+            <mat-icon>description</mat-icon>
+            <span>{{ nextPatient.reason }}</span>
+          </div>
+
+          <div class="next-patient-actions">
+            <button mat-stroked-button class="action-btn" (click)="callPatient(nextPatient.contactNumber)" *ngIf="nextPatient.contactNumber">
+              <mat-icon>phone</mat-icon>
+              Call
+            </button>
+            <button mat-stroked-button class="action-btn" (click)="openChat(nextPatient.id)">
+              <mat-icon>chat</mat-icon>
+              Chat
+            </button>
+            <button mat-stroked-button class="action-btn primary" (click)="openDetails('patients')">
+              <mat-icon>person</mat-icon>
+              View Full Profile
+            </button>
+          </div>
         </div>
-        <div class="doctor-list-title">List of Doctor <span class="arrow">↓</span></div>
-        <ul class="doctor-list">
-          <li>
-            <img class="avatar" src="https://randomuser.me/api/portraits/women/48.jpg" />
-            <div class="doctor-info">
-              <div class="doctor-name">Nirmala Doke</div>
-              <div class="doctor-specialty">Allergy Testing</div>
+      </div>
+
+      
+
+      <!-- Messages -->
+      <div class="card messages-card">
+        <div class="card-header">
+          <div>
+            <h3>Messages</h3>
+            <span class="card-subtitle">{{ unreadMessagesCount }} unread</span>
+          </div>
+          <button mat-icon-button (click)="navigateToMessages()" class="view-all-btn">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+        <div class="messages-list">
+          <div class="message-item" *ngFor="let message of recentMessages" (click)="navigateToMessages()" (keydown.enter)="navigateToMessages()" tabindex="0" role="button" [attr.aria-label]="'Open chat with ' + message.patientName">
+            <div class="message-avatar">
+              <img [src]="message.patientAvatar || 'assets/avatars/default-avatar.jpg'" [alt]="message.patientName" />
+              <span class="unread-indicator" *ngIf="message.unreadCount > 0">{{ message.unreadCount }}</span>
             </div>
-            <span class="doctor-status available">Available</span>
-          </li>
-          <li>
-            <img class="avatar" src="https://randomuser.me/api/portraits/men/49.jpg" />
-            <div class="doctor-info">
-              <div class="doctor-name">Chetan Kale</div>
-              <div class="doctor-specialty">Allergy Testing</div>
+            <div class="message-info">
+              <div class="message-header">
+                <div class="message-name">{{ message.patientName }}</div>
+                <div class="message-time">{{ formatTimeAgo(message.timestamp) }}</div>
+              </div>
+              <div class="message-preview">{{ message.lastMessage }}</div>
             </div>
-            <span class="doctor-status unavailable">Unavailable</span>
-          </li>
-          <li>
-            <img class="avatar" src="https://randomuser.me/api/portraits/men/50.jpg" />
-            <div class="doctor-info">
-              <div class="doctor-name">Abhishek Wagusk</div>
-              <div class="doctor-specialty">Allergy Testing</div>
-            </div>
-            <span class="doctor-status unavailable">Unavailable</span>
-          </li>
-          <li>
-            <img class="avatar" src="https://randomuser.me/api/portraits/men/51.jpg" />
-            <div class="doctor-info">
-              <div class="doctor-name">Sarvesh Mishra</div>
-              <div class="doctor-specialty">Allergy Testing</div>
-            </div>
-            <span class="doctor-status available">Available</span>
-          </li>
-          <li>
-            <img class="avatar" src="https://randomuser.me/api/portraits/women/52.jpg" />
-            <div class="doctor-info">
-              <div class="doctor-name">Nirmala Doke</div>
-              <div class="doctor-specialty">Allergy Testing</div>
-            </div>
-            <span class="doctor-status available">Available</span>
-          </li>
-        </ul>
+          </div>
+          <div class="no-messages" *ngIf="recentMessages.length === 0">
+            <p>No recent messages</p>
+          </div>
+        </div>
+        <button mat-stroked-button class="view-all-messages-btn" (click)="navigateToMessages()">
+          View All Messages
+        </button>
+      </div>
+
+      <!-- Patient Demographics Chart -->
+      <div class="card chart-card">
+        <div class="chart-container">
+          @if(isBrowser) {
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="patientDemographicsChartOptions"
+              style="width: 100%; height: 280px; display: block;">
+            </highcharts-chart>
+          } @else {
+            <div class="chart-placeholder">Loading chart...</div>
+          }
+        </div>
+      </div>
+
+      <!-- Appointment Status Chart -->
+      <div class="card chart-card">
+        <div class="chart-container">
+          @if(isBrowser) {
+            <highcharts-chart
+              [Highcharts]="Highcharts"
+              [options]="appointmentStatusChartOptions"
+              style="width: 100%; height: 250px; display: block;">
+            </highcharts-chart>
+          } @else {
+            <div class="chart-placeholder">Loading chart...</div>
+          }
+        </div>
       </div>
     </div>
   </div>
 </div>
-

@@ -307,4 +307,10 @@ export class ChatService {
     }
     return of(void 0);
   }
+
+  getUnreadMessageCount(): Observable<number> {
+    const sessions = this.chatSessions.value;
+    const totalUnread = sessions.reduce((sum, session) => sum + session.unreadCount, 0);
+    return of(totalUnread);
+  }
 }
