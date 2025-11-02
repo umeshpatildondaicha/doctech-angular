@@ -318,6 +318,25 @@ export class PatientProfileComponent implements OnInit {
 
   selectedTab = 'overview';
 
+  // Tab customization state (UI-only, no API wiring yet)
+  allAvailableTabs: { id: string; label: string; icon: string; builtIn: boolean }[] = [
+    { id: 'overview', label: 'Overview', icon: 'dashboard', builtIn: true },
+    { id: 'medical-record', label: 'Medical Record', icon: 'receipt', builtIn: true },
+    { id: 'profile', label: 'Profile', icon: 'person', builtIn: true },
+    { id: 'vitals', label: 'Vitals', icon: 'favorite', builtIn: true },
+    { id: 'medications', label: 'Medications', icon: 'local_pharmacy', builtIn: true },
+    { id: 'appointments', label: 'Appointments', icon: 'event', builtIn: true },
+    { id: 'lab-reports', label: 'Lab Reports', icon: 'assessment', builtIn: true },
+    { id: 'clinical-notes', label: 'Clinical Notes', icon: 'note', builtIn: true },
+    { id: 'care-plan', label: 'Care Plan', icon: 'date_range', builtIn: true },
+    { id: 'rounds', label: 'Rounds', icon: 'access_time', builtIn: true },
+    { id: 'medicine-requests', label: 'Medicine Requests', icon: 'healing', builtIn: true },
+    { id: 'relatives', label: 'Relatives', icon: 'people', builtIn: true }
+  ];
+
+  showTabConfigDialog = false;
+  tabConfigItems: { id: string; label: string; icon: string; enabled: boolean; builtIn: boolean; badge?: number }[] = [];
+
   // Patient Data
   patientInfo: PatientInfo = {
     id: 'P001',
@@ -859,6 +878,9 @@ export class PatientProfileComponent implements OnInit {
         
         // You could also load patient data from a service here
         console.log('Loading patient:', patientId, patientName);
+
+        // Load any saved tab configuration for this patient (local only)
+        this.loadTabsFromStorage();
       }
     });
 
@@ -872,6 +894,9 @@ export class PatientProfileComponent implements OnInit {
     this.initializeCareTeam();
     this.initializeVitalTrends();
     this.startRealTimeUpdates();
+
+    // Fallback: if no patient id in URL updated the tabs yet, try loading defaults from storage
+    this.loadTabsFromStorage();
   }
 
   initializeForm(): void {
@@ -915,6 +940,115 @@ export class PatientProfileComponent implements OnInit {
 
   onTabChange(tabId: string): void {
     this.selectedTab = tabId;
+  }
+
+  // Tabs: helpers and configuration UI logic
+  getTabById(tabId: string): { id: string; label: string; icon: string; badge: number } | undefined {
+    return this.tabs.find(t => t.id === tabId);
+  }
+
+  openTabConfig(): void {
+    this.initTabConfigFromCurrentTabs();
+    this.showTabConfigDialog = true;
+  }
+
+  closeTabConfig(): void {
+    this.showTabConfigDialog = false;
+  }
+
+  private initTabConfigFromCurrentTabs(): void {
+    const enabledIds = new Set(this.tabs.map(t => t.id));
+    const merged: { id: string; label: string; icon: string; builtIn: boolean }[] = [
+      ...this.allAvailableTabs
+    ];
+    // Preserve current order: first, items in current tabs order, then any remaining available ones
+    const orderMap = new Map<string, number>();
+    this.tabs.forEach((t, idx) => orderMap.set(t.id, idx));
+    merged.sort((a, b) => {
+      const ai = orderMap.has(a.id) ? orderMap.get(a.id)! : Number.MAX_SAFE_INTEGER;
+      const bi = orderMap.has(b.id) ? orderMap.get(b.id)! : Number.MAX_SAFE_INTEGER;
+      return ai - bi || a.label.localeCompare(b.label);
+    });
+    this.tabConfigItems = merged.map(m => ({
+      id: m.id,
+      label: m.label,
+      icon: m.icon,
+      builtIn: m.builtIn,
+      enabled: m.id === 'overview' ? true : enabledIds.has(m.id),
+      badge: this.tabs.find(t => t.id === m.id)?.badge ?? 0
+    }));
+  }
+
+  toggleTabEnabled(item: { enabled: boolean }): void {
+    // Overview is unchangeable: always enabled
+    if ((item as any).id === 'overview') return;
+    item.enabled = !item.enabled;
+  }
+
+  moveTabUp(index: number): void {
+    if (index <= 0) return;
+    if (this.tabConfigItems[index].id === 'overview') return;
+    if (this.tabConfigItems[index - 1].id === 'overview') return; // keep overview at top
+    const tmp = this.tabConfigItems[index - 1];
+    this.tabConfigItems[index - 1] = this.tabConfigItems[index];
+    this.tabConfigItems[index] = tmp;
+  }
+
+  moveTabDown(index: number): void {
+    if (index >= this.tabConfigItems.length - 1) return;
+    if (this.tabConfigItems[index].id === 'overview') return;
+    const tmp = this.tabConfigItems[index + 1];
+    this.tabConfigItems[index + 1] = this.tabConfigItems[index];
+    this.tabConfigItems[index] = tmp;
+  }
+
+  saveTabConfig(): void {
+    const enabled = this.tabConfigItems.filter(i => i.enabled);
+    // Build with Overview always first and enabled
+    const overview = { id: 'overview', label: 'Overview', icon: 'dashboard', badge: this.tabs.find(t => t.id === 'overview')?.badge ?? 0 };
+    const others = enabled.filter(i => i.id !== 'overview').map(i => ({ id: i.id, label: i.label, icon: i.icon, badge: i.badge ?? 0 }));
+    this.tabs = [overview, ...others];
+    // Validate selected tab
+    if (!this.tabs.find(t => t.id === this.selectedTab)) {
+      this.selectedTab = this.tabs[0].id;
+    }
+    this.updateTabBadges();
+    this.saveTabsToStorage();
+    this.closeTabConfig();
+  }
+
+  private getPatientTabsStorageKey(): string {
+    return `patientTabs:${this.patientInfo.id}`;
+  }
+
+  private loadTabsFromStorage(): void {
+    try {
+      const raw = localStorage.getItem(this.getPatientTabsStorageKey());
+      if (!raw) return;
+      const stored: { id: string; label: string; icon: string; badge?: number }[] = JSON.parse(raw);
+      if (Array.isArray(stored) && stored.length) {
+        // Keep only built-ins, ignore unknowns
+        const allowedIds = new Set<string>(this.allAvailableTabs.map(t => t.id));
+        let filtered = stored.filter(t => allowedIds.has(t.id));
+        // Ensure overview exists and is first
+        if (!filtered.find(t => t.id === 'overview')) {
+          filtered = [{ id: 'overview', label: 'Overview', icon: 'dashboard', badge: 0 }, ...filtered];
+        }
+        // Move overview to front if not already
+        filtered = filtered.sort((a, b) => (a.id === 'overview' ? -1 : b.id === 'overview' ? 1 : 0));
+        this.tabs = filtered.map(t => ({ id: t.id, label: t.label, icon: t.icon, badge: t.badge ?? 0 }));
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  private saveTabsToStorage(): void {
+    try {
+      localStorage.setItem(this.getPatientTabsStorageKey(), JSON.stringify(this.tabs));
+    } catch {
+      // ignore
+    }
   }
 
   toggleEditMode(): void {

@@ -46,127 +46,22 @@
 // Main Container
 .login-container {
   display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 450px;
+  margin: 40px auto;
   background: var(--surface-color);
-  border-radius: var(--large-border-radius);
-  box-shadow: var(--card-shadow);
-  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   position: relative;
   z-index: 1;
-  min-height: 600px;
+  padding: 48px 32px;
 }
 
-// Left Side - Branding
-.branding-section {
-  flex: 1;
-  background: var(--gradient-primary);
-  color: white;
-  padding: var(--spacing-3xl) var(--spacing-2xl);
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.3;
-  }
-
-  .brand-content {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-  }
-
-  .logo-container {
-    text-align: center;
-    margin-bottom: 60px;
-
-    .logo-icon {
-      width: 80px;
-      height: 80px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      backdrop-filter: blur(10px);
-
-      mat-icon {
-        font-size: 40px;
-        width: 40px;
-        height: 40px;
-        color: white;
-      }
-    }
-
-    .brand-title {
-      font-size: var(--font-size-6xl);
-      font-weight: var(--font-weight-bold);
-      margin: 0 0 10px;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-subtitle {
-      font-size: var(--font-size-lg);
-      opacity: 0.9;
-      margin: 0;
-      font-weight: var(--font-weight-normal);
-    }
-  }
-
-  .brand-features {
-    .feature-item {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 30px;
-      padding: var(--spacing-xl);
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: var(--small-border-radius);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-
-      mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-        margin-right: 15px;
-        margin-top: 2px;
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      .feature-text {
-        h3 {
-          font-size: var(--font-size-lg);
-          font-weight: var(--font-weight-semibold);
-          margin: 0 0 5px;
-          color: white;
-        }
-
-        p {
-          font-size: var(--font-size-base);
-          margin: 0;
-          opacity: 0.8;
-          line-height: 1.5;
-        }
-      }
-    }
-  }
-}
-
-// Right Side - Login Form
+// Centered Login Form
 .login-form-section {
-  flex: 1;
-  padding: var(--spacing-3xl) var(--spacing-2xl);
+  width: 100%;
   display: flex;
   align-items: center;
   background: var(--surface-color);
@@ -179,20 +74,69 @@
 
   .form-header {
     text-align: center;
-    margin-bottom: 40px;
+    margin-bottom: 32px;
 
     h2 {
-      font-size: var(--font-size-5xl);
+      font-size: 28px;
       font-weight: var(--font-weight-bold);
       color: var(--text-primary);
-      margin: 0 0 10px;
+      margin: 0 0 8px;
       letter-spacing: -0.5px;
     }
 
     p {
-      font-size: var(--font-size-base);
+      font-size: 14px;
       color: var(--text-muted);
       margin: 0;
+    }
+  }
+
+  // Quick Login Buttons
+  .quick-login-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 24px;
+
+    .quick-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      &.doctor {
+        &:hover {
+          border-color: #2563eb;
+          color: #2563eb;
+        }
+      }
+
+      &.hospital {
+        &:hover {
+          border-color: #10b981;
+          color: #10b981;
+        }
+      }
     }
   }
 

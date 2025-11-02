@@ -293,231 +293,118 @@
     <mat-tab label="Patients">
       <div class="tab-content professional-layout">
         
-        <!-- Professional Header Section -->
-        <div class="professional-header">
-          <div class="header-content">
-            <div class="header-left">
-              <h2 class="page-title">
-                <mat-icon class="title-icon">person</mat-icon>
-                Patient Management
-              </h2>
-              <p class="page-subtitle">Manage and monitor patients</p>
-            </div>
-            <div class="header-right">
-              <div class="patient-type-selector">
-                <mat-form-field appearance="outline" class="patient-type-field">
-                  <mat-label>Patient Type</mat-label>
-                  <mat-select [(ngModel)]="selectedPatientType">
-                    <mat-option *ngFor="let type of patientTypeOptions" [value]="type">
-                      {{ type }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
+        <!-- Admitted Patients - Compact Card Design -->
+        <div class="admitted-patients-section">
+          <div class="admitted-layout">
+            <div class="admitted-main">
+              <div class="admitted-header">
+                <div class="admitted-title">Admitted Patients</div>
+                <div class="admitted-actions">
+                  <div class="custom-search-bar">
+                    <mat-icon class="search-icon">search</mat-icon>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="searchQuery" 
+                      placeholder="Search patients..."
+                      class="search-input">
+                    <button 
+                      *ngIf="searchQuery" 
+                      class="clear-btn"
+                      (click)="searchQuery = ''">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                  <button mat-raised-button color="primary">
+                    <mat-icon>add</mat-icon>
+                    Admit Patient
+                  </button>
+                </div>
               </div>
-              <div class="live-indicator">
-                <div class="live-dot" [class.active]="isRealTimeMode"></div>
-                <span class="live-text">{{ isRealTimeMode ? 'Live Updates' : 'Offline' }}</span>
-                <span class="last-update">{{ formatDate(lastUpdateTime) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Professional Statistics Dashboard -->
-        <div class="professional-stats-dashboard">
-          <div class="stats-container">
-            <div class="stat-card professional-card" [class.total]="true">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">
-                  <mat-icon>people</mat-icon>
-                </div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ patientStats.total }}</div>
-                <div class="stat-label">Total Patients</div>
-                <div class="stat-trend">
-                  <mat-icon>trending_up</mat-icon>
-                  <span>+2 this week</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="stat-card professional-card critical">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">
-                  <mat-icon>warning</mat-icon>
-                </div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ patientStats.critical }}</div>
-                <div class="stat-label">Critical Cases</div>
-                <div class="stat-trend urgent">
-                  <mat-icon>priority_high</mat-icon>
-                  <span>Requires attention</span>
+              <!-- Patient Cards Grid (compact) -->
+              <div class="admitted-cards-grid">
+                <div *ngFor="let patient of getFilteredPatients()" class="admitted-card" (click)="selectPatient(patient)">
+                  <div class="card-meta">
+                    <div class="avatar">
+                      <span>{{ patient.patientName.charAt(0) }}</span>
+                    </div>
+                    <div class="meta-text">
+                      <div class="name">{{ patient.patientName }}</div>
+                      <div class="sub">{{ patient.age }} {{ patient.gender }}, Room {{ patient.room }}</div>
+                    </div>
+                    <div class="meta-indicator" [class.critical]="calculatePatientPriority(patient) >= 100" [class.warning]="calculatePatientPriority(patient) >= 70 && calculatePatientPriority(patient) < 100" [class.stable]="calculatePatientPriority(patient) < 70"></div>
+                  </div>
+                  <div class="badge-row">
+                    <span class="pill" [style.background-color]="getStatusColor(patient.currentStatus)">{{ patient.currentStatus }}</span>
+                    <span class="pill light">{{ patient.ward }}</span>
+                  </div>
+                  <div class="card-actions">
+                    <button mat-stroked-button color="primary" (click)="navigateToPatientProfile(patient); $event.stopPropagation()">View Chart</button>
+                    <button mat-stroked-button (click)="addTask(patient); $event.stopPropagation()">Add Task</button>
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <div class="stat-card professional-card stable">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">
-                  <mat-icon>check_circle</mat-icon>
-                </div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ patientStats.stable }}</div>
-                <div class="stat-label">Stable Patients</div>
-                <div class="stat-trend positive">
-                  <mat-icon>trending_up</mat-icon>
-                  <span>Good progress</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="stat-card professional-card improving">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">
-                  <mat-icon>trending_up</mat-icon>
-                </div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ patientStats.improving }}</div>
-                <div class="stat-label">Improving</div>
-                <div class="stat-trend positive">
-                  <mat-icon>arrow_upward</mat-icon>
-                  <span>Recovering well</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="stat-card professional-card deteriorating">
-              <div class="stat-icon-wrapper">
-                <div class="stat-icon">
-                  <mat-icon>trending_down</mat-icon>
-                </div>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ patientStats.deteriorating }}</div>
-                <div class="stat-label">Deteriorating</div>
-                <div class="stat-trend negative">
-                  <mat-icon>arrow_downward</mat-icon>
-                  <span>Monitor closely</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Professional Filtering System -->
-        <div class="professional-filters">
-          <div class="filters-header">
-            <div class="filters-title">
-              <mat-icon>filter_list</mat-icon>
-              <h3>Patient Filters</h3>
-            </div>
-            <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
-              <mat-icon>refresh</mat-icon>
-              Reset Filters
-            </button>
-          </div>
-          
-          <div class="filters-content">
-            <div class="search-section">
-              <mat-form-field appearance="outline" class="professional-search">
-                <mat-label>Search patients by name, ID, ward, or diagnosis</mat-label>
-                <input matInput [(ngModel)]="searchQuery" placeholder="Type to search...">
-                <mat-icon matPrefix>search</mat-icon>
-                <button matSuffix mat-icon-button *ngIf="searchQuery" (click)="searchQuery = ''">
-                  <mat-icon>clear</mat-icon>
+            <!-- Right Dashboard Sidebar -->
+            <div class="admitted-sidebar">
+              <div class="dashboard-header">
+                <div class="title">My Dashboard</div>
+                <button class="link-button" (click)="$event.preventDefault()">Customize</button>
+              </div>
+
+              <div class="sidebar-card">
+                <div class="sidebar-card-title">My Tasks ({{ dashboardTasks.length }}) <a class="view-all">View All</a></div>
+                <div class="task-list">
+                  <div class="task-item" *ngFor="let task of dashboardTasks; let i = index">
+                    <mat-icon class="task-check" [class.checked]="task.completed">{{ task.completed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+                    <div class="task-text">
+                      <div class="task-title" [class.completed]="task.completed">{{ task.title }}</div>
+                      <div class="task-sub">Due by {{ task.due }}</div>
+                    </div>
+                    <div class="task-actions">
+                      <button mat-icon-button matTooltip="Complete" (click)="completeTask(i); $event.stopPropagation()" *ngIf="!task.completed">
+                        <mat-icon>done</mat-icon>
+                      </button>
+                      <button mat-icon-button matTooltip="Delete" (click)="deleteTask(i); $event.stopPropagation()">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button mat-stroked-button color="primary" class="add-task-btn" (click)="openAddTaskDialog()">
+                  <mat-icon>add</mat-icon>
+                  Add Task
                 </button>
-              </mat-form-field>
-            </div>
-            
-            <div class="filters-row">
-              <div class="filter-item">
-                <label class="filter-label">Ward</label>
-                <mat-form-field appearance="outline">
-                  <mat-select [(ngModel)]="selectedWard">
-                    <mat-option *ngFor="let ward of filterOptions.wards" [value]="ward">
-                      {{ ward }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
               </div>
-              
-              <div class="filter-item">
-                <label class="filter-label">Priority Level</label>
-                <mat-form-field appearance="outline">
-                  <mat-select [(ngModel)]="selectedPriority">
-                    <mat-option *ngFor="let priority of filterOptions.priorities" [value]="priority">
-                      {{ priority }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
+
+              <div class="sidebar-card">
+                <div class="sidebar-card-title">Upcoming Procedures</div>
+                <div class="procedure-list">
+                  <div class="procedure-item" *ngFor="let proc of upcomingProcedures">
+                    <mat-icon class="proc-icon">symptoms</mat-icon>
+                    <div class="proc-text">
+                      <div class="proc-title">{{ proc.title }}</div>
+                      <div class="proc-sub">{{ proc.time }} in {{ proc.location }}</div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              
-              <div class="filter-item">
-                <label class="filter-label">Patient Status</label>
-                <mat-form-field appearance="outline">
-                  <mat-select [(ngModel)]="selectedStatus">
-                    <mat-option *ngFor="let status of filterOptions.statuses" [value]="status">
-                      {{ status }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-              
-              <div class="filter-item">
-                <label class="filter-label">Attending Doctor</label>
-                <mat-form-field appearance="outline">
-                  <mat-select [(ngModel)]="selectedDoctor">
-                    <mat-option *ngFor="let doctor of filterOptions.doctors" [value]="doctor">
-                      {{ doctor }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </div>
-            </div>
-            
-            <!-- Active Filters Display -->
-            <div class="active-filters-section" *ngIf="searchQuery || selectedWard !== 'All Wards' || selectedPriority !== 'All Priorities' || selectedStatus !== 'All Status' || selectedDoctor !== 'All Doctors'">
-              <div class="active-filters-header">
-                <mat-icon>label</mat-icon>
-                <span>Active Filters</span>
-              </div>
-              <div class="filter-chips">
-                <mat-chip *ngIf="searchQuery" (removed)="searchQuery = ''" class="filter-chip">
-                  <mat-icon>search</mat-icon>
-                  "{{ searchQuery }}"
-                  <mat-icon matChipRemove>close</mat-icon>
-                </mat-chip>
-                <mat-chip *ngIf="selectedWard !== 'All Wards'" (removed)="selectedWard = 'All Wards'" class="filter-chip">
-                  <mat-icon>location_on</mat-icon>
-                  {{ selectedWard }}
-                  <mat-icon matChipRemove>close</mat-icon>
-                </mat-chip>
-                <mat-chip *ngIf="selectedPriority !== 'All Priorities'" (removed)="selectedPriority = 'All Priorities'" class="filter-chip">
-                  <mat-icon>flag</mat-icon>
-                  {{ selectedPriority }}
-                  <mat-icon matChipRemove>close</mat-icon>
-                </mat-chip>
-                <mat-chip *ngIf="selectedStatus !== 'All Status'" (removed)="selectedStatus = 'All Status'" class="filter-chip">
-                  <mat-icon>health_and_safety</mat-icon>
-                  {{ selectedStatus }}
-                  <mat-icon matChipRemove>close</mat-icon>
-                </mat-chip>
-                <mat-chip *ngIf="selectedDoctor !== 'All Doctors'" (removed)="selectedDoctor = 'All Doctors'" class="filter-chip">
-                  <mat-icon>person</mat-icon>
-                  {{ selectedDoctor }}
-                  <mat-icon matChipRemove>close</mat-icon>
-                </mat-chip>
+
+              <div class="sidebar-card empty" *ngIf="pendingLabResultsEmpty">
+                <div class="sidebar-card-title">Pending Lab Results</div>
+                <div class="empty-lab">
+                  <mat-icon>science</mat-icon>
+                  <div class="lab-title">No Pending Results</div>
+                  <div class="lab-sub">All lab results are up to date.</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Professional Patient Cards -->
-        <div class="professional-patients-section">
+        <!-- Professional Patient Cards (original, retained below if needed) -->
+        <div class="professional-patients-section" style="display:none;">
           <div class="patients-header">
             <h3>Patient List</h3>
             <div class="patients-count">
@@ -689,30 +576,6 @@
     <mat-tab label="Staff">
       <div class="tab-content professional-layout">
         
-        <!-- Professional Staff Management Header -->
-        <div class="professional-header">
-          <div class="header-content">
-            <div class="header-left">
-              <h2 class="page-title">
-                <mat-icon class="title-icon">people</mat-icon>
-                Staff Management
-              </h2>
-              <p class="page-subtitle">Manage your team, schedules, and tasks</p>
-            </div>
-            <div class="header-right">
-              <div class="staff-actions">
-                <button mat-stroked-button class="action-btn">
-                  <mat-icon>person_add</mat-icon>
-                  Add Staff
-                </button>
-                <button mat-raised-button color="primary" class="action-btn">
-                  <mat-icon>schedule</mat-icon>
-                  Schedule
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
 
         <!-- Staff Management Tabs -->
         <div class="staff-tabs-container">
@@ -740,12 +603,14 @@
                   </div>
                 </div>
                 <div class="stat-content">
-                  <div class="stat-number">{{ staffMembers.length }}</div>
-                  <div class="stat-label">Total Staff</div>
-                  <div class="stat-trend positive">
-                    <mat-icon>trending_up</mat-icon>
-                    <span>+2 this week</span>
+                  <div class="stat-row">
+                    <div class="stat-number">{{ staffMembers.length }}</div>
+                    <div class="stat-trend positive">
+                      <mat-icon>trending_up</mat-icon>
+                      <span>+2 this week</span>
+                    </div>
                   </div>
+                  <div class="stat-label">Total Staff</div>
                 </div>
               </div>
               
@@ -756,12 +621,14 @@
                   </div>
                 </div>
                 <div class="stat-content">
-                  <div class="stat-number">{{ getActiveStaffCount() }}</div>
-                  <div class="stat-label">On Duty</div>
-                  <div class="stat-trend positive">
-                    <mat-icon>trending_up</mat-icon>
-                    <span>{{ getActiveStaffPercentage() }}% capacity</span>
+                  <div class="stat-row">
+                    <div class="stat-number">{{ getActiveStaffCount() }}</div>
+                    <div class="stat-trend positive">
+                      <mat-icon>trending_up</mat-icon>
+                      <span>{{ getActiveStaffPercentage() }}%</span>
+                    </div>
                   </div>
+                  <div class="stat-label">On Duty</div>
                 </div>
               </div>
               
@@ -772,12 +639,14 @@
                   </div>
                 </div>
                 <div class="stat-content">
-                  <div class="stat-number">{{ getActiveTasksCount() }}</div>
-                  <div class="stat-label">Active Tasks</div>
-                  <div class="stat-trend positive">
-                    <mat-icon>trending_up</mat-icon>
-                    <span>{{ getStaffEfficiency() }}% completion</span>
+                  <div class="stat-row">
+                    <div class="stat-number">{{ getActiveTasksCount() }}</div>
+                    <div class="stat-trend positive">
+                      <mat-icon>trending_up</mat-icon>
+                      <span>{{ getStaffEfficiency() }}%</span>
+                    </div>
                   </div>
+                  <div class="stat-label">Active Tasks</div>
                 </div>
               </div>
               
@@ -788,12 +657,14 @@
                   </div>
                 </div>
                 <div class="stat-content">
-                  <div class="stat-number">{{ getAverageEfficiency() }}%</div>
-                  <div class="stat-label">Avg Efficiency</div>
-                  <div class="stat-trend positive">
-                    <mat-icon>trending_up</mat-icon>
-                    <span>+5% this month</span>
+                  <div class="stat-row">
+                    <div class="stat-number">{{ getAverageEfficiency() }}%</div>
+                    <div class="stat-trend positive">
+                      <mat-icon>trending_up</mat-icon>
+                      <span>+5% this month</span>
+                    </div>
                   </div>
+                  <div class="stat-label">Avg Efficiency</div>
                 </div>
               </div>
             </div>

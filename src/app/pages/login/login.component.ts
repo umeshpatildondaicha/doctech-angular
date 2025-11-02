@@ -103,7 +103,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         Validators.minLength(6),
         Validators.maxLength(50)
       ]],
-      userType: [UserType.HOSPITAL, [Validators.required]],
+      userType: [UserType.DOCTOR, [Validators.required]],
       rememberMe: [false]
     });
   }
@@ -210,6 +210,30 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
       this.showSuccessMessage(`Demo credentials filled for ${this.getUserTypeLabel(selectedUserType)}`);
     }
+  }
+
+  /**
+   * Fill Doctor credentials
+   */
+  public fillDoctorCredentials(): void {
+    const credentials = this.demoCredentials[UserType.DOCTOR];
+    this.loginForm.patchValue({
+      email: credentials.email,
+      password: credentials.password,
+      userType: UserType.DOCTOR
+    });
+  }
+
+  /**
+   * Fill Hospital Admin credentials
+   */
+  public fillHospitalCredentials(): void {
+    const credentials = this.demoCredentials[UserType.HOSPITAL];
+    this.loginForm.patchValue({
+      email: credentials.email,
+      password: credentials.password,
+      userType: UserType.HOSPITAL
+    });
   }
 
   /**

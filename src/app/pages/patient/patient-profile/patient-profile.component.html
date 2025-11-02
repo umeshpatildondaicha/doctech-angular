@@ -5,7 +5,8 @@
   <!-- Navigation Tabs -->
   <div class="tabs-container">
     <!-- Desktop Vertical Tabs -->
-    <mat-tab-group class="desktop-tabs" (selectedIndexChange)="onTabChange(tabs[$event].id)" orientation="vertical">
+    <div class="tabs-list-wrapper">
+      <mat-tab-group class="desktop-tabs" (selectedIndexChange)="onTabChange(tabs[$event].id)" orientation="vertical">
       <mat-tab *ngFor="let tab of tabs" [label]="tab.label">
         <ng-template mat-tab-label>
           <div class="tab-label">
@@ -15,7 +16,14 @@
           </div>
         </ng-template>
       </mat-tab>
-    </mat-tab-group>
+      </mat-tab-group>
+      <div class="tabs-footer-action">
+        <app-button appearance="stroked" color="primary" (btnClick)="openTabConfig()">
+          <app-icon fontIcon="tune" [size]="16"></app-icon>
+          <span>Customize Tabs</span>
+        </app-button>
+      </div>
+    </div>
 
     <!-- Mobile Horizontal Tabs -->
     <div class="mobile-tabs">
@@ -90,6 +98,7 @@
             <button mat-icon-button [matMenuTriggerFor]="actionsMenu" class="actions-menu-btn">
               <mat-icon>more_vert</mat-icon>
             </button>
+            
           </div>
           
           <!-- Angular Material Menu -->
@@ -993,6 +1002,8 @@
         </div>
       </div>
     </div>
+
+    
   </div>
 
   <!-- Admission Dialog -->
@@ -1670,6 +1681,46 @@
           (btnClick)="addRelativeSubmit()"
           [disabled]="!relativeForm.valid">
           Add Relative
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Configuration Dialog -->
+  <div *ngIf="showTabConfigDialog" class="dialog-overlay">
+    <div class="tab-config-dialog">
+      <div class="dialog-header">
+        <h3>Customize Tabs</h3>
+        <app-icon fontIcon="close" [size]="24" (click)="closeTabConfig()"></app-icon>
+      </div>
+      <div class="dialog-content">
+        <p>Overview is always enabled and first.</p>
+        <div class="tab-config-list">
+          <div class="tab-config-item" *ngFor="let item of tabConfigItems; let i = index">
+            <div class="left">
+              <button class="reorder-btn" (click)="moveTabUp(i)" [disabled]="i===0 || item.id==='overview' || (i>0 && tabConfigItems[i-1].id==='overview' )">
+                <app-icon fontIcon="arrow_upward" [size]="16"></app-icon>
+              </button>
+              <button class="reorder-btn" (click)="moveTabDown(i)" [disabled]="i===tabConfigItems.length-1 || item.id==='overview'">
+                <app-icon fontIcon="arrow_downward" [size]="16"></app-icon>
+              </button>
+            </div>
+            <div class="center">
+              <app-icon [fontIcon]="item.icon" [size]="18"></app-icon>
+              <span class="tab-label">{{ item.label }}</span>
+            </div>
+            <div class="right">
+              <mat-slide-toggle [(ngModel)]="item.enabled" [disabled]="item.id==='overview'">Enabled</mat-slide-toggle>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <app-button appearance="stroked" color="primary" (btnClick)="closeTabConfig()">
+          Cancel
+        </app-button>
+        <app-button appearance="raised" color="primary" (btnClick)="saveTabConfig()">
+          Save
         </app-button>
       </div>
     </div>

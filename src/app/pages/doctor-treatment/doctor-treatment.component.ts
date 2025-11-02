@@ -94,6 +94,18 @@ export class DoctorTreatmentComponent implements OnInit {
   selectedPatientType: string = 'My Patients';
   patientTypeOptions = ['My Patients', 'All Patients'];
 
+  // Right sidebar dashboard data (for Admitted Patients layout)
+  dashboardTasks = [
+    { title: 'Review lab results for R. Fox', due: '11:00 AM', completed: false },
+    { title: 'Consult with neurology for E. Pena', due: '2:00 PM', completed: false },
+    { title: 'Prepare discharge papers for A. Black', due: '9:30 AM', completed: true }
+  ];
+  upcomingProcedures = [
+    { title: 'Angioplasty - R. Fox', time: 'Today, 1:00 PM', location: 'OR 3' },
+    { title: 'Chest X-Ray - J. Jones', time: 'Today, 3:30 PM', location: 'Radiology' }
+  ];
+  pendingLabResultsEmpty = true;
+
   // Staff Management Properties
   selectedStaffTab: string = 'overview';
   staffTabs = [
@@ -1673,7 +1685,7 @@ export class DoctorTreatmentComponent implements OnInit {
     this.showTaskDialog = true;
   }
 
-  completeTask(): void {
+  saveTask(): void {
     if (this.taskForm.valid) {
       // Simulate saving task data
       console.log('Task added:', this.taskForm.value);
@@ -1960,6 +1972,29 @@ export class DoctorTreatmentComponent implements OnInit {
   quickViewVitals(patient: AdmittedPatient): void {
     // Implementation for quick vital signs view
     console.log('Viewing vitals for patient:', patient.patientName);
+  }
+
+  addNote(patient: AdmittedPatient): void {
+    // Placeholder for adding a quick note to patient chart
+    console.log('Add note for patient:', patient.patientName);
+  }
+
+  addTask(patient: AdmittedPatient): void {
+    console.log('Add task for patient:', patient.patientName);
+  }
+
+  completeTask(index: number): void {
+    if (this.dashboardTasks[index]) {
+      this.dashboardTasks[index].completed = true;
+    }
+  }
+
+  deleteTask(index: number): void {
+    this.dashboardTasks.splice(index, 1);
+  }
+
+  openAddTaskDialog(): void {
+    console.log('Open add task dialog');
   }
 
   // Patient Priority Calculation

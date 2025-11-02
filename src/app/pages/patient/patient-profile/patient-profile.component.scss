@@ -1160,6 +1160,66 @@
 // Tabs Container
 .tabs-container {
   width: 22%;
+  flex: 0 0 22%;
+  min-width: 22%;
+  max-width: 22%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .tabs-list-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    background: var(--surface-color);
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    border: var(--card-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+
+    // Ensure the tab group takes available space and allows internal scrolling
+    .desktop-tabs {
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+    }
+
+    // Make the tab header look seamless inside this card
+    ::ng-deep .mat-mdc-tab-group {
+      flex: 1 1 auto;
+      min-height: 0;
+      .mat-mdc-tab-header {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 8px;
+        border-right: none;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
+      .mat-mdc-tab-label-container {
+        max-height: 100%;
+        overflow-y: auto;
+      }
+    }
+  }
+
+  .tabs-footer-action {
+    padding: 12px;
+    border-top: 1px solid var(--border-color);
+    background: var(--surface-color);
+    display: block;
+
+    app-button {
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
 
   // Hide pagination buttons globally for this component
   ::ng-deep .mat-mdc-tab-header-pagination {
@@ -1190,7 +1250,7 @@
     }
   }
   ::ng-deep .mat-mdc-tab-group {
-    flex-direction: row;
+    // flex-direction: row;
     height: 100%;
     
     .mat-mdc-tab-header {
@@ -2801,7 +2861,8 @@
 
   .admission-dialog,
   .discharge-dialog,
-  .care-team-dialog {
+  .care-team-dialog,
+  .tab-config-dialog {
     background: var(--surface-color);
     border-radius: 16px;
     padding: 0;
@@ -2811,6 +2872,14 @@
 
     &.care-team-dialog {
       max-width: 600px;
+    }
+
+    &.tab-config-dialog {
+      max-width: 550px;
+      height: fit-content;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .dialog-header {
@@ -2916,6 +2985,111 @@
       gap: 12px;
       padding: 0 24px 24px 24px;
       justify-content: flex-end;
+    }
+  }
+
+  // Tab Config Dialog Specific Styles
+  .tab-config-dialog {
+    .dialog-content {
+      padding: 8px 24px 16px 24px;
+      flex: 1;
+      overflow-y: auto;
+      
+      > p:first-child {
+        margin: 0 0 16px 0;
+        padding: 12px 16px;
+        background: var(--background-color);
+        border-radius: 8px;
+        font-size: 13px;
+        color: var(--text-muted);
+        border-left: 3px solid var(--primary-color);
+      }
+
+      .tab-config-list {
+        background: var(--surface-color);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        max-height: 450px;
+        overflow-y: auto;
+        
+        .tab-config-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 16px 20px;
+          border-bottom: 1px solid var(--border-color);
+          transition: background-color 0.2s ease;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          &:hover {
+            background: var(--background-color);
+          }
+
+          .left {
+            display: flex;
+            gap: 8px;
+            
+            .reorder-btn {
+              background: none;
+              border: none;
+              cursor: pointer;
+              padding: 4px;
+              border-radius: 6px;
+              color: var(--text-muted);
+              transition: all 0.2s ease;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+
+              &:hover:not(:disabled) {
+                background: var(--background-color);
+                color: var(--primary-color);
+              }
+
+              &:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+              }
+            }
+          }
+
+          .center {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+            padding: 0 16px;
+
+            app-icon {
+              color: var(--primary-color);
+              flex-shrink: 0;
+            }
+
+            .tab-label {
+              font-size: 15px;
+              font-weight: 500;
+              color: var(--text-primary);
+            }
+          }
+
+          .right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+          }
+        }
+      }
+    }
+
+    .dialog-actions {
+      border-top: 1px solid var(--border-color);
+      background: var(--background-color);
+      padding: 16px 24px;
+      border-radius: 0 0 16px 16px;
+      margin-top: 0;
     }
   }
 }
