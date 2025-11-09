@@ -1,0 +1,80 @@
+<div class="diet-card" [class.clickable]="clickable" (click)="onCardClick()" (keydown.enter)="onCardClick()" (keydown.space)="onCardClick()" [attr.tabindex]="clickable ? 0 : -1" [attr.role]="clickable ? 'button' : null">
+  <div class="card-media">
+    <img *ngIf="diet.imageUrl" [src]="diet.imageUrl" [alt]="diet.name">
+    <div class="media-placeholder" *ngIf="!diet.imageUrl">
+      <mat-icon>restaurant</mat-icon>
+      <span>No Image</span>
+    </div>
+    <div class="card-badge" [class]="'badge-' + diet.dietType.toLowerCase()">
+      {{ diet.dietType }}
+    </div>
+  </div>
+  
+  <!-- Interactive buttons below image -->
+  <div class="interactive-buttons">
+    <button class="interactive-btn view-interactive-btn" (click)="onView($event)">
+      <mat-icon>visibility</mat-icon>
+      <span>View</span>
+    </button>
+    <button class="interactive-btn video-interactive-btn" *ngIf="diet.videoUrl" (click)="onVideoClick($event, diet.videoUrl!)">
+      <mat-icon>play_circle</mat-icon>
+      <span>Video</span>
+    </button>
+    <button class="interactive-btn pdf-interactive-btn" *ngIf="diet.documentUrl" (click)="onPdfClick($event, diet.documentUrl!)">
+      <mat-icon>description</mat-icon>
+      <span>PDF</span>
+    </button>
+  </div>
+
+  <div class="card-content">
+    <h3 class="diet-name">{{ diet.name }}</h3>
+    <p class="diet-description">{{ diet.description }}</p>
+    
+    <!-- Action buttons at bottom -->
+    <div class="card-actions" *ngIf="showActions">
+      <button class="action-btn view-btn" (click)="onView($event)">
+        <mat-icon>visibility</mat-icon>
+        <span>View</span>
+      </button>
+      <button class="action-btn edit-btn" (click)="onEdit($event)">
+        <mat-icon>edit</mat-icon>
+        <span>Edit</span>
+      </button>
+      <button class="action-btn delete-btn" (click)="onDelete($event)">
+        <mat-icon>delete</mat-icon>
+        <span>Delete</span>
+      </button>
+    </div>
+
+    <!-- Meal tags -->
+    <div class="diet-tags-bottom" *ngIf="diet.tags && diet.tags.length > 0">
+      <span class="tag-chip" *ngFor="let tag of diet.tags">{{ tag }}</span>
+    </div>
+    
+    <!-- Nutritional information -->
+    <div class="nutritional-info">
+      <div class="nutrition-item">
+        <span class="nutrition-value">{{ diet.calories }}</span>
+        <span class="nutrition-label">KCAL</span>
+      </div>
+      <div class="nutrition-item">
+        <span class="nutrition-value">{{ diet.protein }}</span>
+        <span class="nutrition-label">PROTEIN</span>
+      </div>
+      <div class="nutrition-item">
+        <span class="nutrition-value">{{ diet.carbs }}</span>
+        <span class="nutrition-label">CARBS</span>
+      </div>
+      <div class="nutrition-item">
+        <span class="nutrition-value">{{ diet.fat }}</span>
+        <span class="nutrition-label">FAT</span>
+      </div>
+      <div class="nutrition-item fiber-item">
+        <span class="nutrition-value">{{ diet.fiber }}</span>
+        <span class="nutrition-label">FIBER</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+

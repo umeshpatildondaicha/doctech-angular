@@ -30,6 +30,12 @@ export const environment = {
     appointments: {
       base: '/api/appointments',
       schedule: '/api/appointments/schedule'
+    },
+    billing: {
+      base: '/api/billing',
+      invoices: '/api/billing/invoices',
+      payments: '/api/billing/payments',
+      pdf: '/api/billing/invoices/pdf'
     }
   },
   
@@ -37,7 +43,8 @@ export const environment = {
   features: {
     enableAnalytics: false,
     enableDebugMode: true,
-    enablePerformanceMonitoring: false
+    enablePerformanceMonitoring: false,
+    enableMockBilling: true
   },
   
   // Security settings

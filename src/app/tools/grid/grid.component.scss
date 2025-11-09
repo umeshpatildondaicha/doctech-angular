@@ -17,23 +17,110 @@
 }
 
 // Enhanced Modern Header
-.grid-header {
-  height: 4em;
+.grid-toolbar {
+  min-height: 4em;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.2em 0.2em;
+  padding: 0.75em 1.25em;
   background: var(--surface-color);
   border-bottom: 1px solid var(--primary-border);
   border-radius: var(--input-radius) var(--input-radius) 0 0;
+  box-shadow: inset 0 -1px 0 rgba(24, 182, 178, 0.1);
+  gap: 1.25em;
+  flex-wrap: wrap;
 }
 
+// Toolbar Left Section
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  min-width: 0;
 
-// Header Center Section
-.header-center {
+  .pagination-info {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(24, 182, 178, 0.08);
+    border-radius: 999px;
+    color: var(--primary-color);
+    font-weight: var(--secondary-font-weight);
+    font-size: calc(var(--tertiary-font-size) - 1px);
+    letter-spacing: 0.015em;
+  }
+
+  .filter-chips {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: clamp(200px, 30vw, 450px);
+    padding-left: 4px;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(24, 182, 178, 0.12);
+    border: 1px solid rgba(24, 182, 178, 0.35);
+    border-radius: 999px;
+    color: var(--primary-font-color);
+    font-size: calc(var(--tertiary-font-size) - 1px);
+    transition: all 0.2s ease;
+
+    .chip-label {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .chip-value {
+      font-weight: var(--secondary-font-weight);
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      background: rgba(24, 182, 178, 0.18);
+      border-color: rgba(24, 182, 178, 0.55);
+      box-shadow: 0 8px 16px -12px rgba(24, 182, 178, 0.85);
+      transform: translateY(-1px);
+    }
+
+    .chip-remove {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      border: none;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      padding: 0;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--primary-color);
+        color: var(--surface-color);
+        box-shadow: 0 4px 10px -6px var(--primary-color);
+      }
+    }
+  }
+}
+
+// Toolbar Center Section
+.toolbar-center {
   flex: 1;
   display: flex;
-  justify-content: start;
+  justify-content: flex-start;
   max-width: 400px;
 
   .search-section {
@@ -42,7 +129,7 @@
 
     .search-input {
       width: 100%;
-      
+
       ::ng-deep {
         .app-input-container {
           box-shadow: var(--primary-shadow);
@@ -59,25 +146,30 @@
   }
 }
 
-// Header Right Section
-.header-right {
+// Toolbar Right Section
+.toolbar-right {
   flex: 0 0 auto;
 
-  .action-buttons {
+  .action-icons {
     display: flex;
     align-items: center;
     gap: 12px;
+    background: rgba(24, 182, 178, 0.06);
+    border-radius: 999px;
+    padding: 6px 10px;
   }
 }
 
-// Modern Action Buttons
-.action-btn {
-  display: flex;
+// Toolbar Action Icon Buttons
+.icon-btn {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--primary-border);
-  border-radius: var(--button-radius);
+  border-radius: 50%;
   background: var(--surface-color);
   color: var(--primary-font-color);
   font-size: var(--tertiary-font-size);
@@ -85,12 +177,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  min-height: 40px;
-
-  .btn-text {
-    font-size: var(--tertiary-font-size);
-    font-weight: var(--secondary-font-weight);
-  }
+  backdrop-filter: blur(4px);
 
   &:hover {
     background: var(--secondary-background-color);
@@ -104,16 +191,44 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
+  &:focus-visible {
+    outline: 2px solid rgba(24, 182, 178, 0.4);
+    outline-offset: 2px;
+  }
+
   // Specific button styles
-  &.refresh-btn {
+  &.add-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color));
+    color: var(--surface-color);
+    border-color: transparent;
+    box-shadow: 0 10px 18px -15px rgba(24, 182, 178, 0.85);
+
     &:hover {
-      background: var(--secondary-background-color);
-      border-color: var(--tertiary-color);
-      color: var(--primary-font-color);
+      border-color: transparent;
+      box-shadow: 0 16px 28px -18px rgba(24, 182, 178, 0.95);
     }
   }
 
+  &.settings-btn {
+    background: rgba(24, 182, 178, 0.08);
+    border-color: rgba(24, 182, 178, 0.25);
+
+    &:hover {
+      background: rgba(24, 182, 178, 0.16);
+      border-color: var(--primary-color);
+      color: var(--primary-color);
+    }
+  }
+
+  &.refresh-btn:hover,
+  &.export-btn:hover {
+    background: var(--secondary-background-color);
+    border-color: var(--tertiary-color);
+    color: var(--primary-font-color);
+  }
+
   &.filter-btn {
+    &.active,
     &:hover {
       background: var(--diet-quinary-color);
       border-color: var(--primary-color);
@@ -137,14 +252,6 @@
       border: 2px solid var(--surface-color);
     }
   }
-
-  &.export-btn {
-    &:hover {
-      background: var(--secondary-background-color);
-      border-color: var(--tertiary-color);
-      color: var(--primary-font-color);
-    }
-  }
 }
 
 
@@ -155,8 +262,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: var(--surface-color);
-
+  background: linear-gradient(160deg, rgba(24, 182, 178, 0.05) 0%, rgba(28, 50, 70, 0.02) 100%);
 }
 
 .grid-wrapper {
@@ -164,6 +270,63 @@
   position: relative;
   overflow: hidden;
   height: 100%;
+  background: var(--surface-color);
+  border-radius: calc(var(--input-radius) + 2px);
+  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(24, 182, 178, 0.08);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(24, 182, 178, 0.07) 0%, rgba(24, 182, 178, 0) 40%);
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 960px) {
+  .grid-toolbar {
+    padding: 0.75em;
+    gap: 0.75em;
+  }
+
+  .toolbar-left {
+    flex: 1 1 100%;
+    justify-content: space-between;
+  }
+
+  .toolbar-center {
+    order: 3;
+    flex-basis: 100%;
+    margin-top: 0.75em;
+  }
+
+  .toolbar-right {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .toolbar-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+
+    .pagination-info {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .filter-chips {
+      max-width: 100%;
+    }
+  }
+
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 // Status Chips for Grid Cells
@@ -342,8 +505,8 @@
 
 // Modern AG-Grid Theme
 ::ng-deep {
-  .modern-grid {
-    &.ag-theme-alpine {
+  .clean-grid {
+    &.ag-theme-clean {
       --ag-background-color: var(--surface-color);
       --ag-foreground-color: var(--primary-font-color);
       --ag-border-color: var(--primary-border);
@@ -411,6 +574,7 @@
       &:last-child {
         border-bottom: none;
       }
+
     }
 
     // Cell styling
@@ -472,6 +636,7 @@
         &:hover {
           background: var(--primary-color);
         }
+
       }
     }
 
@@ -539,7 +704,7 @@
     }
 
     // Remove left border on the first right-pinned grid cell
-    .modern-grid.ag-theme-alpine .ag-cell.ag-cell-first-right-pinned {
+    .clean-grid.ag-theme-clean .ag-cell.ag-cell-first-right-pinned {
       border-left: none !important;
     }
   }
@@ -551,6 +716,23 @@
 
   .mat-mdc-tab-body-content {
     overflow: hidden !important;
+  }
+}
+
+@media print {
+  :host {
+    background: none !important;
+  }
+
+  .grid-toolbar,
+  .grid-content,
+  .grid-wrapper {
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+
+  .grid-wrapper::after {
+    display: none !important;
   }
 }
 

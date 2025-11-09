@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -17,6 +17,11 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import * as Highcharts from 'highcharts';
+import { HighchartsChartModule } from 'highcharts-angular';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 
 // Custom Components
@@ -24,14 +29,24 @@ import { IconComponent } from '../../../tools/app-icon/icon.component';
 import { AppButtonComponent } from '../../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../../tools/app-selectbox/app-selectbox.component';
+import { ExerciseListComponent } from '../../../components/exercise-list/exercise-list.component';
+import { ExerciseCardComponent } from '../../../components/exercise-card/exercise-card.component';
+import { DietPlanCardComponent } from '../../../components/diet-plan-card/diet-plan-card.component';
+import { DietCardComponent } from '../../../components/diet-card/diet-card.component';
+import { PatientBillingDashboardComponent } from '../../billing/patient-billing-dashboard.component';
 import { CustomEventsService } from '../../../services/custom-events.service';
 import { DoctorSearchDialogComponent } from '../../doctor-search-dialog/doctor-search-dialog.component';
 import { AppointmentBookingComponent } from '../../appointment-booking/appointment-booking.component';
+import { ExerciseAssignmentDialogComponent } from '../../exercise-assignment-dialog/exercise-assignment-dialog.component';
+import { DietAssignmentDialogComponent } from '../../diet-assignment-dialog/diet-assignment-dialog.component';
+import { ExerciseSetsConfigDialogComponent } from '../../exercise-sets-config-dialog/exercise-sets-config-dialog.component';
 
 // Import new interfaces
 import { PatientRound, RoundSchedule } from '../../../interfaces/patient-rounds.interface';
 import { MedicineRequest } from '../../../interfaces/medicine-request.interface';
 import { PatientRelative } from '../../../interfaces/patient-relatives.interface';
+import { Exercise } from '../../../interfaces/exercise.interface';
+import { Diet } from '../../../interfaces/diet.interface';
 
 // Interfaces
 interface CareTimetableItem {
@@ -268,12 +283,21 @@ interface VitalTrend {
     MatTooltipModule,
     MatBadgeModule,
     MatExpansionModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatProgressBarModule,
+    HighchartsChartModule,
     ReactiveFormsModule,
     FormsModule,
     IconComponent,
     AppButtonComponent,
     AppInputComponent,
-    AppSelectboxComponent
+    AppSelectboxComponent,
+    ExerciseListComponent,
+    ExerciseCardComponent,
+    DietPlanCardComponent,
+    DietCardComponent,
+    PatientBillingDashboardComponent
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss']
@@ -313,7 +337,10 @@ export class PatientProfileComponent implements OnInit {
     { id: 'care-plan', label: 'Care Plan', icon: 'date_range', badge: 0 },
     { id: 'rounds', label: 'Rounds', icon: 'access_time', badge: 0 },
     { id: 'medicine-requests', label: 'Medicine Requests', icon: 'healing', badge: 0 },
-    { id: 'relatives', label: 'Relatives', icon: 'people', badge: 0 }
+    { id: 'relatives', label: 'Relatives', icon: 'people', badge: 0 },
+    { id: 'exercise-assignment', label: 'Exercise Assignment', icon: 'fitness_center', badge: 0 },
+    { id: 'diet-assignment', label: 'Diet Assignment', icon: 'restaurant_menu', badge: 0 },
+    { id: 'billing', label: 'Billing', icon: 'receipt_long', badge: 0 }
   ];
 
   selectedTab = 'overview';
@@ -331,7 +358,10 @@ export class PatientProfileComponent implements OnInit {
     { id: 'care-plan', label: 'Care Plan', icon: 'date_range', builtIn: true },
     { id: 'rounds', label: 'Rounds', icon: 'access_time', builtIn: true },
     { id: 'medicine-requests', label: 'Medicine Requests', icon: 'healing', builtIn: true },
-    { id: 'relatives', label: 'Relatives', icon: 'people', builtIn: true }
+    { id: 'relatives', label: 'Relatives', icon: 'people', builtIn: true },
+    { id: 'exercise-assignment', label: 'Exercise Assignment', icon: 'fitness_center', builtIn: true },
+    { id: 'diet-assignment', label: 'Diet Assignment', icon: 'restaurant_menu', builtIn: true },
+    { id: 'billing', label: 'Billing', icon: 'receipt_long', builtIn: true }
   ];
 
   showTabConfigDialog = false;
@@ -806,6 +836,54 @@ export class PatientProfileComponent implements OnInit {
   medicineRequests: MedicineRequest[] = [];
   patientRelatives: PatientRelative[] = [];
 
+  // Exercise Assignment
+  exerciseAssignments: any[] = [];
+
+  // Diet Assignment
+  dietAssignments: any[] = [];
+  exerciseAssignmentSearchQuery: string = '';
+  exerciseAssignmentStatusFilter: string = 'all';
+  exerciseAssignmentCategoryFilter: string = 'all';
+  exerciseAssignmentViewMode: 'cards' | 'list' = 'cards';
+  // Diet Assignment redesigned view state
+  dietAssignmentSubtabIndex: number = 0; // 0 = Weekly Plans, 1 = Specific Diet Library
+  selectedDietDayIndex: number = new Date().getDay(); // 0 = Sunday
+  mealTimesForWeeklyPlan: Array<{ label: string; time?: string }> = [
+    { label: 'Breakfast', time: '6:00 AM' },
+    { label: 'Morning Snack', time: '9:00 AM' },
+    { label: 'Lunch', time: '12:30 PM' },
+    { label: 'Evening Snack', time: '4:00 PM' },
+    { label: 'Dinner', time: '8:00 PM' }
+  ];
+  // No embedded catalog; using the dialog for assignments
+  exerciseGroups = [
+    { 
+      id: 1, 
+      name: 'Post-Knee Surgery Rehab', 
+      exercises: [
+        { name: 'Leg Press', category: 'Strength', intensity: 'Low Intensity', details: '3 sets of 10 repetitions' },
+        { name: 'Bicep Curls', category: 'Strength', intensity: 'Low Intensity', details: '3 sets of 12 repetitions' },
+        { name: 'Treadmill Walk', category: 'Cardio', intensity: 'Moderate Intensity', details: '30 minutes, moderate pace' }
+      ]
+    },
+    { 
+      id: 2, 
+      name: 'Low-Impact Cardio', 
+      exercises: [
+        { name: 'Stationary Bike', category: 'Cardio', intensity: 'Low Intensity', details: '20 minutes' },
+        { name: 'Elliptical', category: 'Cardio', intensity: 'Moderate Intensity', details: '15 minutes' },
+        { name: 'Swimming', category: 'Cardio', intensity: 'Low Intensity', details: '30 minutes' }
+      ]
+    }
+  ];
+  individualExercises = [
+    { id: 1, name: 'Leg Press', category: 'Strength', intensity: 'Low Intensity' },
+    { id: 2, name: 'Bicep Curls', category: 'Strength', intensity: 'Low Intensity' },
+    { id: 3, name: 'Treadmill Walk', category: 'Cardio', intensity: 'Moderate Intensity' }
+  ];
+  assignedExercises: Array<{exercise: Exercise, assignedDate: Date, dueDate: Date | null, status: string}> = [];
+  exerciseAssignmentDate = '';
+
   // Chart Data
   vitalTrendsData = [
     { date: '2024-01-15', bp: 150, hr: 75, temp: 98.6, glucose: 200 },
@@ -866,10 +944,26 @@ export class PatientProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get patient data from query parameters
+    // Get patient ID from route params
+    this.route.params.subscribe(params => {
+      const patientId = params['id'];
+      if (patientId) {
+        // Load patient data based on ID
+        // For now, we'll use the ID as is
+        this.patientInfo.id = patientId;
+      }
+    });
+
+    // Get patient data from query parameters and handle tab selection
     this.route.queryParams.subscribe(params => {
       const patientId = params['patientId'];
       const patientName = params['patientName'];
+      const tab = params['tab'];
+      
+      // Handle tab selection from query params
+      if (tab && this.tabs.find(t => t.id === tab)) {
+        this.selectedTab = tab;
+      }
       
       if (patientId && patientName) {
         // Update patient info with the selected patient
@@ -940,6 +1034,9 @@ export class PatientProfileComponent implements OnInit {
 
   onTabChange(tabId: string): void {
     this.selectedTab = tabId;
+    if (tabId === 'exercise-assignment') {
+      this.updateProgressChart();
+    }
   }
 
   // Tabs: helpers and configuration UI logic
@@ -2237,4 +2334,871 @@ export class PatientProfileComponent implements OnInit {
     const diffInDays = Math.floor(diffInHours / 24);
     return `${diffInDays}d ago`;
   }
+
+  formatDate(date: Date): string {
+    const d = new Date(date);
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  }
+
+  formatDateShort(date: Date): string {
+    const d = new Date(date);
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${month}/${day}`;
+  }
+
+  getDietPlanFromAssignment(assignment: any): any {
+    return {
+      planId: assignment.planId || undefined,
+      name: assignment.planName,
+      description: assignment.description,
+      type: assignment.planId ? 'weekly' : 'individual',
+      status: assignment.status.toLowerCase(),
+      duration: assignment.duration,
+      dietsCount: undefined,
+      progress: undefined,
+      startDate: assignment.startDate,
+      endDate: assignment.endDate,
+      assignmentType: assignment.planId ? 'weekly' : 'individual',
+      avgCaloriesPerDay: assignment.avgCaloriesPerDay,
+      keyNutrients: assignment.keyNutrients
+    };
+  }
+
+  // Get mock schedule for a weekly plan (in production, this would come from API)
+  private getMockScheduleForPlan(planId: string): any {
+    // Mock schedule structure: day_0 (Sunday) to day_6 (Saturday)
+    // Each day has meals: [breakfast, morning_snack, lunch, evening_snack, dinner]
+    const mockSchedules: any = {
+      'plan1': {
+        day_0: [ // Sunday
+          [{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }], // Breakfast
+          [], // Morning Snack
+          [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }], // Lunch
+          [], // Evening Snack
+          [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }] // Dinner
+        ],
+        day_1: [ // Monday
+          [{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }],
+          [{ dietId: '7', name: 'Apple with Almonds', calories: 150 }],
+          [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }],
+          [],
+          [{ dietId: '8', name: 'Chicken Salad', calories: 450 }]
+        ],
+        day_2: [ // Tuesday
+          [{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }],
+          [],
+          [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }],
+          [{ dietId: '9', name: 'Trail Mix', calories: 200 }],
+          [{ dietId: '3', name: 'Vegan Buddha Bowl', calories: 380 }]
+        ],
+        day_3: [ // Wednesday
+          [{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }],
+          [],
+          [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }],
+          [],
+          [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }]
+        ],
+        day_4: [ // Thursday
+          [{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }],
+          [{ dietId: '7', name: 'Apple with Almonds', calories: 150 }],
+          [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }],
+          [],
+          [{ dietId: '8', name: 'Chicken Salad', calories: 450 }]
+        ],
+        day_5: [ // Friday
+          [{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }],
+          [],
+          [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }],
+          [{ dietId: '9', name: 'Trail Mix', calories: 200 }],
+          [{ dietId: '3', name: 'Vegan Buddha Bowl', calories: 380 }]
+        ],
+        day_6: [ // Saturday
+          [{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }],
+          [],
+          [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }],
+          [],
+          [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }]
+        ]
+      }
+    };
+    return mockSchedules[planId] || {};
+  }
+
+  // Get weekly assignments (those with planId)
+  getWeeklyDietAssignments(): any[] {
+    return this.dietAssignments.filter(a => a.assignmentType === 'weekly' || a.planId);
+  }
+
+  // Get individual diet assignments (those without planId)
+  getIndividualDietAssignments(): any[] {
+    return this.dietAssignments.filter(a => a.assignmentType === 'individual' || (!a.planId && a.diets));
+  }
+
+  // Get diets organized by day for a weekly plan
+  getDietsByDay(assignment: any): { [key: string]: any[] } {
+    if (!assignment.schedule) return {};
+    
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const result: { [key: string]: any[] } = {};
+    
+    days.forEach((dayName, index) => {
+      const dayKey = `day_${index}`;
+      const daySchedule = assignment.schedule[dayKey];
+      if (daySchedule && daySchedule.length > 0) {
+        result[dayName] = [];
+        daySchedule.forEach((meal: any[]) => {
+          if (meal && meal.length > 0) {
+            result[dayName].push(...meal);
+          }
+        });
+      }
+    });
+    
+    return result;
+  }
+
+  // Helper method to get diets array from day entry (for template usage)
+  getDietsArray(dayEntry: any): any[] {
+    if (!dayEntry || !dayEntry.value) return [];
+    return Array.isArray(dayEntry.value) ? dayEntry.value : [];
+  }
+
+  // Get days array for tabs
+  getWeekDays(): string[] {
+    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  }
+
+  // Get short day name for tabs
+  getShortDayName(dayName: string): string {
+    const shortNames: { [key: string]: string } = {
+      'Sunday': 'Sun',
+      'Monday': 'Mon',
+      'Tuesday': 'Tue',
+      'Wednesday': 'Wed',
+      'Thursday': 'Thu',
+      'Friday': 'Fri',
+      'Saturday': 'Sat'
+    };
+    return shortNames[dayName] || dayName;
+  }
+
+  // Get diets for a specific day
+  getDietsForDay(assignment: any, dayName: string): any[] {
+    const dietsByDay = this.getDietsByDay(assignment);
+    return dietsByDay[dayName] || [];
+  }
+
+  // Get total weekly diets count
+  getTotalWeeklyDiets(assignment: any): number {
+    const days = this.getWeekDays();
+    let total = 0;
+    for (const day of days) {
+      total += this.getDietsForDay(assignment, day).length;
+    }
+    return total;
+  }
+
+  // Get total individual diets count
+  getTotalIndividualDiets(): number {
+    const assignments = this.getIndividualDietAssignments();
+    let total = 0;
+    for (const assignment of assignments) {
+      total += this.getIndividualDietsFromAssignment(assignment).length;
+    }
+    return total;
+  }
+
+  // Track selected day tab for each weekly plan
+  selectedDayTab: { [planId: string]: string } = {};
+
+  selectDayTab(planId: string, dayName: string): void {
+    this.selectedDayTab[planId] = dayName;
+  }
+
+  getSelectedDayTab(planId: string): string {
+    if (this.selectedDayTab[planId]) {
+      return this.selectedDayTab[planId];
+    }
+    
+    // Find the assignment to get its schedule
+    const assignment = this.dietAssignments.find(a => a.planId === planId);
+    if (assignment) {
+      const days = this.getWeekDays();
+      const dietsByDay = this.getDietsByDay(assignment);
+      // Find first day with diets
+      const firstDayWithDiets = days.find(day => dietsByDay[day] && dietsByDay[day].length > 0);
+      return firstDayWithDiets || days[0];
+    }
+    
+    return this.getWeekDays()[0];
+  }
+
+  // Get all individual diets from an assignment
+  getIndividualDietsFromAssignment(assignment: any): any[] {
+    return assignment.diets || [];
+  }
+
+  // Convert schedule diet item to full Diet object
+  getDietObjectFromSchedule(scheduleItem: any): Diet {
+    // Find the diet in mock data or create a basic Diet object
+    const mockDiets: any = {
+      '1': { dietId: '1', name: 'Balanced Veg Bowl', description: 'Quinoa, chickpeas, mixed veggies, olive oil dressing.', dietType: 'Mediterranean', calories: 520, protein: 22, carbs: 68, fat: 18, fiber: 11, isActive: true, tags: ['lunch'] },
+      '2': { dietId: '2', name: 'Keto Chicken Salad', description: 'Grilled chicken, avocado, mixed greens, olive oil.', dietType: 'Keto', calories: 450, protein: 35, carbs: 8, fat: 32, fiber: 6, isActive: true, tags: ['lunch'] },
+      '3': { dietId: '3', name: 'Vegan Buddha Bowl', description: 'Brown rice, tofu, vegetables, tahini dressing.', dietType: 'Vegan', calories: 380, protein: 18, carbs: 45, fat: 15, fiber: 12, isActive: true, tags: ['dinner'] },
+      '4': { dietId: '4', name: 'Morning Oatmeal', description: 'Steel-cut oats with berries, nuts, and honey.', dietType: 'Mediterranean', calories: 320, protein: 12, carbs: 55, fat: 8, fiber: 8, isActive: true, tags: ['breakfast'] },
+      '5': { dietId: '5', name: 'Greek Yogurt Parfait', description: 'Greek yogurt with granola, honey, and fresh fruits.', dietType: 'Mediterranean', calories: 280, protein: 20, carbs: 35, fat: 6, fiber: 4, isActive: true, tags: ['breakfast'] },
+      '6': { dietId: '6', name: 'Grilled Salmon', description: 'Fresh salmon with vegetables and quinoa.', dietType: 'Mediterranean', calories: 480, protein: 35, carbs: 30, fat: 22, fiber: 5, isActive: true, tags: ['dinner'] },
+      '7': { dietId: '7', name: 'Apple with Almonds', description: 'Fresh apple with a handful of almonds.', dietType: 'Mediterranean', calories: 150, protein: 5, carbs: 20, fat: 8, fiber: 4, isActive: true, tags: ['snack'] },
+      '8': { dietId: '8', name: 'Chicken Salad', description: 'Grilled chicken breast with mixed greens.', dietType: 'Mediterranean', calories: 450, protein: 40, carbs: 15, fat: 25, fiber: 6, isActive: true, tags: ['dinner'] },
+      '9': { dietId: '9', name: 'Trail Mix', description: 'Mixed nuts, dried fruits, and seeds.', dietType: 'Mediterranean', calories: 200, protein: 6, carbs: 18, fat: 12, fiber: 3, isActive: true, tags: ['snack'] }
+    };
+
+    const fullDiet = mockDiets[scheduleItem.dietId];
+    if (fullDiet) {
+      return {
+        ...fullDiet,
+        createdAt: new Date(),
+        createdByDoctorId: 'doc1'
+      } as Diet;
+    }
+
+    // Fallback: create minimal Diet object from schedule item
+    return {
+      dietId: scheduleItem.dietId || 'unknown',
+      name: scheduleItem.name || 'Unknown Diet',
+      description: '',
+      dietType: 'Mediterranean',
+      calories: scheduleItem.calories || 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      fiber: 0,
+      createdByDoctorId: 'doc1',
+      createdAt: new Date(),
+      isActive: true,
+      tags: []
+    } as Diet;
+  }
+
+  viewDietDetails(diet: any): void {
+    console.log('View diet details:', diet);
+    // TODO: Open view dialog
+  }
+
+  editDietDetails(diet: any): void {
+    console.log('Edit diet details:', diet);
+    // TODO: Open edit dialog
+  }
+
+  removeDietFromAssignment(diet: Diet, assignment: any): void {
+    if (confirm('Are you sure you want to remove this diet from the assignment?')) {
+      const diets = assignment.diets || [];
+      const index = diets.findIndex((d: Diet) => d.dietId === diet.dietId);
+      if (index > -1) {
+        diets.splice(index, 1);
+        // Update assignment
+        assignment.dietIds = diets.map((d: Diet) => d.dietId);
+        if (diets.length === 0) {
+          // Remove entire assignment if no diets left
+          this.removeDietAssignment(assignment);
+        }
+      }
+    }
+  }
+
+  // Exercise Assignment Methods
+  openExerciseAssignmentDialog(): void {
+    const dialogRef = this.dialog.open(ExerciseAssignmentDialogComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        patientName: this.patientInfo.name,
+        patientId: this.patientInfo.id || '',
+        exerciseGroups: this.exerciseGroups.map(group => ({
+          groupId: group.id?.toString() || `GROUP${Date.now()}`,
+          groupName: group.name,
+          description: '',
+          category: '',
+          difficulty: '',
+          exercises: group.exercises.map(ex => this.mapExerciseToInterface(ex))
+        })),
+        availableExercises: this.individualExercises.map(ex => this.mapExerciseToInterface(ex))
+      },
+      disableClose: true,
+      panelClass: 'exercise-assignment-dialog-panel'
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.exercises && result.exercises.length > 0) {
+        // Store Exercise objects directly
+        result.exercises.forEach((exercise: Exercise) => {
+          this.assignedExercises.push({
+            exercise: exercise,
+            assignedDate: result.assignmentDate || new Date(),
+            dueDate: result.endDate || null,
+            status: 'Active'
+          });
+        });
+        this.updateProgressChart();
+      }
+    });
+  }
+
+  // Diet Assignment Methods
+  openDietAssignmentDialog(defaultType?: 'weekly' | 'individual', defaultStartDate?: Date, defaultEndDate?: Date): void {
+    // Mock diet plans data (in production, fetch from service)
+    const mockDietPlans = [
+      {
+        planId: 'plan1',
+        name: 'Weekly Mediterranean Plan',
+        description: 'A balanced 7-day Mediterranean diet plan for healthy eating',
+        type: 'weekly',
+        status: 'active',
+        duration: 7,
+        dietsCount: 21,
+        progress: 75,
+        createdAt: new Date('2024-01-15')
+      },
+      {
+        planId: 'plan2',
+        name: 'Keto Weight Loss Plan',
+        description: '4-week ketogenic diet plan for weight loss',
+        type: 'monthly',
+        status: 'active',
+        duration: 28,
+        dietsCount: 84,
+        progress: 45,
+        createdAt: new Date('2024-01-10')
+      },
+      {
+        planId: 'plan3',
+        name: 'Vegan Wellness Plan',
+        description: 'Plant-based diet plan for overall wellness',
+        type: 'custom',
+        status: 'active',
+        duration: 14,
+        dietsCount: 42,
+        progress: 0,
+        createdAt: new Date('2024-01-20')
+      }
+    ];
+
+    // Mock individual diets data (in production, fetch from service)
+    const mockIndividualDiets = [
+      {
+        dietId: '1',
+        name: 'Balanced Veg Bowl',
+        description: 'Quinoa, chickpeas, mixed veggies, olive oil dressing.',
+        dietType: 'Mediterranean',
+        calories: 520,
+        protein: 22,
+        carbs: 68,
+        fat: 18,
+        fiber: 11,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        tags: ['lunch', 'quick']
+      },
+      {
+        dietId: '2',
+        name: 'Keto Chicken Salad',
+        description: 'Grilled chicken, avocado, mixed greens, olive oil.',
+        dietType: 'Keto',
+        calories: 450,
+        protein: 35,
+        carbs: 8,
+        fat: 32,
+        fiber: 6,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        tags: ['lunch', 'high-protein']
+      },
+      {
+        dietId: '3',
+        name: 'Vegan Buddha Bowl',
+        description: 'Brown rice, tofu, vegetables, tahini dressing.',
+        dietType: 'Vegan',
+        calories: 380,
+        protein: 18,
+        carbs: 45,
+        fat: 15,
+        fiber: 12,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        tags: ['dinner', 'plant-based']
+      },
+      {
+        dietId: '4',
+        name: 'Morning Oatmeal',
+        description: 'Steel-cut oats with berries, nuts, and honey.',
+        dietType: 'Mediterranean',
+        calories: 320,
+        protein: 12,
+        carbs: 55,
+        fat: 8,
+        fiber: 8,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        tags: ['breakfast', 'fiber-rich']
+      },
+      {
+        dietId: '5',
+        name: 'Greek Yogurt Parfait',
+        description: 'Greek yogurt with granola, honey, and fresh fruits.',
+        dietType: 'Mediterranean',
+        calories: 280,
+        protein: 20,
+        carbs: 35,
+        fat: 6,
+        fiber: 4,
+        createdByDoctorId: 'doc1',
+        createdAt: new Date(),
+        isActive: true,
+        tags: ['breakfast', 'protein-rich']
+      }
+    ];
+
+    const dialogRef = this.dialog.open(DietAssignmentDialogComponent, {
+      width: '1200px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: {
+        patientName: this.patientInfo.name,
+        patientId: this.patientInfo.id || '',
+        availableDietPlans: mockDietPlans,
+        individualDiets: mockIndividualDiets,
+        patientAllergies: this.patientInfo.allergies || []
+      },
+      disableClose: true,
+      panelClass: 'diet-assignment-dialog-panel'
+    });
+
+    // Default dialog mode/dates if requested
+    if (defaultType) {
+      dialogRef.componentInstance.assignmentType = defaultType;
+    }
+    if (defaultStartDate) {
+      dialogRef.componentInstance.startDate = defaultStartDate;
+    }
+    if (defaultEndDate) {
+      dialogRef.componentInstance.endDate = defaultEndDate;
+    }
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.assignedPlan) {
+        const assignedPlan = result.assignedPlan;
+        const startDate = new Date(assignedPlan.startDate);
+        const endDate = new Date(assignedPlan.endDate);
+
+        if (assignedPlan.assignmentType === 'weekly') {
+          // Get the full plan schedule from mock data
+          const schedule = this.getMockScheduleForPlan(assignedPlan.planId);
+          
+          this.dietAssignments.push({
+            planId: assignedPlan.planId,
+            planName: assignedPlan.name,
+            duration: assignedPlan.duration,
+            description: assignedPlan.description,
+            startDate: startDate,
+            endDate: endDate,
+            status: 'Active',
+            assignmentType: 'weekly',
+            schedule: schedule
+          });
+        } else if (assignedPlan.assignmentType === 'individual') {
+          // Store individual Diet objects
+          const selectedDiets = result.selectedDiets || [];
+          this.dietAssignments.push({
+            planId: null,
+            planName: assignedPlan.name,
+            duration: assignedPlan.duration,
+            description: assignedPlan.description,
+            startDate: startDate,
+            endDate: endDate,
+            status: 'Active',
+            assignmentType: 'individual',
+            dietIds: assignedPlan.dietIds,
+            diets: selectedDiets // Store full diet objects
+          });
+        }
+      }
+    });
+  }
+
+  // New UI helpers for the redesigned Diet Assignment representation
+  getActiveWeeklyPlanAssignment(): any | null {
+    const weekly = this.getWeeklyDietAssignments();
+    if (!weekly || weekly.length === 0) { return null; }
+    // Pick the most recent by startDate
+    return [...weekly].sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())[0];
+  }
+
+  onSelectDietDayIndex(index: number): void {
+    this.selectedDietDayIndex = index;
+  }
+
+  getMealsForSelectedDay(assignment: any): Array<{ label: string; time?: string; diets: any[] }> {
+    if (!assignment || !assignment.schedule) return [];
+    const dayKey = `day_${this.selectedDietDayIndex}`;
+    const mealsForDay: any[][] = assignment.schedule[dayKey] || [];
+    const results: Array<{ label: string; time?: string; diets: any[] }> = [];
+    for (let i = 0; i < this.mealTimesForWeeklyPlan.length; i++) {
+      const diets = mealsForDay[i] || [];
+      const mealTime = this.mealTimesForWeeklyPlan[i];
+      results.push({ 
+        label: mealTime?.label || `Meal ${i + 1}`, 
+        time: mealTime?.time,
+        diets 
+      });
+    }
+    return results;
+  }
+
+  // Get total for a specific nutrition value across all diets in a meal
+  getMealTotal(diets: any[], nutritionType: 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber'): number {
+    let total = 0;
+    for (const diet of diets) {
+      const dietObj = this.getDietObjectFromSchedule(diet);
+      const value = dietObj[nutritionType] || 0;
+      total += typeof value === 'number' ? value : 0;
+    }
+    return total;
+  }
+
+  assignSpecificDietForToday(): void {
+    const today = new Date();
+    // set endDate to same day
+    this.openDietAssignmentDialog('individual', today, today);
+  }
+
+  createWeeklyPlan(): void {
+    this.router.navigate(['/diet-plan-create']);
+  }
+
+  private mapExerciseToInterface(exercise: any): any {
+    return {
+      exerciseId: exercise.id?.toString() || `EX${Date.now()}`,
+      name: exercise.name,
+      description: exercise.description || '',
+      createdByDoctorId: 'DOC001',
+      exerciseType: exercise.category || 'Strength',
+      category: exercise.category || 'Strength',
+      difficulty: this.mapIntensityToDifficulty(exercise.intensity),
+      targetMuscles: exercise.targetMuscles || [],
+      equipment: exercise.equipment || [],
+      tags: exercise.tags || [],
+      coachingCues: exercise.coachingCues || '',
+      contraindications: exercise.contraindications || '',
+      sets: exercise.sets || [],
+      imageUrl: exercise.imageUrl || '',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  private mapIntensityToDifficulty(intensity: string): string {
+    if (!intensity) return 'Beginner';
+    if (intensity.includes('Low')) return 'Beginner';
+    if (intensity.includes('Moderate')) return 'Intermediate';
+    return 'Advanced';
+  }
+
+  viewExerciseDetails(assignment: any): void {
+    console.log('View exercise details:', assignment);
+    // TODO: Open view dialog for exercise
+  }
+
+  editExerciseSets(assignment: any): void {
+    const dialogRef = this.dialog.open(ExerciseSetsConfigDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      data: {
+        exercise: assignment.exercise,
+        mode: 'edit'
+      },
+      disableClose: true
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result && result.sets) {
+        // Update the exercise's sets
+        assignment.exercise.sets = result.sets;
+        // Update exercise details if provided
+        if (result.details) {
+          assignment.exercise.details = result.details;
+        }
+      }
+    });
+  }
+
+  getAverageReps(sets: any[]): number {
+    if (!sets || sets.length === 0) return 0;
+    const totalReps = sets.reduce((sum, set) => sum + (set.reps || 0), 0);
+    return Math.round(totalReps / sets.length);
+  }
+
+  removeAssignedExercise(assignment: any): void {
+    if (confirm('Are you sure you want to remove this exercise assignment?')) {
+      const index = this.assignedExercises.findIndex(a => a === assignment);
+      if (index > -1) {
+        this.assignedExercises.splice(index, 1);
+      }
+      this.updateProgressChart();
+    }
+  }
+
+  // Exercise Assignment Dashboard Methods
+  getActiveAssignmentsCount(): number {
+    return this.exerciseAssignments.filter(a => a.status === 'Active').length;
+  }
+
+  getCompletedAssignmentsCount(): number {
+    return this.exerciseAssignments.filter(a => a.status === 'Completed').length;
+  }
+
+  getUniqueCategoriesCount(): number {
+    const categories = new Set(this.exerciseAssignments.map(a => a.category));
+    return categories.size;
+  }
+
+  // Diet Assignment Dashboard Methods
+  getActiveDietAssignmentsCount(): number {
+    return this.dietAssignments.filter(a => a.status === 'Active').length;
+  }
+
+  getCompletedDietAssignmentsCount(): number {
+    return this.dietAssignments.filter(a => a.status === 'Completed').length;
+  }
+
+  // Diet Assignment Actions
+  viewDietAssignment(diet: any): void {
+    // TODO: Open view dialog for diet assignment
+    console.log('View diet assignment:', diet);
+  }
+
+  editDietAssignment(diet: any): void {
+    // TODO: Open edit dialog for diet assignment
+    console.log('Edit diet assignment:', diet);
+    // Could reuse the DietAssignmentDialogComponent with edit mode
+  }
+
+  removeDietAssignment(diet: any): void {
+    // TODO: Confirm deletion and remove from list
+    const index = this.dietAssignments.findIndex(a => 
+      (a.planId && diet.planId && a.planId === diet.planId) ||
+      (a.startDate && diet.startDate && new Date(a.startDate).getTime() === new Date(diet.startDate).getTime())
+    );
+    if (index > -1) {
+      this.dietAssignments.splice(index, 1);
+    }
+  }
+
+  getFilteredExerciseAssignments(): any[] {
+    return this.exerciseAssignments.filter(assignment => {
+      // Search filter
+      const matchesSearch = !this.exerciseAssignmentSearchQuery || 
+        assignment.exerciseName.toLowerCase().includes(this.exerciseAssignmentSearchQuery.toLowerCase()) ||
+        assignment.category.toLowerCase().includes(this.exerciseAssignmentSearchQuery.toLowerCase()) ||
+        assignment.details.toLowerCase().includes(this.exerciseAssignmentSearchQuery.toLowerCase());
+
+      // Status filter
+      const matchesStatus = this.exerciseAssignmentStatusFilter === 'all' || 
+        assignment.status === this.exerciseAssignmentStatusFilter;
+
+      // Category filter
+      const matchesCategory = this.exerciseAssignmentCategoryFilter === 'all' || 
+        assignment.category === this.exerciseAssignmentCategoryFilter;
+
+      return matchesSearch && matchesStatus && matchesCategory;
+    });
+  }
+
+  clearExerciseAssignmentFilters(): void {
+    this.exerciseAssignmentSearchQuery = '';
+    this.exerciseAssignmentStatusFilter = 'all';
+    this.exerciseAssignmentCategoryFilter = 'all';
+  }
+
+  editExerciseAssignment(assignment: any): void {
+    console.log('Edit exercise assignment:', assignment);
+    // TODO: Open edit dialog
+  }
+
+  toggleExerciseAssignmentStatus(assignment: any): void {
+    if (assignment.status === 'Active') {
+      assignment.status = 'Paused';
+    } else if (assignment.status === 'Paused') {
+      assignment.status = 'Active';
+    }
+    this.updateProgressChart();
+  }
+
+  markExerciseAssignmentComplete(assignment: any): void {
+    assignment.status = 'Completed';
+    assignment.completedDate = new Date();
+    this.updateProgressChart();
+  }
+
+  deleteExerciseAssignment(assignment: any): void {
+    if (confirm('Are you sure you want to delete this exercise assignment?')) {
+      const index = this.exerciseAssignments.findIndex(a => a === assignment);
+      if (index > -1) {
+        this.exerciseAssignments.splice(index, 1);
+      }
+      this.updateProgressChart();
+    }
+  }
+
+  // Get assigned exercises for display
+  getAssignedExercisesForDisplay(): Exercise[] {
+    return this.assignedExercises.map((assignment) => assignment.exercise);
+  }
+
+  // Progress helpers
+  getAssignmentProgress(assignment: any): number {
+    const start = new Date(assignment.assignedDate).getTime();
+    const end = assignment.dueDate ? new Date(assignment.dueDate).getTime() : start;
+    const now = Date.now();
+    if (end <= start) {
+      return now >= start ? 100 : 0;
+    }
+    const pct = ((now - start) / (end - start)) * 100;
+    return Math.max(0, Math.min(100, Math.round(pct)));
+  }
+
+  getDaysLeft(assignment: any): number | null {
+    if (!assignment.dueDate) return null;
+    const end = new Date(assignment.dueDate).getTime();
+    const days = Math.ceil((end - Date.now()) / (1000 * 60 * 60 * 24));
+    return days;
+  }
+
+  // Highcharts - Progress chart
+  Highcharts: typeof Highcharts = Highcharts;
+  progressChartOptions: Highcharts.Options = {
+    chart: { type: 'line', height: 400, backgroundColor: 'transparent' },
+    title: { text: 'Exercise Duration Over Time' },
+    credits: { enabled: false },
+    xAxis: { 
+      title: { text: 'Days' },
+      categories: [],
+      labels: { format: 'Day {value}' }
+    },
+    yAxis: {
+      min: 0,
+      title: { text: 'Duration (minutes)' },
+      labels: { format: '{value} min' }
+    },
+    tooltip: {
+      useHTML: true,
+      formatter: function (this: any) {
+        return `<b>Day ${this.x}</b><br/><b>${this.series.name}</b><br/>Duration: <b>${this.y} min</b>`;
+      }
+    },
+    plotOptions: {
+      line: {
+        marker: { enabled: true, radius: 4 },
+        lineWidth: 2
+      }
+    },
+    legend: { enabled: true },
+    series: []
+  };
+
+  private updateProgressChart(): void {
+    if (this.exerciseAssignments.length === 0) {
+      this.progressChartOptions = {
+        ...this.progressChartOptions,
+        xAxis: { ...(this.progressChartOptions.xAxis as Highcharts.XAxisOptions), categories: [] },
+        series: []
+      };
+      return;
+    }
+
+    // Calculate days range from earliest start to latest end (or today if no end)
+    const DAY = 1000 * 60 * 60 * 24;
+    const now = Date.now();
+    let minStartDay = Number.MAX_SAFE_INTEGER;
+    let maxEndDay = 0;
+    
+    for (const a of this.exerciseAssignments) {
+      const startMs = new Date(a.assignedDate).getTime();
+      const endMs = a.dueDate ? new Date(a.dueDate).getTime() : now;
+      const startDay = Math.floor((startMs - now) / DAY);
+      const endDay = Math.ceil((endMs - now) / DAY);
+      minStartDay = Math.min(minStartDay, startDay);
+      maxEndDay = Math.max(maxEndDay, endDay);
+    }
+
+    // Generate day categories (0, 1, 2, ...)
+    const totalDays = Math.max(1, maxEndDay - minStartDay + 1);
+    const dayCategories: string[] = [];
+    for (let d = 0; d < totalDays; d++) {
+      dayCategories.push(d.toString());
+    }
+
+    // Generate series data for each exercise (one line per exercise)
+    const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+    const series: any[] = [];
+    
+    for (let i = 0; i < this.exerciseAssignments.length; i++) {
+      const a = this.exerciseAssignments[i];
+      const assignmentStart = new Date(a.assignedDate).getTime();
+      const assignmentEnd = a.dueDate ? new Date(a.dueDate).getTime() : now;
+      const startDayOffset = Math.floor((assignmentStart - now) / DAY);
+      const endDayOffset = Math.ceil((assignmentEnd - now) / DAY);
+
+      // Parse duration from details (e.g., "30 minutes" or "3 sets of 10 repetitions")
+      let baseDuration = 15; // default 15 min
+      if (a.details) {
+        const minMatch = a.details.match(/(\d+)\s*min/i);
+        if (minMatch) {
+          baseDuration = Number.parseInt(minMatch[1], 10);
+        } else if (a.category === 'Cardio') {
+          baseDuration = 30;
+        } else if (a.category === 'Strength') {
+          baseDuration = 20;
+        }
+      }
+
+      // Generate data points for each day (0 to totalDays-1)
+      const exerciseData: (number | null)[] = [];
+      for (let day = 0; day < totalDays; day++) {
+        const actualDay = minStartDay + day;
+        if (actualDay >= startDayOffset && actualDay <= endDayOffset) {
+          // Within assignment period - show duration (with some variation for realism)
+          const variation = 0.8 + (Math.random() * 0.4); // 80% to 120% of base
+          exerciseData.push(Math.round(baseDuration * variation));
+        } else {
+          // Outside assignment period - null (no data point)
+          exerciseData.push(null);
+        }
+      }
+
+      series.push({
+        type: 'line',
+        name: a.exerciseName,
+        color: colors[i % colors.length],
+        data: exerciseData
+      });
+    }
+
+    this.progressChartOptions = {
+      ...this.progressChartOptions,
+      chart: { ...(this.progressChartOptions.chart as Highcharts.ChartOptions), height: 400, type: 'line' },
+      xAxis: { ...(this.progressChartOptions.xAxis as Highcharts.XAxisOptions), categories: dayCategories },
+      series: series
+    };
+  }
+
+  
 }

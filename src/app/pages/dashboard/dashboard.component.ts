@@ -540,6 +540,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/chat'], { queryParams: { patientId } });
   }
 
+  viewPatientProfile() {
+    if (this.nextPatient?.id) {
+      this.router.navigate(['/patient', this.nextPatient.id]);
+    }
+  }
+
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);

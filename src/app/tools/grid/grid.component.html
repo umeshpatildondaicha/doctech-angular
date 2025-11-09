@@ -1,8 +1,20 @@
 <div class="grid-container">
-  <!-- Enhanced Grid Header -->
-  <div class="grid-header" *ngIf="showHeader">
+  <!-- Clean Grid Toolbar -->
+  <div class="grid-toolbar" *ngIf="showHeader">
+    <div class="toolbar-left">
+      <span class="pagination-info">Displaying {{ displayedRows }} of {{ totalRows }}</span>
+      
+      <!-- Filter Chips -->
+      <div class="filter-chips" *ngIf="activeFilterChips.length > 0">
+        <div class="filter-chip" *ngFor="let chip of activeFilterChips">
+          <span class="chip-label">{{ chip.label }}:</span>
+          <span class="chip-value">{{ chip.value }}</span>
+          <button type="button" class="chip-remove" (click)="removeFilterChip(chip.field)" title="Remove filter" aria-label="Remove filter">×</button>
+        </div>
+      </div>
+    </div>
     
-    <div class="header-center">
+    <div class="toolbar-center">
       <div class="search-section">
         <app-input
           [placeholder]="searchPlaceholder"
@@ -15,66 +27,37 @@
       </div>
     </div>
     
-    <div class="header-right">
-      <div class="action-buttons">
+    <div class="toolbar-right">
+      <div class="action-icons">
         <ng-container *ngTemplateOutlet="rightTooltemplateRef"></ng-container>
         
-        <button class="action-btn refresh-btn" (click)="onRefresh()" title="Refresh Data">
-          <app-icon 
-            fontSet="material-icons-outlined" 
-            fontIcon="refresh" 
-            [size]="18">
-          </app-icon>
-          <span class="btn-text">Refresh</span>
+        <button class="icon-btn add-btn" (click)="onAddClick()" title="Add New" *ngIf="showAddButton">
+          <mat-icon>add_circle_outline</mat-icon>
         </button>
         
-        <button class="action-btn filter-btn" (click)="onFilterClick()" title="Advanced Filters">
-          <app-icon 
-            fontSet="material-icons-outlined" 
-            fontIcon="filter_list" 
-            [size]="18">
-          </app-icon>
-          <span class="btn-text">Filter</span>
-          <span class="filter-badge" *ngIf="activeFiltersCount > 0">{{ activeFiltersCount }}</span>
+        <button class="icon-btn refresh-btn" (click)="onRefresh()" title="Refresh">
+          <mat-icon>sync</mat-icon>
         </button>
         
-        <button class="action-btn export-btn" (click)="onExport()" title="Export Data">
-          <app-icon 
-            fontSet="material-icons-outlined" 
-            fontIcon="file_download" 
-            [size]="18">
-          </app-icon>
-          <span class="btn-text">Export</span>
+        <button class="icon-btn filter-btn" (click)="onFilterClick()" title="Filter" [class.active]="activeFiltersCount > 0">
+          <mat-icon>tune</mat-icon>
         </button>
-<!-- 
-        <div class="view-toggle" *ngIf="cardTemplate">
-          <button 
-            class="view-btn" 
-            [class.active]="viewMode === 'list'"
-            (click)="switchToListView()" 
-            title="List View">
-            <app-icon fontIcon="view_list" [size]="18"></app-icon>
-          </button>
-          <button 
-            class="view-btn" 
-            [class.active]="viewMode === 'card'"
-            (click)="switchToCardView()" 
-            title="Card View">
-            <app-icon fontIcon="view_module" [size]="18"></app-icon>
-          </button>
-        </div> -->
+        
+        <button class="icon-btn settings-btn" (click)="onColumnSettingsClick()" title="Column Settings">
+          <mat-icon>settings_applications</mat-icon>
+        </button>
       </div>
     </div>
   </div>
   
-  <!-- Modern Grid Content -->
+  <!-- Grid Content -->
   <div class="grid-content">
     <div class="grid-wrapper">
       <!-- List View (AG-Grid) -->
       <ag-grid-angular
         *ngIf="isBrowser && viewMode === 'list'"
         [rowData]="filteredRowData"
-        class="modern-grid ag-theme-alpine"
+        class="clean-grid ag-theme-clean"
         [columnDefs]="processedColumnDefs"
         [gridOptions]="gridOptions"
         [domLayout]="domLayout"
@@ -82,8 +65,9 @@
         [class]="class"
         [style.width]="width"
         [style.height]="'100%'"
-        (rowClicked)="onRowClicked($event)"
-        >
+        (gridReady)="onGridReady($event)"
+        (modelUpdated)="onModelUpdated($event)"
+        (rowClicked)="onRowClicked($event)">
       </ag-grid-angular>
 
       <!-- Card View (Custom Template) -->
@@ -97,27 +81,6 @@
       <div class="grid-loading" *ngIf="!isBrowser">
         <div class="loading-spinner"></div>
         <span>Loading grid...</span>
-      </div>
-      
-      <!-- Empty State -->
-      <div class="grid-empty" *ngIf="isBrowser && (!filteredRowData || filteredRowData.length === 0)">
-        <div class="empty-icon">
-          <app-icon 
-            fontSet="material-icons-outlined" 
-            fontIcon="table_chart" 
-            [size]="48">
-          </app-icon>
-        </div>
-        <h4>No Data Available</h4>
-        <p>There are no records to display at the moment.</p>
-        <button class="empty-action-btn" (click)="onRefresh()">
-          <app-icon 
-            fontSet="material-icons-outlined" 
-            fontIcon="refresh" 
-            [size]="16">
-          </app-icon>
-          Refresh Data
-        </button>
       </div>
     </div>
   </div>

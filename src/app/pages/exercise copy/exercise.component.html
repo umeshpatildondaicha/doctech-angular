@@ -132,68 +132,17 @@
 
           <!-- Exercise Cards Grid -->
           <div class="cards-grid" *ngIf="getFilteredExercises().length > 0; else noResults">
-            <mat-card class="exercise-card" *ngFor="let exercise of getFilteredExercises()">
-              <!-- Exercise Image -->
-              <div class="card-media">
-                <img *ngIf="exercise.imageUrl" [src]="exercise.imageUrl" [alt]="exercise.name">
-                <div class="media-placeholder" *ngIf="!exercise.imageUrl">
-                  <mat-icon>fitness_center</mat-icon>
-                  <span>No Image</span>
-                </div>
-                <div class="card-badge" [class]="'badge-' + exercise.category.toLowerCase()">
-                  {{ exercise.category }}
-                </div>
-              </div>
-
-              <!-- Exercise Details -->
-              <div class="card-content">
-                <h3 class="exercise-name">{{ exercise.name }}</h3>
-                <div class="exercise-category">
-                  <mat-chip class="category-chip">{{ exercise.category }}</mat-chip>
-                  <span class="difficulty-text">{{ exercise.difficulty }}</span>
-                </div>
-                <p class="exercise-description">{{ exercise.description }}</p>
-                
-                <!-- Tags -->
-                <div class="exercise-tags" *ngIf="exercise.tags && exercise.tags.length > 0">
-                  <mat-chip *ngFor="let tag of exercise.tags" class="tag-chip">
-                    {{ tag }}
-                  </mat-chip>
-                </div>
-
-                <!-- Sets and Muscles -->
-                <div class="exercise-details">
-                  <div class="detail-item">
-                    <mat-icon>repeat</mat-icon>
-                    <span>{{ getSetsDisplay(exercise) }}</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>fitness_center</mat-icon>
-                    <span>{{ exercise.targetMuscles.join(', ') }}</span>
-                  </div>
-                  <div class="detail-item" *ngIf="exercise.equipment && exercise.equipment.length > 0">
-                    <mat-icon>build</mat-icon>
-                    <span>{{ exercise.equipment.join(', ') }}</span>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="card-actions">
-                  <button mat-stroked-button color="primary" class="action-btn view-btn" (click)="onViewExercise({data: exercise})" matTooltip="View exercise details">
-                    <mat-icon>visibility</mat-icon>
-                    View
-                  </button>
-                  <button mat-stroked-button color="accent" class="action-btn edit-btn" (click)="onEditExercise({data: exercise})" matTooltip="Edit exercise">
-                    <mat-icon>edit</mat-icon>
-                    Edit
-                  </button>
-                  <button mat-stroked-button color="warn" class="action-btn delete-btn" (click)="onDeleteExercise({data: exercise})" matTooltip="Delete exercise">
-                    <mat-icon>delete</mat-icon>
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </mat-card>
+            <app-exercise-card 
+              *ngFor="let exercise of getFilteredExercises()"
+              [exercise]="exercise"
+              [showActions]="true"
+              [clickable]="true"
+              [allowSelection]="false"
+              (cardClick)="onViewExercise({data: exercise})"
+              (viewClick)="onViewExercise({data: exercise})"
+              (editClick)="onEditExercise({data: exercise})"
+              (deleteClick)="onDeleteExercise({data: exercise})">
+            </app-exercise-card>
           </div>
         </div>
 

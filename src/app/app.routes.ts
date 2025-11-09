@@ -40,6 +40,8 @@ import { DoctorCreateComponent } from './pages/docter-create/doctor-create.compo
 import { PatientCreateComponent } from './pages/patient-create/patient-create.component';
 import { ScheduleComponent } from './pages/schedule/schedule.component';
 import { MyScheduleComponent } from './pages/my-schedule/my-schedule.component';
+import { PatientBillingDashboardComponent } from './pages/billing/patient-billing-dashboard.component';
+import { InvoiceDetailComponent } from './pages/billing/invoice-detail.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
 
@@ -63,6 +65,8 @@ export const routes: Routes = [
   { path: 'diet/view/:id', component: DietViewComponent, canActivate: [AuthGuard] },
 
   { path: 'billing', component: BillingComponent, canActivate: [AuthGuard] },
+  { path: 'billing/patient/:patientId', component: PatientBillingDashboardComponent, canActivate: [AuthGuard] },
+  { path: 'billing/invoice/:id', component: InvoiceDetailComponent, canActivate: [AuthGuard] },
   { path: 'help', component: HelpComponent, canActivate: [AuthGuard] },
   { path: 'patients', component: PatientListComponent, canActivate: [AuthGuard] },
   { path: 'add-patient', component: PatientFormComponent, canActivate: [AuthGuard] },

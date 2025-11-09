@@ -1003,8 +1003,445 @@
       </div>
     </div>
 
-    
-  </div>
+    <!-- Exercise Assignment Tab -->
+    <div *ngIf="selectedTab === 'exercise-assignment'" class="exercise-assignment-tab">
+      <!-- Dashboard Header -->
+      <div class="exercise-assignment-header">
+        <div class="header-content">
+          <div class="header-text">
+            <h2>Exercise Assignments</h2>
+            <p class="header-subtitle">Manage and track patient exercise programs</p>
+          </div>
+          <app-button 
+            appearance="raised" 
+            color="primary" 
+            (btnClick)="openExerciseAssignmentDialog()"
+            class="assign-exercise-btn">
+            <app-icon fontIcon="add" [size]="18" [color]="'#ffffff'"></app-icon>
+            <span>Assign Exercise</span>
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Statistics Cards -->
+      <div class="stats-section">
+        <div class="stat-card total-assignments">
+          <div class="stat-icon">
+            <mat-icon>fitness_center</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ exerciseAssignments.length }}</div>
+            <div class="stat-label">Total Assignments</div>
+          </div>
+        </div>
+
+        <div class="stat-card active-assignments">
+          <div class="stat-icon">
+            <mat-icon>play_circle</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getActiveAssignmentsCount() }}</div>
+            <div class="stat-label">Active</div>
+          </div>
+        </div>
+
+        <div class="stat-card completed-assignments">
+          <div class="stat-icon">
+            <mat-icon>check_circle</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getCompletedAssignmentsCount() }}</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <div class="stat-card categories-count">
+          <div class="stat-icon">
+            <mat-icon>category</mat-icon>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ getUniqueCategoriesCount() }}</div>
+            <div class="stat-label">Categories</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Overview (Highcharts only) -->
+      <div class="progress-overview" *ngIf="exerciseAssignments.length > 0">
+        <div style="background:#fff; border-radius:12px; padding:12px 16px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+          <highcharts-chart
+            [Highcharts]="Highcharts"
+            [options]="progressChartOptions"
+            style="width: 100%; height: 320px; display: block;">
+          </highcharts-chart>
+        </div>
+      </div>
+
+      <!-- Assigned Exercises (single listing, shows after assigning) -->
+      <div class="assigned-exercises-section patient-profile-assigned-exercises">
+        <div class="header-content">
+          <div class="header-text">
+            <h3>Assigned Exercises</h3>
+            <p class="header-subtitle" *ngIf="assignedExercises.length === 0">No exercises assigned yet. Use "Assign Exercise" to add.</p>
+          </div>
+          <div class="header-actions" *ngIf="assignedExercises.length > 0">
+            <span class="metric-chip neutral">
+              <mat-icon>fitness_center</mat-icon>
+              {{ assignedExercises.length }} total
+            </span>
+          </div>
+        </div>
+        
+        <div *ngIf="assignedExercises.length === 0" class="empty-state">
+          <mat-icon class="empty-icon">fitness_center</mat-icon>
+          <p>No exercises assigned yet. Click "Assign Exercise" to get started.</p>
+        </div>
+
+        <div *ngIf="assignedExercises.length > 0" class="exercises-content">
+          <div class="exercise-list-grid">
+            <div class="exercise-item-row" *ngFor="let assignment of assignedExercises">
+              <div class="exercise-image-cell">
+                <img *ngIf="assignment.exercise.imageUrl" 
+                     [src]="assignment.exercise.imageUrl" 
+                     [alt]="assignment.exercise.name"
+                     class="exercise-image">
+                <div class="exercise-image-placeholder" *ngIf="!assignment.exercise.imageUrl">
+                  <mat-icon>fitness_center</mat-icon>
+                </div>
+              </div>
+              <div class="exercise-name-cell">
+                <span class="exercise-name">{{ assignment.exercise.name }}</span>
+                <span class="exercise-category-badge" *ngIf="assignment.exercise.category">
+                  {{ assignment.exercise.category }}
+                </span>
+              </div>
+              <div class="exercise-sets-info">
+                <div class="sets-display" *ngIf="assignment.exercise.sets && assignment.exercise.sets.length > 0">
+                  <span class="sets-text">
+                    {{ assignment.exercise.sets.length }} set{{ assignment.exercise.sets.length > 1 ? 's' : '' }} × 
+                    {{ getAverageReps(assignment.exercise.sets) }} rep{{ getAverageReps(assignment.exercise.sets) > 1 ? 's' : '' }}
+                  </span>
+                  <button mat-icon-button 
+                          class="edit-sets-btn"
+                          (click)="editExerciseSets(assignment)"
+                          matTooltip="Edit Sets">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+                <div class="sets-display no-sets" *ngIf="!assignment.exercise.sets || assignment.exercise.sets.length === 0">
+                  <span class="sets-text">No sets configured</span>
+                  <button mat-icon-button 
+                          class="edit-sets-btn"
+                          (click)="editExerciseSets(assignment)"
+                          matTooltip="Configure Sets">
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+              </div>
+              <div class="exercise-actions">
+                <button mat-icon-button 
+                        (click)="removeAssignedExercise(assignment)" 
+                        matTooltip="Delete">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Billing Tab -->
+    <div *ngIf="selectedTab === 'billing'" class="billing-tab">
+      <app-patient-billing-dashboard 
+        [patientId]="patientInfo.id || ''"
+        [patientName]="patientInfo.name || ''"
+        [embedded]="true">
+      </app-patient-billing-dashboard>
+    </div>
+
+    <!-- Diet Assignment Tab -->
+    <div *ngIf="selectedTab === 'diet-assignment'" class="diet-assignment-tab">
+      <!-- Header with CTA -->
+      <div class="diet-assignment-header">
+        <div class="header-content">
+          <div class="header-text">
+            <h2>Diet Assignments</h2>
+            <p class="header-subtitle">Plan weekly meals or assign specific diets for today</p>
+          </div>
+          <div class="header-actions" style="display:flex; gap:8px;">
+            <app-button 
+              appearance="stroked" 
+              color="primary" 
+              (btnClick)="createWeeklyPlan()">
+              <app-icon fontIcon="add" [size]="18"></app-icon>
+              <span>New Weekly Plan</span>
+            </app-button>
+            <app-button 
+              appearance="raised" 
+              color="primary" 
+              (btnClick)="openDietAssignmentDialog()"
+              class="assign-diet-btn">
+              <app-icon fontIcon="add" [size]="18" [color]="'#ffffff'"></app-icon>
+              <span>Assign Diet</span>
+            </app-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Cards: Individual Diets (Top) and Weekly Schedule (Bottom) -->
+      <div class="diet-assignment-cards-grid">
+        <!-- Individual Diets Card (Top) -->
+        <div class="weekly-plan-unified-card">
+          <!-- Header Section -->
+          <div class="weekly-plan-card-header">
+            <div class="header-content">
+              <mat-icon class="header-icon">restaurant</mat-icon>
+              <div class="header-text">
+                <h3 class="header-title">Individual Diets</h3>
+                <p class="header-subtitle">Assigned specific diets</p>
+              </div>
+            </div>
+            <div class="week-summary">
+              <span class="summary-badge">
+                <span>{{ getTotalIndividualDiets() }} Diets</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Individual Diets Content -->
+          <div class="individual-diets-content">
+            <ng-container *ngIf="getIndividualDietAssignments().length > 0; else noIndividualDiets">
+              <div *ngFor="let assignment of getIndividualDietAssignments()" class="individual-assignment-item">
+                <div class="assignment-header">
+                  <div class="assignment-info">
+                    <h4 class="assignment-title">{{ assignment.planName }}</h4>
+                    <p class="assignment-dates">
+                      <mat-icon>calendar_today</mat-icon>
+                      <span>{{ formatDateShort(assignment.startDate) }} - {{ formatDateShort(assignment.endDate) }}</span>
+                    </p>
+                  </div>
+                  <div class="assignment-actions">
+                    <button mat-icon-button (click)="viewDietAssignment(assignment)" matTooltip="View">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="editDietAssignment(assignment)" matTooltip="Edit">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button (click)="removeDietAssignment(assignment)" matTooltip="Delete">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+                <div class="individual-diets-list">
+                  <div class="meal-diets-grid" *ngIf="getIndividualDietsFromAssignment(assignment).length > 0">
+                    <div class="diet-item-row" *ngFor="let diet of getIndividualDietsFromAssignment(assignment)" (click)="viewDietDetails(diet)">
+                      <div class="diet-image-cell">
+                        <img *ngIf="diet.imageUrl" 
+                             [src]="diet.imageUrl" 
+                             [alt]="diet.name"
+                             class="diet-image">
+                        <div class="diet-image-placeholder" *ngIf="!diet.imageUrl">
+                          <mat-icon>restaurant</mat-icon>
+                        </div>
+                      </div>
+                      <div class="diet-name-cell">
+                        <span class="diet-name">{{ diet.name }}</span>
+                        <span class="diet-type-badge" *ngIf="diet.dietType">
+                          {{ diet.dietType }}
+                        </span>
+                      </div>
+                      <div class="nutrition-grid">
+                        <div class="nutrition-item">
+                          <span class="nutrition-value">{{ diet.calories || 0 }}</span>
+                          <span class="nutrition-label">KCAL</span>
+                        </div>
+                        <div class="nutrition-item">
+                          <span class="nutrition-value">{{ diet.protein || 0 }}</span>
+                          <span class="nutrition-label">PROTEIN</span>
+                        </div>
+                        <div class="nutrition-item">
+                          <span class="nutrition-value">{{ diet.carbs || 0 }}</span>
+                          <span class="nutrition-label">CARBS</span>
+                        </div>
+                        <div class="nutrition-item">
+                          <span class="nutrition-value">{{ diet.fat || 0 }}</span>
+                          <span class="nutrition-label">FAT</span>
+                        </div>
+                        <div class="nutrition-item">
+                          <span class="nutrition-value">{{ diet.fiber || 0 }}</span>
+                          <span class="nutrition-label">FIBER</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div *ngIf="getIndividualDietsFromAssignment(assignment).length === 0" class="empty-state">
+                    <mat-icon>restaurant_menu</mat-icon>
+                    <p>No diets assigned</p>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #noIndividualDiets>
+              <div class="empty-state" style="margin-top:12px;">
+                <mat-icon class="empty-icon">restaurant</mat-icon>
+                <p>No specific diets assigned. Create a weekly plan or assign a specific diet for today.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- Weekly Plans Card (Bottom) -->
+        <div class="weekly-plan-unified-card">
+          <ng-container *ngIf="getActiveWeeklyPlanAssignment() as activePlan; else noWeeklyPlan">
+                <!-- Header Section -->
+                <div class="weekly-plan-card-header">
+                  <div class="header-content">
+                    <mat-icon class="header-icon">calendar_view_week</mat-icon>
+                    <div class="header-text">
+                      <h3 class="header-title">Weekly Schedule</h3>
+                      <p class="header-subtitle">Select a day to view assigned diets</p>
+                    </div>
+                  </div>
+                  <div class="week-summary">
+                    <span class="summary-badge">
+                      <span>{{ getTotalWeeklyDiets(activePlan) }} Diets</span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Day Selector - Professional Pills/Tabs Style -->
+                <div class="day-selector-section">
+                  <div class="day-selector-pills">
+                    <button
+                      *ngFor="let day of getWeekDays(); let i = index"
+                      class="day-pill"
+                      [class.active]="selectedDietDayIndex === i"
+                      [class.has-diets]="getDietsForDay(activePlan, day).length > 0"
+                      (click)="onSelectDietDayIndex(i)">
+                      <span class="day-label">{{ day }}</span>
+                      <span class="day-count" *ngIf="selectedDietDayIndex === i">
+                        {{ getDietsForDay(activePlan, day).length }}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Selected Day Info & Diets -->
+                <div class="selected-day-section">
+                  <div class="selected-day-header">
+                    <div class="selected-day-info">
+                      <span class="selected-day-title">{{ getWeekDays()[selectedDietDayIndex] }}</span>
+                      <span class="selected-day-subtitle">
+                        {{ getDietsForDay(activePlan, getWeekDays()[selectedDietDayIndex]).length }} 
+                        {{ getDietsForDay(activePlan, getWeekDays()[selectedDietDayIndex]).length === 1 ? 'diet' : 'diets' }} assigned
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="diets-content-wrapper">
+                    <div *ngIf="getDietsForDay(activePlan, getWeekDays()[selectedDietDayIndex]).length > 0; else emptySelectedDay">
+                      <!-- Meals grouped by meal time -->
+                      <div class="meals-by-time" *ngFor="let meal of getMealsForSelectedDay(activePlan)">
+                        <div class="meal-time-section" *ngIf="meal.diets.length > 0">
+                          <div class="meal-time-header">
+                            <div class="meal-time-info">
+                              <span class="meal-time-label">{{ meal.label }}</span>
+                              <span class="meal-time" *ngIf="meal.time">{{ meal.time }}</span>
+                              <span class="meal-diet-count">{{ meal.diets.length }} {{ meal.diets.length === 1 ? 'diet' : 'diets' }}</span>
+                            </div>
+                            <div class="nutrition-grid totals-grid">
+                              <div class="nutrition-item total-item">
+                                <span class="nutrition-value">{{ getMealTotal(meal.diets, 'calories') }}</span>
+                                <span class="nutrition-label">KCAL</span>
+                              </div>
+                              <div class="nutrition-item total-item">
+                                <span class="nutrition-value">{{ getMealTotal(meal.diets, 'protein') }}</span>
+                                <span class="nutrition-label">PROTEIN</span>
+                              </div>
+                              <div class="nutrition-item total-item">
+                                <span class="nutrition-value">{{ getMealTotal(meal.diets, 'carbs') }}</span>
+                                <span class="nutrition-label">CARBS</span>
+                              </div>
+                              <div class="nutrition-item total-item">
+                                <span class="nutrition-value">{{ getMealTotal(meal.diets, 'fat') }}</span>
+                                <span class="nutrition-label">FAT</span>
+                              </div>
+                              <div class="nutrition-item total-item">
+                                <span class="nutrition-value">{{ getMealTotal(meal.diets, 'fiber') }}</span>
+                                <span class="nutrition-label">FIBER</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Diet Items -->
+                          <div class="meal-diets-grid">
+                            <div class="diet-item-row" *ngFor="let diet of meal.diets" (click)="viewDietDetails(diet)">
+                              <div class="diet-image-cell">
+                                <img *ngIf="getDietObjectFromSchedule(diet).imageUrl" 
+                                     [src]="getDietObjectFromSchedule(diet).imageUrl" 
+                                     [alt]="getDietObjectFromSchedule(diet).name"
+                                     class="diet-image">
+                                <div class="diet-image-placeholder" *ngIf="!getDietObjectFromSchedule(diet).imageUrl">
+                                  <mat-icon>restaurant</mat-icon>
+                                </div>
+                              </div>
+                              <div class="diet-name-cell">
+                                <span class="diet-name">{{ getDietObjectFromSchedule(diet).name }}</span>
+                                <span class="diet-type-badge" *ngIf="getDietObjectFromSchedule(diet).dietType">
+                                  {{ getDietObjectFromSchedule(diet).dietType }}
+                                </span>
+                              </div>
+                              <div class="nutrition-grid">
+                                <div class="nutrition-item">
+                                  <span class="nutrition-value">{{ getDietObjectFromSchedule(diet).calories || 0 }}</span>
+                                  <span class="nutrition-label">KCAL</span>
+                                </div>
+                                <div class="nutrition-item">
+                                  <span class="nutrition-value">{{ getDietObjectFromSchedule(diet).protein || 0 }}</span>
+                                  <span class="nutrition-label">PROTEIN</span>
+                                </div>
+                                <div class="nutrition-item">
+                                  <span class="nutrition-value">{{ getDietObjectFromSchedule(diet).carbs || 0 }}</span>
+                                  <span class="nutrition-label">CARBS</span>
+                                </div>
+                                <div class="nutrition-item">
+                                  <span class="nutrition-value">{{ getDietObjectFromSchedule(diet).fat || 0 }}</span>
+                                  <span class="nutrition-label">FAT</span>
+                                </div>
+                                <div class="nutrition-item">
+                                  <span class="nutrition-value">{{ getDietObjectFromSchedule(diet).fiber || 0 }}</span>
+                                  <span class="nutrition-label">FIBER</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <ng-template #emptySelectedDay>
+                      <div class="empty-day-state-modern">
+                        <div class="empty-state-icon-wrapper">
+                          <mat-icon class="empty-state-icon">restaurant_menu</mat-icon>
+                        </div>
+                        <h3 class="empty-state-title">No Diets Assigned</h3>
+                        <p class="empty-state-message">No diets have been assigned for {{ getWeekDays()[selectedDietDayIndex] }} yet.</p>
+                      </div>
+                    </ng-template>
+                  </div>
+                </div>
+          </ng-container>
+
+          <ng-template #noWeeklyPlan>
+            <div class="empty-state" style="margin-top:12px;">
+              <mat-icon class="empty-icon">calendar_today</mat-icon>
+              <p>No weekly plan assigned. Create a weekly plan or assign a specific diet for today.</p>
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
 
   <!-- Admission Dialog -->
   <div *ngIf="showAdmissionDialog" class="dialog-overlay">

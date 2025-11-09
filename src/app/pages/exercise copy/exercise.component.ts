@@ -18,6 +18,7 @@ import { IconComponent } from '../../tools/app-icon/icon.component';
 import { ExerciseCreateComponent } from '../exercise-create/exercise-create.component';
 import { ExerciseSetCreateComponent } from '../exercise-set-create/exercise-set-create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ExerciseCardComponent } from '../../components/exercise-card/exercise-card.component';
 
 @Component({
   selector: 'app-exercise',
@@ -39,7 +40,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     GridComponent, 
     IconComponent,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ExerciseCardComponent
   ],
   templateUrl: './exercise.component.html',
   styleUrl: './exercise.component.scss'

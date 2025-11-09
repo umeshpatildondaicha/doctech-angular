@@ -22,6 +22,8 @@ import { Mode } from '../../types/mode.type';
 
 import { DietSelectionDialogComponent } from '../diet-selection-dialog/diet-selection-dialog.component';
 import { MealTimeDialogComponent } from '../meal-time-dialog/meal-time-dialog.component';
+import { DietCardComponent } from '../../components/diet-card/diet-card.component';
+import { DietPlanCardComponent } from '../../components/diet-plan-card/diet-plan-card.component';
 
 @Component({
   selector: 'app-diet',
@@ -43,7 +45,9 @@ import { MealTimeDialogComponent } from '../meal-time-dialog/meal-time-dialog.co
     AppButtonComponent, 
     IconComponent,
     DietSelectionDialogComponent,
-    MealTimeDialogComponent
+    MealTimeDialogComponent,
+    DietCardComponent,
+    DietPlanCardComponent
   ],
   templateUrl: './diet.component.html',
   styleUrl: './diet.component.scss'
@@ -71,6 +75,9 @@ export class DietComponent implements OnInit {
   selectedPlanType: string = '';
   selectedPlanStatus: string = '';
   planSearchQuery: string = '';
+  // Weekly preview state
+  selectedPlanPreview: any | null = null;
+  selectedPlanDayIndex: number = new Date().getDay();
 
   // Computed properties for stats
   get totalCalories(): number {
@@ -91,6 +98,9 @@ export class DietComponent implements OnInit {
     this.initializeDietData();
     this.loadMockData();
     this.loadMockDietPlans();
+    // default preview: first weekly plan if available
+    const firstWeekly = this.dietPlans.find(p => p.type === 'weekly') || null;
+    this.selectedPlanPreview = firstWeekly;
     
     // Handle tab navigation from route
     const currentUrl = this.router.url;
@@ -473,6 +483,13 @@ export class DietComponent implements OnInit {
       
       return matchesType && matchesStatus && matchesSearch;
     });
+    // keep preview valid
+    if (this.selectedPlanPreview) {
+      const stillExists = this.filteredDietPlans.find(p => p.planId === this.selectedPlanPreview.planId);
+      if (!stillExists) {
+        this.selectedPlanPreview = this.filteredDietPlans.find(p => p.type === 'weekly') || this.filteredDietPlans[0] || null;
+      }
+    }
   }
 
   onCreateDietPlan() {
@@ -504,5 +521,78 @@ export class DietComponent implements OnInit {
       default:
         return 'help';
     }
+  }
+
+  // Weekly preview helpers (mock schedule same as patient profile)
+  private getMockScheduleForPlan(planId: string): any {
+    const mockSchedules: any = {
+      'plan1': {
+        day_0: [[{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }], [], [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }], [], [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }]],
+        day_1: [[{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }], [{ dietId: '7', name: 'Apple with Almonds', calories: 150 }], [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }], [], [{ dietId: '8', name: 'Chicken Salad', calories: 450 }]],
+        day_2: [[{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }], [], [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }], [{ dietId: '9', name: 'Trail Mix', calories: 200 }], [{ dietId: '3', name: 'Vegan Buddha Bowl', calories: 380 }]],
+        day_3: [[{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }], [], [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }], [], [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }]],
+        day_4: [[{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }], [{ dietId: '7', name: 'Apple with Almonds', calories: 150 }], [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }], [], [{ dietId: '8', name: 'Chicken Salad', calories: 450 }]],
+        day_5: [[{ dietId: '5', name: 'Greek Yogurt Parfait', calories: 280 }], [], [{ dietId: '1', name: 'Balanced Veg Bowl', calories: 520 }], [{ dietId: '9', name: 'Trail Mix', calories: 200 }], [{ dietId: '3', name: 'Vegan Buddha Bowl', calories: 380 }]],
+        day_6: [[{ dietId: '4', name: 'Morning Oatmeal', calories: 320 }], [], [{ dietId: '2', name: 'Keto Chicken Salad', calories: 450 }], [], [{ dietId: '6', name: 'Grilled Salmon', calories: 480 }]]
+      }
+    };
+    return mockSchedules[planId] || {};
+  }
+
+  getWeekDays(): string[] {
+    return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  }
+
+  getShortDayName(dayName: string): string {
+    const m: any = { Sunday: 'Sun', Monday: 'Mon', Tuesday: 'Tue', Wednesday: 'Wed', Thursday: 'Thu', Friday: 'Fri', Saturday: 'Sat' };
+    return m[dayName] || dayName;
+  }
+
+  getDietsForPreviewSelectedDay(): any[] {
+    if (!this.selectedPlanPreview) return [];
+    const schedule = this.getMockScheduleForPlan(this.selectedPlanPreview.planId);
+    const dayKey = `day_${this.selectedPlanDayIndex}`;
+    const meals: any[][] = schedule[dayKey] || [];
+    const flat: any[] = [];
+    meals.forEach(slot => { if (slot && slot.length) { flat.push(...slot); } });
+    return flat;
+  }
+
+  selectPreviewDay(i: number): void {
+    this.selectedPlanDayIndex = i;
+  }
+
+  formatDateShort(date: Date): string {
+    const d = new Date(date);
+    const month = (d.getMonth() + 1).toString().padStart(2, '0');
+    const day = d.getDate().toString().padStart(2, '0');
+    return `${month}/${day}`;
+  }
+
+  getSelectedPlanStartDateShort(): string {
+    const start = this.selectedPlanPreview?.startDate ? new Date(this.selectedPlanPreview.startDate) : new Date();
+    return this.formatDateShort(start);
+    }
+
+  getSelectedPlanEndDateShort(): string {
+    const end = this.selectedPlanPreview?.endDate ? new Date(this.selectedPlanPreview.endDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    return this.formatDateShort(end);
+  }
+
+  getDietObjectFromPreviewSchedule(item: any): Diet {
+    return {
+      dietId: item?.dietId || 'temp',
+      name: item?.name || 'Diet',
+      description: item?.description || '',
+      dietType: 'Mediterranean',
+      calories: item?.calories || 0,
+      protein: 0,
+      carbs: 0,
+      fat: 0,
+      fiber: 0,
+      createdByDoctorId: 'doc',
+      createdAt: new Date(),
+      isActive: true
+    };
   }
 }

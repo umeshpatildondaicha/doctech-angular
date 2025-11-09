@@ -1,16 +1,15 @@
 import { Component, Input, Output, EventEmitter, Inject, PLATFORM_ID, TemplateRef } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { AgGridModule } from 'ag-grid-angular';
-import { ColDef, GridOptions, DomLayoutType } from 'ag-grid-community';
+import { ColDef, GridOptions, DomLayoutType, GridApi, GridReadyEvent } from 'ag-grid-community';
 import { CommonModule } from '@angular/common';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { AppInputComponent, IconComponent, DialogboxService, FilterComponent, GridMenuRendererComponent } from '../index';
-import { themeBalham } from 'ag-grid-community';
 
 // Extend GridOptions to include menuActions
-interface ExtendedGridOptions extends GridOptions {
+export interface ExtendedGridOptions extends GridOptions {
   menuActions?: Array<{
     title: string;
     icon: string;
@@ -78,16 +77,22 @@ export class GridComponent {
   @Input() rightTooltemplateRef: TemplateRef<any> | null = null;
   @Input() cardTemplate: TemplateRef<any> | null = null;
   @Input() defaultViewMode: 'list' | 'card' = 'list';
+  @Input() showAddButton: boolean = false;
 
   @Output() searchChange = new EventEmitter<string>();
   @Output() rowClicked = new EventEmitter<any>();
+  @Output() addClick = new EventEmitter<void>();
 
   searchText: string = '';
   filteredRowData: any[] = [];
   isBrowser: boolean;
   processedColumnDefs: ColDef[] = [];
   activeFiltersCount: number = 0;
+  activeFilterChips: Array<{ label: string; value: string; field: string }> = [];
   viewMode: 'list' | 'card' = 'list';
+  displayedRows: number = 0;
+  totalRows: number = 0;
+  gridApi!: GridApi;
 
   constructor(
     private dialogbox: DialogboxService,
@@ -97,19 +102,110 @@ export class GridComponent {
   }
 
   ngOnInit() {
-    this.gridOptions.theme = themeBalham;
-    this.gridOptions.rowHeight = 50;
-    this.gridOptions.headerHeight = 50;
     this.gridOptions.pagination = true;
+    this.gridOptions.paginationPageSize = 25;
+    this.gridOptions.paginationPageSizeSelector = [10, 25, 50, 100];
+    this.gridOptions.rowHeight = 48;
+    this.gridOptions.headerHeight = 40;
+    this.gridOptions.suppressCellFocus = true;
+    this.gridOptions.getRowHeight = (params) => {
+      // Support dynamic row height for multi-line content
+      return params.node.rowHeight || 48;
+    };
     this.gridOptions.context = { gridOptions: this.gridOptions as ExtendedGridOptions };
+    this.gridOptions.noRowsOverlayComponentParams = {
+      noRowsMessageFunc: () => 'No records to display'
+    };
     this.filteredRowData = [...this.rowData];
     this.viewMode = this.defaultViewMode;
     this.processColumnDefs();
+    this.updatePaginationInfo();
   }
 
   ngOnChanges() {
     this.filteredRowData = this.applySearchTo([...this.rowData]);
     this.processColumnDefs();
+    this.updatePaginationInfo();
+  }
+
+  onGridReady(params: GridReadyEvent): void {
+    this.gridApi = params.api;
+    this.updatePaginationInfo();
+  }
+
+  onModelUpdated(event: any): void {
+    this.updatePaginationInfo();
+  }
+
+  private updatePaginationInfo(): void {
+    if (this.gridApi) {
+      const totalFilteredRows = this.gridApi.getDisplayedRowCount();
+      const pageSize = this.gridApi.paginationGetPageSize();
+      const currentPage = this.gridApi.paginationGetCurrentPage();
+      const startRow = currentPage * pageSize;
+      const endRow = Math.min(startRow + pageSize, totalFilteredRows);
+      const displayedOnPage = totalFilteredRows > 0 ? endRow - startRow : 0;
+      
+      this.displayedRows = displayedOnPage;
+      this.totalRows = totalFilteredRows;
+    } else {
+      this.displayedRows = this.filteredRowData.length;
+      this.totalRows = this.filteredRowData.length;
+    }
+  }
+
+  onAddClick(): void {
+    this.addClick.emit();
+  }
+
+  onColumnSettingsClick(): void {
+    // Emit event or open column visibility dialog
+    if (this.gridApi) {
+      // Can implement column visibility toggle here
+      console.log('Column settings clicked');
+    }
+  }
+
+  /**
+   * Get status class based on status value
+   * Helper method to automatically determine status badge class from enum/string values
+   */
+  static getStatusClass(statusValue: string | null | undefined): string {
+    if (!statusValue) return 'status-neutral';
+    
+    const status = String(statusValue).toLowerCase().replace(/[_\s-]/g, '-');
+    
+    // Success states
+    if (['paid', 'closed', 'cleared', 'active', 'completed', 'approved', 'enabled', 'online', 'available', 'done', 'finished', 'resolved', 'accepted', 'verified', 'confirmed', 'delivered', 'published', 'live'].includes(status)) {
+      return 'status-success';
+    }
+    
+    // Error/Danger states
+    if (['cancelled', 'canceled', 'failed', 'void', 'rejected', 'denied', 'blocked', 'disabled', 'inactive', 'unavailable', 'offline', 'expired', 'terminated', 'suspended', 'deleted', 'error', 'critical'].includes(status)) {
+      return 'status-danger';
+    }
+    
+    // Warning states
+    if (['pending', 'in-progress', 'in_progress', 'waiting', 'processing', 'queued', 'draft', 'review', 'under-review', 'on-hold', 'onhold', 'delayed', 'partially-paid', 'partially_paid', 'partial'].includes(status)) {
+      return 'status-warning';
+    }
+    
+    // Info states
+    if (['issued', 'scheduled', 'assigned', 'allocated', 'reserved', 'booked', 'acknowledged', 'notified', 'info'].includes(status)) {
+      return 'status-info';
+    }
+    
+    // Special states
+    if (['urgent', 'emergency', 'high-priority', 'high_priority', 'priority'].includes(status)) {
+      return 'status-urgent';
+    }
+    
+    // Busy states
+    if (['busy', 'working', 'occupied'].includes(status)) {
+      return 'status-busy';
+    }
+    
+    return 'status-neutral';
   }
 
   /**
@@ -119,12 +215,31 @@ export class GridComponent {
    * 1. Checks if any column has cellRenderer: 'gridMenu'
    * 2. If menuActions exist in gridOptions but no menu column is configured, adds one automatically
    * 3. If a menu column exists, updates it with the proper cell renderer
+   * 4. Auto-detects status columns and applies appropriate cell classes
    */
   private processColumnDefs() {
-    this.processedColumnDefs = [...this.columnDefs];
+    // Process columns and disable floating filters by default to match image (unless explicitly set)
+    this.processedColumnDefs = this.columnDefs.map(col => {
+      const field = col.field?.toLowerCase() || '';
+      const isStatusColumn = field.includes('status') || field.includes('state');
+      
+      return {
+        ...col,
+        floatingFilter: col.floatingFilter ?? false,
+        suppressHeaderMenuButton: col.suppressHeaderMenuButton ?? true,
+        // Auto-add status cell class for status columns
+        cellClass: isStatusColumn && !col.cellClass 
+          ? 'status-cell' 
+          : col.cellClass
+      };
+    });
     
-    // Check if any column has cellRenderer: 'gridMenu'
-    const hasMenuColumn = this.processedColumnDefs.some(col => col.cellRenderer === 'gridMenu');
+    // Check if any column has cellRenderer: 'gridMenu' or if there's already an actions column
+    const hasMenuColumn = this.processedColumnDefs.some(col => 
+      col.cellRenderer === 'gridMenu' || 
+      col.cellRenderer === GridMenuRendererComponent ||
+      (col.field === 'actions' && col.pinned === 'right')
+    );
     
     const extendedGridOptions = this.gridOptions as ExtendedGridOptions;
     
@@ -192,9 +307,11 @@ export class GridComponent {
       if (result && result.filters) {
         this.applyAdvancedFilters(result.filters, result.logic || 'AND');
         this.activeFiltersCount = result.filters.length;
+        this.updateFilterChips(result.filters);
       } else if (result === null) {
         // Dialog was cancelled or cleared
         this.activeFiltersCount = 0;
+        this.activeFilterChips = [];
       }
     });
   }
@@ -304,12 +421,47 @@ export class GridComponent {
   private _activeFilters: Array<{ field: string; operator: string; value: any; valueTo?: any; inputType: any }> = [];
   private _activeLogic: 'AND' | 'OR' = 'AND';
 
+  private updateFilterChips(filters: Array<{ field: string; operator: string; value: any; valueTo?: any; inputType: any }>): void {
+    this.activeFilterChips = filters.map(f => {
+      const column = this.columnDefs.find(col => col.field === f.field);
+      const label = column?.headerName || f.field;
+      let value = f.value;
+      
+      if (f.inputType === 'boolean') {
+        value = f.value === true || f.value === 'true' ? 'Yes' : 'No';
+      } else if (f.inputType === 'date') {
+        value = new Date(f.value).toLocaleDateString();
+      } else if (f.operator === 'between' && f.valueTo !== undefined) {
+        value = `${f.value} - ${f.valueTo}`;
+      }
+      
+      return {
+        label,
+        value: String(value),
+        field: f.field
+      };
+    });
+  }
+
+  removeFilterChip(field: string): void {
+    this._activeFilters = this._activeFilters.filter(f => f.field !== field);
+    this.activeFiltersCount = this._activeFilters.length;
+    this.activeFilterChips = this.activeFilterChips.filter(chip => chip.field !== field);
+    
+    if (this._activeFilters.length === 0) {
+      this.filteredRowData = this.applySearchTo([...(this.rowData || [])]);
+    } else {
+      this.applyAdvancedFilters(this._activeFilters, this._activeLogic);
+    }
+  }
+
   private applyAdvancedFilters(filters: any[], logic: 'AND' | 'OR') {
     this._activeFilters = filters;
     this._activeLogic = logic;
 
     if (!filters || filters.length === 0) {
       this.filteredRowData = this.applySearchTo([...(this.rowData || [])]);
+      this.activeFilterChips = [];
       return;
     }
 

@@ -10,3 +10,7 @@ export { FooterComponent } from './footer/footer.component';
 export { HeaderComponent } from './header/header.component';
 export { PatientFormComponent } from './patient-form/patient-form.component';
 export { PatientListComponent } from './patient-list/patient-list.component';
+export { ExerciseListComponent, type ExerciseListConfig } from './exercise-list/exercise-list.component';
+export { ExerciseCardComponent } from './exercise-card/exercise-card.component';
+export { DietCardComponent } from './diet-card/diet-card.component';
+export { DietPlanCardComponent, type DietPlan } from './diet-plan-card/diet-plan-card.component';
