@@ -1,0 +1,170 @@
+<div class="permissions-page">
+  <!-- Top Header Section -->
+  <div class="page-header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="header-icon-wrapper">
+          <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+        </div>
+        <div class="header-text">
+          <h1>Doctor Permissions</h1>
+          <p class="subtitle">Manage service and feature access for doctors</p>
+        </div>
+      </div>
+      
+      <div class="doctor-selector-wrapper">
+        <mat-form-field appearance="outline" class="doctor-select-field">
+          <mat-label>Select Doctor</mat-label>
+          <mat-select [formControl]="doctorSelectControl" placeholder="Choose a doctor">
+            <mat-option *ngFor="let doctor of doctors" [value]="doctor.id">
+              <div class="doctor-option">
+                <span class="doctor-name">{{ doctor.name }}</span>
+                <span class="doctor-specialty">{{ doctor.specialty || 'No specialty' }}</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="selected-doctor-banner" *ngIf="selectedDoctorId">
+      <div class="banner-content">
+        <div class="doctor-avatar-circle">
+          <mat-icon>person</mat-icon>
+        </div>
+        <div class="doctor-info-text">
+          <div class="doctor-name-large">{{ selectedDoctorName }}</div>
+          <div class="doctor-specialty-text">{{ selectedDoctorSpecialty || 'No specialty specified' }}</div>
+        </div>
+        <div class="banner-badge">
+          <mat-icon>verified</mat-icon>
+          <span>Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <!-- Search and Actions Bar -->
+    <div class="toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search services</mat-label>
+        <input matInput [formControl]="servicesFilterControl" placeholder="Type to search services...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+      
+      <div class="toolbar-actions" *ngIf="filteredServices.length > 0 && selectedDoctorId">
+        <button mat-stroked-button (click)="expandAllServices()" matTooltip="Expand all services">
+          <mat-icon>unfold_more</mat-icon>
+          Expand All
+        </button>
+        <button mat-stroked-button (click)="collapseAllServices()" matTooltip="Collapse all services">
+          <mat-icon>unfold_less</mat-icon>
+          Collapse All
+        </button>
+      </div>
+    </div>
+
+    <!-- Services Grid -->
+    <div class="services-grid">
+      <div class="loading-state" *ngIf="isLoadingServices">
+        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+        <p>Loading services...</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!isLoadingServices && filteredServices.length === 0">
+        <mat-icon>inventory_2</mat-icon>
+        <h3>No services found</h3>
+        <p>Try adjusting your search criteria</p>
+      </div>
+
+      <div class="empty-state" *ngIf="!isLoadingServices && filteredServices.length > 0 && !selectedDoctorId">
+        <mat-icon>person_add</mat-icon>
+        <h3>Select a Doctor</h3>
+        <p>Choose a doctor from the dropdown above to manage their permissions</p>
+      </div>
+
+      <!-- Service Cards -->
+      <div class="service-card" *ngFor="let service of filteredServices" [class.expanded]="expandedServiceIds.has(service.id)">
+        <button type="button" class="service-card-header" (click)="onToggleServicePanel(service.id, !expandedServiceIds.has(service.id))">
+          <div class="service-header-content">
+            <div class="service-icon-wrapper">
+              <mat-icon class="service-icon">medical_services</mat-icon>
+            </div>
+            <div class="service-info">
+              <h3 class="service-name">{{ service.name }}</h3>
+              <div class="service-meta">
+                <mat-chip class="service-code-chip">{{ service.serviceCode }}</mat-chip>
+                <span class="feature-count" *ngIf="featuresByServiceId.has(service.id)">
+                  {{ (featuresByServiceId.get(service.id) || []).length }} features
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="service-actions">
+            <mat-icon class="expand-icon" [class.expanded]="expandedServiceIds.has(service.id)">
+              keyboard_arrow_down
+            </mat-icon>
+          </div>
+        </button>
+
+        <!-- Expanded Content -->
+        <div class="service-card-content" *ngIf="expandedServiceIds.has(service.id)">
+          <!-- Loading State -->
+          <div class="loading-state small" *ngIf="loadingFeatureServiceIds.has(service.id)">
+            <mat-progress-spinner mode="indeterminate" diameter="32"></mat-progress-spinner>
+            <p>Loading features...</p>
+          </div>
+
+          <!-- Features List -->
+          <div class="features-section" *ngIf="!loadingFeatureServiceIds.has(service.id)">
+            <div class="features-toolbar" *ngIf="selectedDoctorId">
+              <button mat-stroked-button color="primary" (click)="grantAllInService(service.id)">
+                <mat-icon>done_all</mat-icon>
+                Grant All Features
+              </button>
+              <button mat-stroked-button color="warn" (click)="revokeAllInService(service.id)">
+                <mat-icon>block</mat-icon>
+                Revoke All Features
+              </button>
+            </div>
+
+            <div class="features-list">
+              <div class="feature-row" *ngFor="let feature of (featuresByServiceId.get(service.id) || [])">
+                <div class="feature-content">
+                  <div class="feature-header">
+                    <h4 class="feature-name">{{ feature.name }}</h4>
+                    <mat-chip class="feature-code-chip">{{ feature.featureCode }}</mat-chip>
+                  </div>
+                  <p class="feature-description" *ngIf="feature.description">{{ feature.description }}</p>
+                </div>
+                <div class="feature-toggle">
+                  <mat-slide-toggle
+                    color="primary"
+                    [checked]="isFeatureGranted(feature.id)"
+                    (change)="toggleFeature($event, feature)"
+                    [disabled]="updatingFeatureIds.has(feature.id) || !selectedDoctorId"
+                  >
+                    <span class="toggle-label">{{ isFeatureGranted(feature.id) ? 'Granted' : 'Not Granted' }}</span>
+                  </mat-slide-toggle>
+                  <mat-spinner 
+                    *ngIf="updatingFeatureIds.has(feature.id)" 
+                    diameter="20" 
+                    class="feature-spinner"
+                  ></mat-spinner>
+                </div>
+              </div>
+
+              <div class="empty-state small" *ngIf="(featuresByServiceId.get(service.id) || []).length === 0">
+                <mat-icon>extension_off</mat-icon>
+                <p>No features available for this service</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

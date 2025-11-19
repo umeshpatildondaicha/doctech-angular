@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { ColDef } from 'ag-grid-community';
+import { Router } from '@angular/router';
 
 import { GridComponent } from '../../../tools/grid/grid.component';
 import { IconComponent } from '../../../tools/app-icon/icon.component';
@@ -83,7 +84,8 @@ export class DoctorsComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -189,6 +191,11 @@ export class DoctorsComponent implements OnInit {
           click: (param: any) => { this.scheduleDoctor(param.data); }
         },
         {
+          title: 'Permissions',
+          icon: 'tune',
+          click: (param: any) => { this.openPermissions(param.data); }
+        },
+        {
           title: 'Delete',
           icon: 'delete',
           click: (param: any) => { this.deleteDoctor(param.data); }
@@ -261,6 +268,15 @@ export class DoctorsComponent implements OnInit {
         joinedDate: '2019-05-20'
       }
     ];
+  }
+
+  openPermissions(doctor: any) {
+    const doctorPublicId = doctor?.id;
+    if (doctorPublicId) {
+      this.router.navigate(['/admin/doctor-permissions'], { queryParams: { doctorPublicId } });
+    } else {
+      this.showSnackBar('Doctor ID not available');
+    }
   }
 
   // Action methods

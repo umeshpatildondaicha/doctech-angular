@@ -11,8 +11,8 @@ export interface LoginRequest {
   email: string;
   /** User's password */
   password: string;
-  /** Type of user attempting to login */
-  userType: 'HOSPITAL' | 'DOCTOR' | 'PATIENT';
+  /** Type of user attempting to login (deprecated; backend infers by email) */
+  userType?: 'HOSPITAL' | 'DOCTOR' | 'PATIENT';
 }
 
 /**

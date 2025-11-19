@@ -58,7 +58,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   // Demo credentials for testing
   public readonly demoCredentials: Record<string, { email: string; password: string }> = {
-    [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
+    [UserType.HOSPITAL]: { email: 'u513107@gmail.com', password: 'Shree@123' },
     [UserType.DOCTOR]: { email: 'swapnil@gmail.com', password: 'Swapnil@123' }
   };
 
@@ -103,7 +103,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         Validators.minLength(6),
         Validators.maxLength(50)
       ]],
-      userType: [UserType.DOCTOR, [Validators.required]],
       rememberMe: [false]
     });
   }
@@ -158,8 +157,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
     const loginRequest: LoginRequest = {
       email: this.loginForm.get('email')?.value?.trim(),
-      password: this.loginForm.get('password')?.value,
-      userType: this.loginForm.get('userType')?.value
+      password: this.loginForm.get('password')?.value
     };
 
     this.authService.login(loginRequest, this.loginForm.get('rememberMe')?.value).pipe(
@@ -219,8 +217,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const credentials = this.demoCredentials[UserType.DOCTOR];
     this.loginForm.patchValue({
       email: credentials.email,
-      password: credentials.password,
-      userType: UserType.DOCTOR
+      password: credentials.password
     });
   }
 
@@ -231,8 +228,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const credentials = this.demoCredentials[UserType.HOSPITAL];
     this.loginForm.patchValue({
       email: credentials.email,
-      password: credentials.password,
-      userType: UserType.HOSPITAL
+      password: credentials.password
     });
   }
 
@@ -298,13 +294,15 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Redirect to appropriate dashboard
    */
   private redirectToDashboard(): void {
-    const userType = this.loginForm.get('userType')?.value;
-    
+    const userType = this.authService.getUserType();
     switch (userType) {
       case UserType.HOSPITAL:
         this.router.navigate(['/admin-dashboard']);
         break;
       case UserType.DOCTOR:
+        this.router.navigate(['/dashboard']);
+        break;
+      case UserType.PATIENT:
         this.router.navigate(['/dashboard']);
         break;
       default:
@@ -345,7 +343,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.loginForm.reset({
       email: '',
       password: '',
-      userType: UserType.HOSPITAL,
       rememberMe: false
     });
     this.errorMessage = '';
@@ -357,7 +354,7 @@ export class LoginComponent implements OnInit, OnDestroy {
    * Select user type
    */
   public selectUserType(userType: string): void {
-    this.loginForm.patchValue({ userType });
+    // Deprecated: user type selection no longer required by backend
     this.onUserTypeChange();
   }
 

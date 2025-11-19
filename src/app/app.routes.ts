@@ -44,6 +44,7 @@ import { PatientBillingDashboardComponent } from './pages/billing/patient-billin
 import { InvoiceDetailComponent } from './pages/billing/invoice-detail.component';
 import { AuthGuard } from './guards/auth.guard';
 import { LoginGuard } from './guards/login.guard';
+import { DoctorPermissionsComponent } from './pages/admin/doctor-permissions/doctor-permissions.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -103,6 +104,7 @@ export const routes: Routes = [
   { path: 'admin/rooms/edit/:id', component: RoomFormComponent, canActivate: [AuthGuard] },
   { path: 'admin/rooms/:id', component: RoomDetailsComponent, canActivate: [AuthGuard] },
   { path: 'admin/schemes', component: SchemesComponent, canActivate: [AuthGuard] },
+  { path: 'admin/doctor-permissions', component: DoctorPermissionsComponent, canActivate: [AuthGuard] },
   // Additional routes for better navigation
   { path: 'exercise-create', component: ExerciseCreateComponent, canActivate: [AuthGuard] },
   { path: 'exercise-set-create', component: ExerciseSetCreateComponent, canActivate: [AuthGuard] },

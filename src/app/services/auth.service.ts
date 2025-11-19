@@ -293,18 +293,26 @@ export class AuthService {
   private handleMockLogin(loginRequest: LoginRequest, rememberMe: boolean): Observable<boolean> {
     // Mock credentials for demo purposes
     const mockCredentials = {
-      [UserType.HOSPITAL]: { email: 'admin@shreephysio.com', password: 'Pass@123' },
+      [UserType.HOSPITAL]: { email: 'u513107@gmail.com', password: 'Shree@123' },
       [UserType.DOCTOR]: { email: 'swapnil@gmail.com', password: 'Swapnil@123' },
       [UserType.PATIENT]: { email: 'patient@shreephysio.com', password: 'Patient@123' }
     };
 
-    const expectedCredentials = mockCredentials[loginRequest.userType];
+    // Determine expected credentials by userType if provided, otherwise infer by email
+    const expectedByType = loginRequest.userType ? mockCredentials[loginRequest.userType] : undefined;
+    const inferredType = !loginRequest.userType
+      ? (Object.keys(mockCredentials) as Array<keyof typeof mockCredentials>).find(
+          (t) => mockCredentials[t].email === loginRequest.email
+        )
+      : loginRequest.userType;
+    const expectedCredentials = expectedByType || (inferredType ? mockCredentials[inferredType] : undefined);
     
     if (expectedCredentials && 
         loginRequest.email === expectedCredentials.email && 
         loginRequest.password === expectedCredentials.password) {
       
-      console.log('Mock login successful for:', loginRequest.userType);
+      const resolvedType = inferredType || loginRequest.userType || UserType.HOSPITAL;
+      console.log('Mock login successful for:', resolvedType);
       
       // Create mock response
       const getUserInfo = (userType: string) => {
@@ -336,7 +344,7 @@ export class AuthService {
         }
       };
 
-      const userInfo = getUserInfo(loginRequest.userType);
+      const userInfo = getUserInfo(resolvedType);
       
       const mockResponse = {
         success: true,
@@ -348,7 +356,7 @@ export class AuthService {
             id: userInfo.id,
             email: loginRequest.email,
             fullName: userInfo.fullName,
-            userType: loginRequest.userType,
+            userType: resolvedType,
             status: 'ACTIVE',
             phoneNumber: userInfo.phoneNumber,
             profilePicture: 'assets/avatars/default-avatar.jpg',
