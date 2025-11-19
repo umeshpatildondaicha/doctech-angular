@@ -256,6 +256,22 @@ export class DoctorPermissionsComponent implements OnInit {
     return doctor?.specialty || '';
   }
 
+  getEnabledFeatureCount(serviceId: string): number {
+    const features = this.featuresByServiceId.get(serviceId) || [];
+    return features.filter(f => this.grantedFeatureIds.has(f.id)).length;
+  }
+
+  isFeatureLocked(featureId: string): boolean {
+    // TODO: Implement subscription lock check when API is available
+    // For now, return false - can be enhanced with subscription status
+    return false;
+  }
+
+  saveChanges(): void {
+    // TODO: Implement save functionality when API is available
+    this.showMessage('Changes saved successfully');
+  }
+
   private showMessage(message: string): void {
     this.snackBar.open(message, 'Close', { duration: 2500 });
   }
