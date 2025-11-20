@@ -47,7 +47,7 @@ import { LoginGuard } from './guards/login.guard';
 import { DoctorPermissionsComponent } from './pages/admin/doctor-permissions/doctor-permissions.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent },
+  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },

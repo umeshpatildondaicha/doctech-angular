@@ -1,27 +1,30 @@
-<!-- Show login page without sidebar and header -->
-<div *ngIf="!isAuthenticated">
-  <router-outlet></router-outlet>
-</div>
-
-<!-- Show main app layout with sidebar and header for authenticated users -->
-<div *ngIf="isAuthenticated" class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
-  <app-sidebar [collapsed]="sidebarCollapsed" (toggle)="toggleSidebar()"></app-sidebar>
-  <div class="main-section">
-    <app-topbar (openPatientQueue)="openPatientQueue($event)"></app-topbar>
-    <main class="main-content">
-      <router-outlet></router-outlet>
-    </main>
+<!-- Use ngSwitch to ensure only one view renders at a time -->
+<ng-container [ngSwitch]="viewMode">
+  <!-- Show login page without sidebar and header -->
+  <div *ngSwitchCase="'login'" class="login-view">
+    <router-outlet></router-outlet>
   </div>
-  
-  <!-- Backdrop for right sidebar -->
-  <div 
-    class="right-sidebar-backdrop" 
-    [class.visible]="rightSidebarOpened"
-    (click)="closeRightSidebar()"
-  ></div>
-  
-  <app-right-sidebar 
-    [opened]="rightSidebarOpened" 
-    (closeSidebar)="closeRightSidebar()"
-  ></app-right-sidebar>
-</div>
+
+  <!-- Show main app layout with sidebar and header for authenticated users -->
+  <div *ngSwitchCase="'main'" class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
+    <app-sidebar [collapsed]="sidebarCollapsed" (toggle)="toggleSidebar()"></app-sidebar>
+    <div class="main-section">
+      <app-topbar (openPatientQueue)="openPatientQueue($event)"></app-topbar>
+      <main class="main-content">
+        <router-outlet></router-outlet>
+      </main>
+    </div>
+    
+    <!-- Backdrop for right sidebar -->
+    <div 
+      class="right-sidebar-backdrop" 
+      [class.visible]="rightSidebarOpened"
+      (click)="closeRightSidebar()"
+    ></div>
+    
+    <app-right-sidebar 
+      [opened]="rightSidebarOpened" 
+      (closeSidebar)="closeRightSidebar()"
+    ></app-right-sidebar>
+  </div>
+</ng-container>
