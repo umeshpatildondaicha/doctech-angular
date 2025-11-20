@@ -30,21 +30,14 @@
     <div class="toolbar-right">
       <div class="action-icons">
         <ng-container *ngTemplateOutlet="rightTooltemplateRef"></ng-container>
-        
-        <button class="icon-btn add-btn" (click)="onAddClick()" title="Add New" *ngIf="showAddButton">
-          <mat-icon>add_circle_outline</mat-icon>
-        </button>
-        
-        <button class="icon-btn refresh-btn" (click)="onRefresh()" title="Refresh">
-          <mat-icon>sync</mat-icon>
-        </button>
-        
-        <button class="icon-btn filter-btn" (click)="onFilterClick()" title="Filter" [class.active]="activeFiltersCount > 0">
+
+        <!-- Only keep Filter icon for now -->
+        <button
+          class="icon-btn filter-btn"
+          (click)="onFilterClick()"
+          title="Filter"
+          [class.active]="activeFiltersCount > 0">
           <mat-icon>tune</mat-icon>
-        </button>
-        
-        <button class="icon-btn settings-btn" (click)="onColumnSettingsClick()" title="Column Settings">
-          <mat-icon>settings_applications</mat-icon>
         </button>
       </div>
     </div>

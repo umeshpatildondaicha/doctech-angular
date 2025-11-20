@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, HostListener, Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../tools/app-icon/icon.component';
 import { SidebarMenuItem } from '../../interfaces/sidebarmenu.interface';
@@ -32,7 +32,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private menuService: MenuService,
-    private authService: AuthService
+    private authService: AuthService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
@@ -97,6 +98,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   private checkScreenSize() {
+    // Only check screen size in browser (not during SSR)
+    if (!isPlatformBrowser(this.platformId)) {
+      // Default values for SSR
+      this.screenWidth = 1024;
+      this.isMobile = false;
+      this.isTablet = false;
+      return;
+    }
+    
     this.screenWidth = window.innerWidth;
     this.isMobile = this.screenWidth <= 768;
     this.isTablet = this.screenWidth > 768 && this.screenWidth <= 1024;

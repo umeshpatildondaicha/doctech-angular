@@ -27,4 +27,9 @@
       (closeSidebar)="closeRightSidebar()"
     ></app-right-sidebar>
   </div>
+  
+  <!-- Default case: should not happen, but safety fallback -->
+  <div *ngSwitchDefault class="login-view">
+    <router-outlet></router-outlet>
+  </div>
 </ng-container>

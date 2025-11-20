@@ -1,13 +1,4 @@
 <div class="permissions-page">
-  <!-- Breadcrumbs -->
-  <div class="breadcrumbs">
-    <span>Admin</span>
-    <mat-icon>chevron_right</mat-icon>
-    <span>Permissions</span>
-    <mat-icon>chevron_right</mat-icon>
-    <span class="active">Doctor Management</span>
-  </div>
-
   <!-- Page Header -->
   <div class="page-header">
     <div class="header-content">
@@ -18,9 +9,12 @@
     </div>
 
     <div class="controls-row">
-      <mat-form-field appearance="outline" class="doctor-select-field">
+      <mat-form-field class="doctor-select-field">
         <mat-label>Select Doctor</mat-label>
         <mat-select [formControl]="doctorSelectControl" placeholder="Choose a doctor">
+          <mat-select-trigger>
+            {{ selectedDoctorName || 'Select Doctor' }}
+          </mat-select-trigger>
           <mat-option *ngFor="let doctor of doctors" [value]="doctor.id">
             <div class="doctor-option">
               <span class="doctor-name">{{ doctor.name }}</span>
@@ -30,7 +24,7 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="search-field">
+      <mat-form-field class="search-field">
         <mat-label>Search services or features...</mat-label>
         <input matInput [formControl]="servicesFilterControl">
         <mat-icon matPrefix>search</mat-icon>

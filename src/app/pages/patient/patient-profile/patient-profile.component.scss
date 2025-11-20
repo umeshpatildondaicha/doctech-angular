@@ -4013,36 +4013,576 @@
     }
   }
 
-  // Table Styles
-  .vitals-table,
-  .medications-table,
-  .appointments-table,
-  .lab-reports-table {
-    width: 100%;
+// Table Styles (Vitals / Appointments / Labs)
+.vitals-table,
+.appointments-table,
+.lab-reports-table {
+  width: 100%;
 
-    ::ng-deep {
-      .mat-mdc-header-row {
+  ::ng-deep {
+    .mat-mdc-header-row {
+      background: var(--background-color);
+
+      .mat-mdc-header-cell {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 14px;
+      }
+    }
+
+    .mat-mdc-row {
+      &:hover {
         background: var(--background-color);
-
-        .mat-mdc-header-cell {
-          font-weight: 600;
-          color: var(--text-primary);
-          font-size: 14px;
-        }
       }
 
-      .mat-mdc-row {
-        &:hover {
-          background: var(--background-color);
+      .mat-mdc-cell {
+        color: var(--text-primary);
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Modern Medications UI
+.medications-tab {
+  .medications-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 16px 20px 20px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+
+  .medications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .medications-search {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+
+    .search-icon {
+      font-size: 18px;
+      color: #9ca3af;
+    }
+
+    .search-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      width: 100%;
+      font-size: 14px;
+      color: #111827;
+    }
+  }
+
+  .medications-actions {
+    display: flex;
+    gap: 12px;
+
+    .assign-btn,
+    .template-btn {
+      border-radius: 999px;
+      padding: 0 20px;
+      font-weight: 600;
+      text-transform: none;
+      height: 40px;
+    }
+  }
+
+  .medications-table-wrapper {
+    margin-top: 4px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
+  }
+
+  .medications-list-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+
+    thead tr {
+      background: #f9fafb;
+    }
+
+    th,
+    td {
+      padding: 12px 16px;
+      font-size: 13px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+      color: #111827;
+    }
+
+    th {
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    tbody tr:hover {
+      background: #f9fafb;
+    }
+
+    .select-col {
+      width: 40px;
+    }
+
+    .actions-col {
+      width: 80px;
+      text-align: right;
+
+      button {
+        margin-left: 4px;
+      }
+    }
+
+    .med-name {
+      font-weight: 500;
+    }
+  }
+
+  .urgency-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &.low {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    &.medium {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    &.high {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+  }
+
+  // Medication dialogs
+  .dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .medication-assign-dialog,
+  .new-medication-dialog,
+  .template-dialog {
+    width: 900px;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  // More compact center layout for the Create Template dialog
+  .template-dialog {
+    width: 520px;
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18);
+  }
+
+  .template-dialog .dialog-body {
+    padding: 16px 20px;
+  }
+
+  .template-dialog .dialog-footer.secondary {
+    border-top: 1px solid #e5e7eb;
+    padding: 12px 20px;
+    background: #f9fafb;
+  }
+
+  .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .close-btn {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+
+      mat-icon {
+        font-size: 22px;
+        color: #6b7280;
+      }
+    }
+  }
+
+  // Two-pane layout only for the main assign dialog
+  .medication-assign-dialog .dialog-body {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr;
+    gap: 0;
+    flex: 1;
+    min-height: 360px;
+  }
+
+  .dialog-left {
+    padding: 16px 20px;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dialog-right {
+    padding: 16px 20px;
+    background: #ecfeff;
+  }
+
+  .tabs-toggle {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    margin-bottom: 8px;
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+
+      &.active {
+        background: #10b981;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .browse-header {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    h4 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .browse-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+
+      mat-icon {
+        font-size: 18px;
+        color: #9ca3af;
+      }
+
+      input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        font-size: 13px;
+      }
+    }
+  }
+
+  .medicine-list {
+    margin-top: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .medicine-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 10px 8px;
+    border-radius: 10px;
+    cursor: pointer;
+
+    &:hover {
+      background: #f9fafb;
+    }
+  }
+
+  .medicine-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .medicine-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .medicine-sub {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .medicine-stock {
+      font-size: 12px;
+      color: #16a34a;
+    }
+  }
+
+  .medicine-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .dialog-right h4 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  .empty-summary {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 13px;
+    color: #6b7280;
+    padding: 0 16px;
+  }
+
+  .summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: #e0f2fe;
+  }
+
+  .summary-main {
+    .summary-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .summary-sub {
+      font-size: 12px;
+      color: #64748b;
+    }
+  }
+
+  .summary-actions button {
+    margin-left: 4px;
+  }
+
+  .dialog-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+
+    &.secondary {
+      justify-content: flex-end;
+    }
+  }
+
+  .date-range {
+    display: flex;
+    gap: 16px;
+
+    .date-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      label {
+        font-size: 11px;
+        font-weight: 500;
+        color: #6b7280;
+      }
+
+      .date-input {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+
+        span {
+          font-size: 13px;
+          color: #111827;
         }
 
-        .mat-mdc-cell {
-          color: var(--text-primary);
-          font-size: 14px;
+        mat-icon {
+          font-size: 18px;
+          color: #9ca3af;
         }
       }
     }
   }
+
+  .footer-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  // New medication dialog + template dialog use simple single-column body
+  .new-medication-dialog .dialog-body,
+  .template-dialog .dialog-body {
+    display: block;
+    min-height: auto;
+  }
+
+  .form-area {
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+
+    .form-field {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      &.full-width {
+        flex: 1 1 100%;
+      }
+
+      label {
+        font-size: 12px;
+        font-weight: 500;
+        color: #4b5563;
+      }
+
+      input,
+      textarea {
+        border-radius: 10px;
+        border: 1px solid #e5e7eb;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+
+        &:focus {
+          border-color: #10b981;
+          box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.15);
+        }
+      }
+    }
+  }
+
+  .timing-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      padding: 4px 10px;
+      font-size: 12px;
+      background: #ffffff;
+      cursor: pointer;
+
+      &.active {
+        background: #10b981;
+        color: #ffffff;
+        border-color: #10b981;
+      }
+    }
+  }
+
+  .summary-area {
+    padding: 16px 20px;
+    background: #f1f5f9;
+
+    h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #111827;
+    }
+  }
+
+  .selected-meds-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    color: #111827;
+
+    li {
+      padding: 4px 0;
+      border-bottom: 1px solid #e5e7eb;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
 
   .status-badge {
     padding: 4px 12px;

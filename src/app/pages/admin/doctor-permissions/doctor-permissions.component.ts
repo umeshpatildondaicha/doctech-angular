@@ -72,8 +72,14 @@ export class DoctorPermissionsComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
-    if (currentUser?.id) {
-      this.hospitalPublicId = currentUser.id;
+    if (currentUser) {
+      // Try to resolve hospitalPublicId from multiple possible properties
+      this.hospitalPublicId =
+        (currentUser as any).hospitalPublicId ||
+        (currentUser as any).publicId ||
+        (currentUser as any).public_id ||
+        currentUser.id ||
+        '';
     }
 
     this.seedDoctors();
@@ -104,13 +110,15 @@ export class DoctorPermissionsComponent implements OnInit {
 
   selectDoctor(doctorId: string): void {
     this.selectedDoctorId = doctorId;
-    // Optionally refresh grants from API here when available
+    // Clear local grants when switching doctor (each doctor has its own permissions)
+    this.grantedFeatureIds.clear();
+    // TODO: When API is available, load existing grants for this doctor here
   }
 
   loadServices(): void {
     this.isLoadingServices = true;
     this.catalogService.getServices().subscribe({
-      next: (services) => {
+      next: (services: ServiceCatalogItem[]) => {
         this.services = services || [];
       },
       error: () => {
@@ -128,7 +136,7 @@ export class DoctorPermissionsComponent implements OnInit {
       if (!this.featuresByServiceId.has(serviceId)) {
         this.loadingFeatureServiceIds.add(serviceId);
         this.catalogService.getFeatures(serviceId).subscribe({
-          next: (features) => {
+          next: (features: FeatureCatalogItem[]) => {
             this.featuresByServiceId.set(serviceId, features || []);
           },
           error: () => {

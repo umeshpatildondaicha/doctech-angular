@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { TopbarComponent } from './layout/topbar/topbar.component';
 import { RightSidebarComponent } from './layout/right-sidebar/right-sidebar.component';
@@ -26,13 +26,17 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
     // Check authentication state synchronously first
     this.isAuthenticated = this.authService.isAuthenticated();
-    this.currentRoute = this.router.url;
+    // Get initial route - handle both absolute and relative paths
+    // Only access window if in browser (not during SSR)
+    const initialUrl = this.router.url || (isPlatformBrowser(this.platformId) ? window.location.pathname : '/');
+    this.currentRoute = initialUrl;
     
     if (this.isAuthenticated) {
       const user = this.authService.getCurrentUser();
@@ -47,6 +51,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.isAuthenticated = !!user;
       this.userType = user?.userType || null;
       
+      // Update current route in case it changed
+      this.currentRoute = this.router.url || (isPlatformBrowser(this.platformId) ? window.location.pathname : '/');
+      
       // Force change detection to update viewMode
       this.cdr.detectChanges();
       
@@ -54,7 +61,8 @@ export class AppComponent implements OnInit, OnDestroy {
       if (wasAuthenticated !== this.isAuthenticated) {
         if (!this.isAuthenticated) {
           // User logged out, ensure we're on login page
-          if (!this.currentRoute.includes('/login')) {
+          const currentUrl = this.router.url || (isPlatformBrowser(this.platformId) ? window.location.pathname : '/');
+          if (!currentUrl.includes('/login')) {
             this.router.navigate(['/login']);
           }
         }
@@ -71,8 +79,8 @@ export class AppComponent implements OnInit, OnDestroy {
       // Force change detection to update viewMode
       this.cdr.detectChanges();
       
-      if (event.url === '/login' && this.authService.isAuthenticated()) {
-        // If user is authenticated and tries to access login, redirect to dashboard
+      // If user is authenticated and tries to access login, redirect to dashboard
+      if ((event.url === '/login' || event.url.startsWith('/login')) && this.authService.isAuthenticated()) {
         const userType = this.authService.getUserType();
         if (userType === 'HOSPITAL') {
           this.router.navigate(['/admin-dashboard']);
@@ -82,6 +90,13 @@ export class AppComponent implements OnInit, OnDestroy {
           this.router.navigate(['/dashboard']);
         }
       }
+      
+      // If user is not authenticated and on a protected route, let guards handle redirect
+      // But ensure we're showing the correct view
+      if (!this.isAuthenticated && event.url !== '/login' && !event.url.startsWith('/login')) {
+        // Guards will redirect, but ensure viewMode is correct
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -90,16 +105,21 @@ export class AppComponent implements OnInit, OnDestroy {
    * Returns 'login' or 'main' to ensure only one view is rendered
    */
   get viewMode(): 'login' | 'main' {
-    // Only show login if not authenticated AND on login route
-    if (!this.isAuthenticated && this.currentRoute.includes('/login')) {
-      return 'login';
+    // Explicitly check route first
+    const isLoginRoute = this.currentRoute === '/login' || this.currentRoute.startsWith('/login');
+    
+    // ONLY show login view if we're actually on the login route
+    // This ensures the router-outlet renders the correct component
+    if (isLoginRoute) {
+      // If authenticated and on login route, guards will redirect, but show main layout
+      // If not authenticated and on login route, show login
+      return this.isAuthenticated ? 'main' : 'login';
     }
-    // Show main layout if authenticated AND not on login route
-    if (this.isAuthenticated && !this.currentRoute.includes('/login')) {
-      return 'main';
-    }
-    // Default to login if not authenticated, main if authenticated
-    return this.isAuthenticated ? 'main' : 'login';
+    
+    // For all other routes (including protected routes), show main layout
+    // Route guards will handle authentication checks and redirects
+    // This prevents showing login view with wrong component during hot reload
+    return 'main';
   }
 
   ngOnDestroy() {

@@ -29,12 +29,9 @@ export class CatalogService {
     return this.http.sendGETRequest(url);
   }
 
-  getFeatures(serviceId?: string): Observable<FeatureCatalogItem[]> {
-    const query = serviceId ? `?serviceId=${encodeURIComponent(serviceId)}` : '';
-    const url = `${this.apiBase}/api/catalog/features${query}`;
+  getFeatures(serviceId: string): Observable<FeatureCatalogItem[]> {
+    const url = `${this.apiBase}/api/catalog/features?serviceId=${encodeURIComponent(serviceId)}`;
     return this.http.sendGETRequest(url);
   }
 }
-
-
 

@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,6 +30,7 @@ import { IconComponent } from '../../../tools/app-icon/icon.component';
 import { AppButtonComponent } from '../../../tools/app-button/app-button.component';
 import { AppInputComponent } from '../../../tools/app-input/app-input.component';
 import { AppSelectboxComponent } from '../../../tools/app-selectbox/app-selectbox.component';
+import { GridComponent } from '../../../tools/grid/grid.component';
 import { ExerciseListComponent } from '../../../components/exercise-list/exercise-list.component';
 import { ExerciseCardComponent } from '../../../components/exercise-card/exercise-card.component';
 import { DietPlanCardComponent } from '../../../components/diet-plan-card/diet-plan-card.component';
@@ -40,6 +42,8 @@ import { AppointmentBookingComponent } from '../../appointment-booking/appointme
 import { ExerciseAssignmentDialogComponent } from '../../exercise-assignment-dialog/exercise-assignment-dialog.component';
 import { DietAssignmentDialogComponent } from '../../diet-assignment-dialog/diet-assignment-dialog.component';
 import { ExerciseSetsConfigDialogComponent } from '../../exercise-sets-config-dialog/exercise-sets-config-dialog.component';
+import { MedicationAssignDialogComponent } from '../medication-assign-dialog/medication-assign-dialog.component';
+import { MedicationTemplateDialogComponent } from '../medication-template-dialog/medication-template-dialog.component';
 
 // Import new interfaces
 import { PatientRound, RoundSchedule } from '../../../interfaces/patient-rounds.interface';
@@ -75,6 +79,11 @@ interface PatientMedication {
   instructions: string;
   sideEffects?: string[];
   interactions?: string[];
+  // UI-only fields for professional medications UI
+  quantity?: number;
+  urgency?: 'Low' | 'Medium' | 'High';
+  requestedOn?: Date;
+  selected?: boolean;
 }
 
 interface VitalSign {
@@ -278,6 +287,7 @@ interface VitalTrend {
     MatListModule,
     MatChipsModule,
     MatSlideToggleModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
     MatDialogModule,
     MatTooltipModule,
@@ -293,11 +303,14 @@ interface VitalTrend {
     AppButtonComponent,
     AppInputComponent,
     AppSelectboxComponent,
+    GridComponent,
     ExerciseListComponent,
     ExerciseCardComponent,
     DietPlanCardComponent,
     DietCardComponent,
-    PatientBillingDashboardComponent
+    PatientBillingDashboardComponent,
+    MedicationAssignDialogComponent,
+    MedicationTemplateDialogComponent
   ],
   templateUrl: './patient-profile.component.html',
   styleUrls: ['./patient-profile.component.scss']
@@ -555,7 +568,10 @@ export class PatientProfileComponent implements OnInit {
       status: 'active',
       instructions: 'Take with meals to reduce stomach upset',
       sideEffects: ['Nausea', 'Diarrhea'],
-      interactions: ['Alcohol may increase risk of lactic acidosis']
+      interactions: ['Alcohol may increase risk of lactic acidosis'],
+      quantity: 30,
+      urgency: 'Low',
+      requestedOn: new Date('2025-11-12')
     },
     {
       id: 'M002',
@@ -568,7 +584,10 @@ export class PatientProfileComponent implements OnInit {
       status: 'active',
       instructions: 'Take in the morning',
       sideEffects: ['Dry cough', 'Dizziness'],
-      interactions: ['NSAIDs may reduce effectiveness']
+      interactions: ['NSAIDs may reduce effectiveness'],
+      quantity: 60,
+      urgency: 'Medium',
+      requestedOn: new Date('2025-11-10')
     },
     {
       id: 'M003',
@@ -581,9 +600,139 @@ export class PatientProfileComponent implements OnInit {
       status: 'active',
       instructions: 'Take at bedtime',
       sideEffects: ['Muscle pain', 'Liver enzyme elevation'],
-      interactions: ['Grapefruit juice may increase levels']
+      interactions: ['Grapefruit juice may increase levels'],
+      quantity: 21,
+      urgency: 'High',
+      requestedOn: new Date('2025-11-08')
     }
   ];
+
+  // Medications UI state
+  medicationsSearch: string = '';
+  showAssignMedicationsDialog = false;
+  showNewMedicationDialog = false;
+  activeMedicationAssignTab: 'medicines' | 'template' = 'medicines';
+
+  availableMedicines = [
+    { id: 'A001', name: 'Paracetamol', dosage: '500mg', frequency: 'Twice a day', quantityAvailable: 42 },
+    { id: 'A002', name: 'Ibuprofen', dosage: '250mg', frequency: 'When needed', quantityAvailable: 23 },
+    { id: 'A003', name: 'Amoxicillin', dosage: '500mg', frequency: '2 times a day', quantityAvailable: 12 }
+  ];
+
+  selectedAssignMedicines: PatientMedication[] = [];
+
+  get filteredMedications(): PatientMedication[] {
+    const q = this.medicationsSearch.trim().toLowerCase();
+    if (!q) {
+      return this.medications;
+    }
+    return this.medications.filter(m =>
+      m.name.toLowerCase().includes(q) ||
+      m.dosage.toLowerCase().includes(q) ||
+      m.frequency.toLowerCase().includes(q)
+    );
+  }
+
+  today: Date = new Date();
+
+  // Medications grid
+  medicationsColumns: any[] = [];
+  medicationsGridOptions: any = {};
+
+  // Medication templates
+  medicationTemplates: {
+    id: string;
+    name: string;
+    medicineIds: string[];
+  }[] = [];
+
+  showCreateTemplateDialog = false;
+  newTemplateName: string = '';
+
+  openAssignMedicationsDialog(): void {
+    this.activeMedicationAssignTab = 'medicines';
+    this.showAssignMedicationsDialog = true;
+  }
+
+  openMedicationTemplateDialog(): void {
+    // For now just open the same assignment dialog on Template tab
+    this.activeMedicationAssignTab = 'template';
+    this.showAssignMedicationsDialog = true;
+  }
+
+  closeAssignMedicationsDialog(): void {
+    this.showAssignMedicationsDialog = false;
+  }
+
+  openNewMedicationDialog(): void {
+    this.showNewMedicationDialog = true;
+  }
+
+  closeNewMedicationDialog(): void {
+    this.showNewMedicationDialog = false;
+  }
+
+  handleAddMedicineToForm(med: any): void {
+    // This is handled by the dialog component itself
+    // The dialog will show the form when a medicine is clicked
+  }
+
+  handleAddMedicineToCart(medicineData: any): void {
+    // Add medicine to cart with form data
+    const medicineToAdd: PatientMedication = {
+      id: medicineData.id || `M-${Date.now()}`,
+      name: medicineData.name,
+      dosage: medicineData.dosage || '',
+      frequency: medicineData.frequency || '',
+      route: medicineData.route || 'Oral',
+      startDate: new Date(),
+      prescribedBy: this.patientInfo.primaryDoctor,
+      status: 'active',
+      instructions: medicineData.symptoms || '',
+      quantity: parseInt(medicineData.quantity) || 30,
+      urgency: 'Low',
+      requestedOn: new Date(),
+      selected: false
+    };
+    this.selectedAssignMedicines = [...this.selectedAssignMedicines, medicineToAdd];
+  }
+
+  handleEditSelectedMedicine(med: PatientMedication): void {
+    // TODO: Open form with medicine data pre-filled for editing
+    // For now, just remove and let user re-add
+    this.removeSelectedAssignMedicine(med.id);
+  }
+
+  handleSelectTemplate(templateId: string): void {
+    // Find the template
+    const template = this.medicationTemplates.find(t => t.id === templateId);
+    if (!template) return;
+
+    // Find all medicines from the template and add them to cart
+    template.medicineIds.forEach(medId => {
+      const med = this.medications.find(m => m.id === medId);
+      if (med && !this.selectedAssignMedicines.find(m => m.id === medId)) {
+        this.selectedAssignMedicines = [
+          ...this.selectedAssignMedicines,
+          {
+            ...med,
+            selected: false
+          }
+        ];
+      }
+    });
+  }
+
+  handleAssignMedicines(): void {
+    // Add all selected medicines to the main medications list
+    this.medications = [...this.medications, ...this.selectedAssignMedicines];
+    this.selectedAssignMedicines = [];
+    this.closeAssignMedicationsDialog();
+  }
+
+  removeSelectedAssignMedicine(medId: string): void {
+    this.selectedAssignMedicines = this.selectedAssignMedicines.filter(m => m.id !== medId);
+  }
 
   // Vital Signs
   vitalSigns: VitalSign[] = [
@@ -988,9 +1137,109 @@ export class PatientProfileComponent implements OnInit {
     this.initializeCareTeam();
     this.initializeVitalTrends();
     this.startRealTimeUpdates();
+    this.initializeMedicationsGrid();
 
     // Fallback: if no patient id in URL updated the tabs yet, try loading defaults from storage
     this.loadTabsFromStorage();
+  }
+
+  private initializeMedicationsGrid(): void {
+    this.medicationsColumns = [
+      {
+        colId: 'select',
+        headerName: '',
+        width: 48,
+        minWidth: 48,
+        maxWidth: 48,
+        sortable: false,
+        filter: false,
+        resizable: false,
+        suppressMovable: true,
+        lockPosition: 'left',
+        pinned: 'left',
+        suppressSizeToFit: true,
+        cellStyle: { display: 'flex', alignItems: 'center', justifyContent: 'center' },
+        // Custom checkbox renderer so we are not dependent on ag-grid's internal selection column,
+        // and we can directly control the `selected` flag used for template creation.
+        cellRenderer: (params: any) => {
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.checked = !!params.data?.selected;
+          input.addEventListener('change', () => {
+            params.data.selected = input.checked;
+          });
+          return input;
+        }
+      },
+      { headerName: 'Medicine Name', field: 'name', sortable: true, filter: 'agTextColumnFilter' },
+      { headerName: 'Dosage', field: 'dosage', sortable: true, filter: 'agTextColumnFilter', width: 120 },
+      { headerName: 'Frequency', field: 'frequency', sortable: true, filter: 'agTextColumnFilter' },
+      { headerName: 'Quantity', field: 'quantity', width: 110 },
+      { headerName: 'Urgency', field: 'urgency', width: 110 },
+      { headerName: 'Requested On', field: 'requestedOn', valueGetter: (p: any) => p.data.requestedOn ? new Date(p.data.requestedOn).toLocaleDateString() : new Date(p.data.startDate).toLocaleDateString(), width: 130 },
+      { headerName: 'Status', field: 'status', width: 120 }
+    ];
+
+    this.medicationsGridOptions = {
+      // We rely on the custom checkbox column above and the `selected` flag,
+      // so no special ag-grid selection configuration is required.
+      rowSelection: 'single',
+      menuActions: [
+        {
+          title: 'Edit',
+          icon: 'edit',
+          click: (param: any) => {
+            console.log('Edit medication', param.data);
+            this.openNewMedicationDialog();
+          }
+        },
+        {
+          title: 'Delete',
+          icon: 'delete',
+          click: (param: any) => {
+            console.log('Delete medication', param.data);
+            this.medications = this.medications.filter(m => m.id !== param.data.id);
+          }
+        }
+      ]
+    };
+  }
+
+  // Template creation helpers
+  getSelectedMedicationsForTemplate(): PatientMedication[] {
+    return this.medications.filter(m => m.selected);
+  }
+
+  canCreateMedicationTemplate(): boolean {
+    return this.getSelectedMedicationsForTemplate().length > 0;
+  }
+
+  openCreateTemplateDialog(): void {
+    if (!this.canCreateMedicationTemplate()) {
+      // Require at least one selection
+      return;
+    }
+    this.newTemplateName = '';
+    this.showCreateTemplateDialog = true;
+  }
+
+  closeCreateTemplateDialog(): void {
+    this.showCreateTemplateDialog = false;
+  }
+
+  saveMedicationTemplate(): void {
+    const selected = this.getSelectedMedicationsForTemplate();
+    if (!this.newTemplateName.trim() || selected.length === 0) {
+      return;
+    }
+    const template = {
+      id: `T-${Date.now()}`,
+      name: this.newTemplateName.trim(),
+      medicineIds: selected.map(m => m.id)
+    };
+    this.medicationTemplates.push(template);
+    this.showCreateTemplateDialog = false;
+    this.newTemplateName = '';
   }
 
   initializeForm(): void {

@@ -1,0 +1,48 @@
+<div class="dialog-overlay">
+  <div class="template-dialog">
+    <div class="dialog-header">
+      <h3>Create Medication Template</h3>
+      <button class="close-btn" (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <div class="form-area">
+        <div class="form-row">
+          <div class="form-field full-width">
+            <label>Template Name</label>
+            <input
+              type="text"
+              [ngModel]="templateName"
+              (ngModelChange)="onNameInput($event)"
+              placeholder="e.g., Hypertension Starter Pack" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field full-width">
+            <label>Selected Medicines</label>
+            <ul class="selected-meds-list">
+              <li *ngFor="let med of selectedMedications">
+                {{ med.name }} • {{ med.dosage }} • {{ med.frequency }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dialog-footer secondary">
+      <div class="footer-actions">
+        <button mat-stroked-button (click)="onCancel()">Cancel</button>
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="!templateName.trim() || selectedMedications.length === 0"
+          (click)="onSave()">
+          Save Template
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
