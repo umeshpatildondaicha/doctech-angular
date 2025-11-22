@@ -134,14 +134,12 @@ interface DoctorSchedule {
     MatNativeDateModule,
     ReactiveFormsModule,
     FormsModule,
-    GridComponent,
     AppButtonComponent,
     IconComponent,
     CalendarComponent
   ],
   templateUrl: './schedule.component.html',
-  styleUrls: ['./schedule.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./schedule.component.scss']
 })
 export class ScheduleComponent implements OnInit {
   // View Management

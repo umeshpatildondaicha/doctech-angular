@@ -65,7 +65,26 @@ export class AuthService {
       const user = this.getStoredUser();
       const rememberMe = this.getRememberMeStatus();
 
-              if (token && user && this.isTokenValid(token)) {
+      if (token && user && this.isTokenValid(token)) {
+        const currentUser: CurrentUser = {
+          user,
+          token,
+          tokenExpiresAt: this.getTokenExpiration(token),
+          isAuthenticated: true,
+          userType: user.userType
+        };
+
+        this.updateAuthState({
+          currentUser,
+          isLoading: false,
+          error: null,
+          isAuthenticated: true
+        });
+      } else if (token && user && !this.isTokenValid(token)) {
+        // Token is expired, but we have user data - attempt to refresh
+        const refreshToken = this.getStoredRefreshToken();
+        if (refreshToken) {
+          // Keep user authenticated while attempting refresh
           const currentUser: CurrentUser = {
             user,
             token,
@@ -74,13 +93,60 @@ export class AuthService {
             userType: user.userType
           };
 
-        this.updateAuthState({
-          currentUser,
-          isLoading: false,
-          error: null,
-          isAuthenticated: true
-        });
+          this.updateAuthState({
+            currentUser,
+            isLoading: true,
+            error: null,
+            isAuthenticated: true
+          });
+
+          // Attempt to refresh token in background
+          this.refreshToken().subscribe({
+            next: (success) => {
+              if (!success) {
+                // Refresh failed, clear auth data
+                this.clearStoredAuthData();
+                this.updateAuthState({
+                  currentUser: null,
+                  isLoading: false,
+                  error: null,
+                  isAuthenticated: false
+                });
+              }
+              // If refresh succeeds, handleSuccessfulLogin will update the state
+            },
+            error: () => {
+              // Refresh failed, clear auth data
+              this.clearStoredAuthData();
+              this.updateAuthState({
+                currentUser: null,
+                isLoading: false,
+                error: null,
+                isAuthenticated: false
+              });
+            }
+          });
+        } else {
+          // No refresh token available, but keep user authenticated
+          // Let the guard decide whether to allow access or redirect
+          // This prevents clearing data before the guard can check
+          const currentUser: CurrentUser = {
+            user,
+            token,
+            tokenExpiresAt: this.getTokenExpiration(token),
+            isAuthenticated: true,
+            userType: user.userType
+          };
+
+          this.updateAuthState({
+            currentUser,
+            isLoading: false,
+            error: null,
+            isAuthenticated: true
+          });
+        }
       } else {
+        // No token or user data
         this.clearStoredAuthData();
         this.updateAuthState({
           currentUser: null,
@@ -102,10 +168,16 @@ export class AuthService {
   }
 
   /**
-   * Authenticate user with email, password, and user type
+   * Authenticate user with email and password
    */
   public login(loginRequest: LoginRequest, rememberMe: boolean = false): Observable<boolean> {
-    this.updateAuthState({ ...this._authState.value, isLoading: true, error: null });
+    // Reset state and set loading
+    this.updateAuthState({ 
+      currentUser: null,
+      isLoading: true, 
+      error: null,
+      isAuthenticated: false
+    });
 
     // Create HTTP options with proper headers
     const httpOptions = {
@@ -114,57 +186,74 @@ export class AuthService {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       },
-      withCredentials: false // Don't send credentials for CORS
+      withCredentials: false
     };
 
-    console.log('Making login request to:', `${environment.apiUrl}/api/auth/login`);
-    console.log('Request payload:', loginRequest);
-    console.log('HTTP options:', httpOptions);
+    console.log('Login request:', {
+      url: `${environment.apiUrl}/api/auth/login`,
+      email: loginRequest.email,
+      rememberMe
+    });
 
     return this.http.post<any>(`${environment.apiUrl}/api/auth/login`, loginRequest, httpOptions).pipe(
       tap((response: any) => {
-        console.log('Backend response:', response);
-        console.log('Response type:', typeof response);
-        console.log('Response keys:', Object.keys(response));
+        console.log('Login response received');
+        // Validate response has required data
+        if (!response) {
+          throw new Error('Empty response from server');
+        }
         this.handleSuccessfulLogin(response, rememberMe);
       }),
-      map((): boolean => true),
-      catchError((error: HttpErrorResponse) => {
+      map((): boolean => {
+        // Verify authentication was successful
+        const isAuth = this.isAuthenticated();
+        if (!isAuth) {
+          throw new Error('Authentication failed - user not authenticated after login');
+        }
+        return true;
+      }),
+      catchError((error: HttpErrorResponse | Error) => {
         console.error('Login error:', error);
-        console.error('Error details:', {
-          status: error.status,
-          statusText: error.statusText,
-          message: error.message,
-          url: error.url,
-          error: error.error,
-          headers: error.headers
-        });
         
-        // Handle parsing errors (status 200 but can't parse JSON)
-        if (error.status === 200 && error.message.includes('Http failure during parsing')) {
-          console.error('Server returned 200 but response is not valid JSON. Response:', error.error);
-          const errorMessage = 'Server returned invalid response format. Please check server configuration.';
+        // Handle HTTP errors
+        if (error instanceof HttpErrorResponse) {
+          // Handle parsing errors (status 200 but can't parse JSON)
+          if (error.status === 200 && error.message.includes('Http failure during parsing')) {
+            const errorMessage = 'Server returned invalid response format';
+            this.updateAuthState({ 
+              currentUser: null,
+              isLoading: false, 
+              error: errorMessage,
+              isAuthenticated: false
+            });
+            return throwError(() => new Error(errorMessage));
+          }
+          
+          // Check if it's a connection error and try mock login
+          if (error.status === 0 || error.status === 502 || error.status === 503) {
+            console.log('Backend server unavailable, attempting mock login...');
+            return this.handleMockLogin(loginRequest, rememberMe);
+          }
+          
+          const errorMessage = this.handleLoginError(error);
           this.updateAuthState({ 
-            ...this._authState.value, 
+            currentUser: null,
             isLoading: false, 
-            error: errorMessage 
+            error: errorMessage,
+            isAuthenticated: false
           });
           return throwError(() => new Error(errorMessage));
         }
         
-        // Check if it's a connection error and try mock login
-        if (error.status === 0 || error.status === 502 || error.status === 503) {
-          console.log('Backend server unavailable, attempting mock login...');
-          return this.handleMockLogin(loginRequest, rememberMe);
-        }
-        
-        const errorMessage = this.handleLoginError(error);
+        // Handle other errors
+        const errorMessage = error.message || 'Login failed';
         this.updateAuthState({ 
-          ...this._authState.value, 
+          currentUser: null,
           isLoading: false, 
-          error: errorMessage 
+          error: errorMessage,
+          isAuthenticated: false
         });
-        return throwError(() => new Error(errorMessage));
+        return throwError(() => error);
       })
     );
   }
@@ -175,73 +264,91 @@ export class AuthService {
   private handleSuccessfulLogin(response: any, rememberMe: boolean): void {
     console.log('Processing login response:', response);
     
-    // Handle different response structures
-    let user: UserInfo;
-    let token: string;
-    let expiresIn: number = 3600; // Default 1 hour
-    let userType: string;
-    
-    // Check if response has a nested user object or if user data is at root level
-    if (response.user) {
-      user = response.user;
-      token = response.accessToken || response.token;
-      expiresIn = response.expiresIn || 3600;
-      userType = response.user.userType || response.userType;
-    } else if (response.data && response.data.user) {
-      // Handle nested data structure
-      user = response.data.user;
-      token = response.data.token || response.data.accessToken;
-      expiresIn = response.data.expiresIn || 3600;
-      userType = response.data.user.userType || response.data.userType;
-    } else {
-      // If user data is at root level (common in some APIs)
-      user = {
-        id: response.userId || response.registrationNumber || response.hospitalId || response.doctorId || response.patientId || '1',
-        email: response.email,
-        fullName: response.displayName || response.name || response.fullName || response.firstName + ' ' + response.lastName,
-        userType: response.userType || 'HOSPITAL',
-        profilePicture: response.profilePicture || response.hospitalLogo || 'assets/avatars/default-avatar.jpg',
-        phoneNumber: response.contactNumber || response.phoneNumber,
-        role: response.role || 'ADMIN',
-        permissions: response.permissions || [],
-        createdAt: response.createdDate || new Date().toISOString(),
-        lastLoginAt: response.loginTime || new Date().toISOString(),
-        status: response.active ? 'ACTIVE' : 'INACTIVE'
+    try {
+      // Extract data from response - handle multiple response structures
+      const data = response.data || response;
+      
+      // Extract token - check multiple possible locations
+      const token = data.accessToken || data.token || data.access_token || response.accessToken || response.token;
+      if (!token) {
+        throw new Error('No access token found in login response');
+      }
+
+      // Extract refresh token - check multiple possible locations
+      const refreshToken = data.refreshToken || data.refresh_token || response.refreshToken || response.refresh_token;
+      console.log('Refresh token found:', !!refreshToken);
+
+      // Extract expiresIn
+      const expiresIn = data.expiresIn || data.expires_in || response.expiresIn || 3600;
+      const expiresInSeconds = typeof expiresIn === 'number' ? expiresIn : parseInt(expiresIn, 10) || 3600;
+
+      // Extract user data
+      let user: UserInfo;
+      if (data.user) {
+        user = data.user;
+      } else if (response.user) {
+        user = response.user;
+      } else {
+        // Construct user from root level data
+        user = {
+          id: data.userId || data.id || response.userId || response.id || '1',
+          email: data.email || response.email || '',
+          fullName: data.fullName || data.name || data.displayName || response.fullName || response.name || 'User',
+          userType: data.userType || data.user_type || response.userType || 'HOSPITAL',
+          profilePicture: data.profilePicture || data.profile_picture || response.profilePicture || 'assets/avatars/default-avatar.jpg',
+          phoneNumber: data.phoneNumber || data.phone_number || response.phoneNumber || '',
+          role: data.role || response.role || 'ADMIN',
+          permissions: data.permissions || response.permissions || [],
+          createdAt: data.createdAt || data.created_at || response.createdAt || new Date().toISOString(),
+          lastLoginAt: data.lastLoginAt || data.last_login_at || response.lastLoginAt || new Date().toISOString(),
+          status: (data.status || data.active || response.status || response.active) ? 'ACTIVE' : 'INACTIVE'
+        };
+      }
+
+      // Validate required user fields
+      if (!user.id || !user.email) {
+        throw new Error('Invalid user data in login response');
+      }
+
+      // Calculate token expiration
+      const tokenExpiresAt = Date.now() + (expiresInSeconds * 1000);
+
+      // Create current user object
+      const currentUser: CurrentUser = {
+        user,
+        token,
+        tokenExpiresAt,
+        isAuthenticated: true,
+        userType: user.userType || 'HOSPITAL'
       };
-      token = response.accessToken || response.token;
-      expiresIn = response.expiresIn || 3600;
-      userType = response.userType || 'HOSPITAL';
+
+      console.log('Login successful - User:', user.email, 'Type:', currentUser.userType);
+      console.log('Token expires at:', new Date(tokenExpiresAt).toISOString());
+      console.log('Refresh token stored:', !!refreshToken);
+
+      // Store authentication data FIRST (before state update)
+      this.storeAuthData(token, refreshToken, user, rememberMe);
+
+      // Update state AFTER storing data
+      this.updateAuthState({
+        currentUser,
+        isLoading: false,
+        error: null,
+        isAuthenticated: true
+      });
+
+      // Navigation will be handled by the component via authState$ subscription
+      // This keeps the service decoupled from routing
+    } catch (error: any) {
+      console.error('Error processing login response:', error);
+      this.updateAuthState({
+        currentUser: null,
+        isLoading: false,
+        error: error.message || 'Failed to process login response',
+        isAuthenticated: false
+      });
+      throw error;
     }
-
-    console.log('Extracted user type:', userType);
-    console.log('Full user object:', user);
-
-    const currentUser: CurrentUser = {
-      user,
-      token: token || 'dummy-token', // Fallback token
-      tokenExpiresAt: Date.now() + (expiresIn * 1000),
-      isAuthenticated: true,
-      userType
-    };
-
-    console.log('Created current user:', currentUser);
-
-    // Store authentication data
-    this.storeAuthData(token || 'dummy-token', response.refreshToken, user, rememberMe);
-
-    // Update state
-    this.updateAuthState({
-      currentUser,
-      isLoading: false,
-      error: null,
-      isAuthenticated: true
-    });
-
-    // Navigate based on user type
-    console.log('About to navigate for user type:', userType);
-    setTimeout(() => {
-      this.navigateAfterLogin(userType);
-    }, 100);
   }
 
   /**
@@ -429,17 +536,26 @@ export class AuthService {
     const refreshToken = this.getStoredRefreshToken();
     
     if (!refreshToken) {
+      console.warn('No refresh token available for token refresh');
       return of(false);
     }
 
-    return this.http.post<AuthResponse>(`${environment.apiUrl}/api/auth/refresh`, { refreshToken }).pipe(
-      tap((response: AuthResponse) => {
+    console.log('Attempting to refresh token...');
+
+    return this.http.post<any>(`${environment.apiUrl}/api/auth/refresh`, { refreshToken }).pipe(
+      tap((response: any) => {
+        console.log('Token refresh successful');
+        // Use the same login handler to process the refresh response
         this.handleSuccessfulLogin(response, this.getRememberMeStatus());
       }),
       map(() => true),
       catchError((error: HttpErrorResponse) => {
         console.error('Token refresh failed:', error);
-        this.logout();
+        // Only logout if it's a real auth error, not a network error
+        if (error.status === 401 || error.status === 403) {
+          console.log('Refresh token invalid, logging out');
+          this.logout();
+        }
         return of(false);
       })
     );
@@ -544,23 +660,46 @@ export class AuthService {
     }
     
     try {
-      if (rememberMe) {
-        localStorage.setItem(this.TOKEN_KEY, token);
-        if (refreshToken) {
-          localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
-        }
-        localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        localStorage.setItem(this.REMEMBER_ME_KEY, 'true');
-      } else {
-        sessionStorage.setItem(this.TOKEN_KEY, token);
-        if (refreshToken) {
-          sessionStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
-        }
-        sessionStorage.setItem(this.USER_KEY, JSON.stringify(user));
-        sessionStorage.setItem(this.REMEMBER_ME_KEY, 'false');
+      // Validate token before storing
+      if (!token || token === 'dummy-token') {
+        console.error('Invalid token provided for storage');
+        throw new Error('Invalid token');
       }
+
+      // Preserve existing refresh token if new one is not provided (for token refresh scenarios)
+      const existingRefreshToken = this.getStoredRefreshToken();
+      const tokenToStore = refreshToken || existingRefreshToken;
+      
+      const storage = rememberMe ? localStorage : sessionStorage;
+      
+      // Store token
+      storage.setItem(this.TOKEN_KEY, token);
+      
+      // Store refresh token if available
+      if (tokenToStore) {
+        storage.setItem(this.REFRESH_TOKEN_KEY, tokenToStore);
+        console.log('Refresh token stored in', rememberMe ? 'localStorage' : 'sessionStorage');
+      } else {
+        // Remove refresh token if not provided and not preserving existing
+        storage.removeItem(this.REFRESH_TOKEN_KEY);
+        console.warn('No refresh token provided or found');
+      }
+      
+      // Store user data
+      storage.setItem(this.USER_KEY, JSON.stringify(user));
+      
+      // Store remember me preference
+      storage.setItem(this.REMEMBER_ME_KEY, rememberMe ? 'true' : 'false');
+      
+      console.log('Auth data stored successfully:', {
+        hasToken: !!token,
+        hasRefreshToken: !!tokenToStore,
+        rememberMe,
+        storage: rememberMe ? 'localStorage' : 'sessionStorage'
+      });
     } catch (error) {
       console.error('Error storing auth data:', error);
+      throw error;
     }
   }
 
@@ -590,7 +729,7 @@ export class AuthService {
   /**
    * Get stored authentication token
    */
-  private getStoredToken(): string | null {
+  public getStoredToken(): string | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null; // Return null during SSR
     }
@@ -605,7 +744,7 @@ export class AuthService {
   /**
    * Get stored refresh token
    */
-  private getStoredRefreshToken(): string | null {
+  public getStoredRefreshToken(): string | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null; // Return null during SSR
     }
@@ -620,7 +759,7 @@ export class AuthService {
   /**
    * Get stored user data
    */
-  private getStoredUser(): UserInfo | null {
+  public getStoredUser(): UserInfo | null {
     if (!isPlatformBrowser(this.platformId)) {
       return null; // Return null during SSR
     }

@@ -1,12 +1,12 @@
-<!-- Use ngSwitch to ensure only one view renders at a time -->
-<ng-container [ngSwitch]="viewMode">
+<!-- Use @if() to ensure only one view renders at a time -->
+@if (viewMode === 'login') {
   <!-- Show login page without sidebar and header -->
-  <div *ngSwitchCase="'login'" class="login-view">
+  <div class="login-view">
     <router-outlet></router-outlet>
   </div>
-
+} @else {
   <!-- Show main app layout with sidebar and header for authenticated users -->
-  <div *ngSwitchCase="'main'" class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
+  <div class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
     <app-sidebar [collapsed]="sidebarCollapsed" (toggle)="toggleSidebar()"></app-sidebar>
     <div class="main-section">
       <app-topbar (openPatientQueue)="openPatientQueue($event)"></app-topbar>
@@ -27,9 +27,4 @@
       (closeSidebar)="closeRightSidebar()"
     ></app-right-sidebar>
   </div>
-  
-  <!-- Default case: should not happen, but safety fallback -->
-  <div *ngSwitchDefault class="login-view">
-    <router-outlet></router-outlet>
-  </div>
-</ng-container>
+}

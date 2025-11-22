@@ -1,69 +1,5 @@
 <div class="patient-queue-container">
 
-
-  <!-- Statistics Cards -->
-  <div class="stats-section">
-    <div class="stat-card total-patients">
-      <div class="stat-icon">
-        <mat-icon>groups</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.totalPatients }}</div>
-        <div class="stat-label">Total Patients</div>
-      </div>
-    </div>
-    
-    <div class="stat-card waiting">
-      <div class="stat-icon">
-        <mat-icon>schedule</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.waiting }}</div>
-        <div class="stat-label">Waiting</div>
-      </div>
-    </div>
-    
-    <div class="stat-card in-progress">
-      <div class="stat-icon">
-        <mat-icon>medical_services</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.inProgress }}</div>
-        <div class="stat-label">In Progress</div>
-      </div>
-    </div>
-    
-    <div class="stat-card completed">
-      <div class="stat-icon">
-        <mat-icon>check_circle</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.completed }}</div>
-        <div class="stat-label">Completed</div>
-      </div>
-    </div>
-    
-    <div class="stat-card wait-time">
-      <div class="stat-icon">
-        <mat-icon>access_time</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.averageWaitTime }}m</div>
-        <div class="stat-label">Avg Wait Time</div>
-      </div>
-    </div>
-    
-    <div class="stat-card completion-time">
-      <div class="stat-icon">
-        <mat-icon>event_available</mat-icon>
-      </div>
-      <div class="stat-content">
-        <div class="stat-number">{{ queueStatistics.estimatedCompletionTime }}</div>
-        <div class="stat-label">Est. Completion</div>
-      </div>
-    </div>
-  </div>
-
   <!-- Current Patient Section -->
   <div class="current-patient-section" *ngIf="currentPatient">
     <div class="section-header">
@@ -156,7 +92,32 @@
     <!-- Left Sidebar - Queue List -->
     <div class="queue-sidebar">
       <div class="sidebar-header">
-        <h3 class="sidebar-title">Patient Queue</h3>
+        <div class="sidebar-header-content">
+
+          <h3 class="sidebar-title">Patient Queue</h3>
+
+          <div class="sidebar-header-content-chips">
+            <div class="stat-card wait-time">
+              <div class="stat-icon">
+                <mat-icon>access_time</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.averageWaitTime }}m</div>
+                <div class="stat-label">Avg Wait Time</div>
+              </div>
+            </div>
+            
+            <div class="stat-card completion-time">
+              <div class="stat-icon">
+                <mat-icon>event_available</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.estimatedCompletionTime }}</div>
+                <div class="stat-label">Est. Completion</div>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <!-- Search and Filters -->
         <div class="search-filters">
@@ -170,22 +131,86 @@
           </div>
           
           <div class="filter-controls">
-            <select [(ngModel)]="filterStatus" (ngModelChange)="onFiltersChanged()" class="filter-select">
-              <option value="ALL">All Status</option>
-              <option value="WAITING">Waiting</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="COMPLETED">Completed</option>
-              <option value="NO_SHOW">No Show</option>
-            </select>
+            <app-selectbox
+              [(ngModel)]="filterStatus"
+              (ngModelChange)="onFiltersChanged()"
+              [options]="statusOptions"
+              [displayExpr]="'label'"
+              [valueField]="'value'"
+              placeholder="All Status"
+              class="filter-select">
+            </app-selectbox>
             
-            <select [(ngModel)]="sortBy" (ngModelChange)="onFiltersChanged()" class="filter-select">
-              <option value="queuePosition">Queue Position</option>
-              <option value="priority">Priority</option>
-              <option value="waitTime">Wait Time</option>
-              <option value="checkInTime">Check-in Time</option>
-            </select>
+            <app-selectbox
+              [(ngModel)]="sortBy"
+              (ngModelChange)="onFiltersChanged()"
+              [options]="sortByOptions"
+              [displayExpr]="'label'"
+              [valueField]="'value'"
+              placeholder="Queue Position"
+              class="filter-select">
+            </app-selectbox>
+          </div>
+
+           <!-- Statistics Cards -->
+          <div class="stats-section">
+            <div class="stat-card total-patients" 
+                [class.active]="filterStatus === 'ALL'"
+                (click)="applyFilter('ALL')"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="applyFilter('ALL')"
+                (keydown.space)="$event.preventDefault(); applyFilter('ALL')">
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.totalPatients }}</div>
+                <div class="stat-label">Total Patients</div>
+              </div>
+            </div>
+            
+            <div class="stat-card waiting"
+                [class.active]="filterStatus === 'WAITING'"
+                (click)="applyFilter('WAITING')"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="applyFilter('WAITING')"
+                (keydown.space)="$event.preventDefault(); applyFilter('WAITING')">
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.waiting }}</div>
+                <div class="stat-label">Waiting</div>
+              </div>
+            </div>
+            
+            <div class="stat-card in-progress"
+                [class.active]="filterStatus === 'IN_PROGRESS'"
+                (click)="applyFilter('IN_PROGRESS')"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="applyFilter('IN_PROGRESS')"
+                (keydown.space)="$event.preventDefault(); applyFilter('IN_PROGRESS')">
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.inProgress }}</div>
+                <div class="stat-label">In Progress</div>
+              </div>
+            </div>
+            
+            <div class="stat-card completed"
+                [class.active]="filterStatus === 'COMPLETED'"
+                (click)="applyFilter('COMPLETED')"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="applyFilter('COMPLETED')"
+                (keydown.space)="$event.preventDefault(); applyFilter('COMPLETED')">
+              <div class="stat-content">
+                <div class="stat-number">{{ queueStatistics.completed }}</div>
+                <div class="stat-label">Completed</div>
+              </div>
+            </div>
+            
+
           </div>
         </div>
+
+
       </div>
       
       <!-- Queue List -->

@@ -15,10 +15,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { PatientQueueDisplay, QueueStatistics } from '../../interfaces/patient-queue.interface';
 import { CustomEventsService } from '../../services/custom-events.service';
 import { PatientQueueService } from '../../services/patient-queue.service';
-import { IconComponent } from '../../tools/app-icon/icon.component';
 import { NotesDialogComponent } from '../../tools/notes-dialog';
 import { AppointmentRescheduleComponent } from '../appointment-reschedule/appointment-reschedule.component';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { AppSelectboxComponent } from '../../tools/app-selectbox/app-selectbox.component';
 
 @Component({
   selector: 'app-patient-queue',
@@ -35,7 +35,7 @@ import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-
     MatMenuModule,
     FormsModule,
     ReactiveFormsModule,
-    IconComponent
+    AppSelectboxComponent
   ],
   templateUrl: './patient-queue.component.html',
   styleUrl: './patient-queue.component.scss'
@@ -62,6 +62,22 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
   filterStatus: string = 'ALL';
   sortBy: string = 'queuePosition';
   isRefreshing = false;
+
+  // Filter options
+  statusOptions = [
+    { value: 'ALL', label: 'All Status' },
+    { value: 'WAITING', label: 'Waiting' },
+    { value: 'IN_PROGRESS', label: 'In Progress' },
+    { value: 'COMPLETED', label: 'Completed' },
+    { value: 'NO_SHOW', label: 'No Show' }
+  ];
+
+  sortByOptions = [
+    { value: 'queuePosition', label: 'Queue Position' },
+    { value: 'priority', label: 'Priority' },
+    { value: 'waitTime', label: 'Wait Time' },
+    { value: 'checkInTime', label: 'Check-in Time' }
+  ];
 
 
 
@@ -142,6 +158,32 @@ export class PatientQueueComponent implements OnInit, OnDestroy {
       },
       queryParamsHandling: 'merge'
     });
+  }
+
+  /**
+   * Apply filter when clicking on stat card
+   */
+  applyFilter(status: string): void {
+    this.filterStatus = status;
+    this.onFiltersChanged();
+  }
+
+  /**
+   * Apply sort when clicking on wait time stat card
+   */
+  applySort(sortField: string): void {
+    this.sortBy = sortField;
+    this.onFiltersChanged();
+  }
+
+  /**
+   * Reset all filters to default
+   */
+  resetFilters(): void {
+    this.filterStatus = 'ALL';
+    this.sortBy = 'queuePosition';
+    this.searchTerm = '';
+    this.onFiltersChanged();
   }
 
   private startAutoRefresh(): void {

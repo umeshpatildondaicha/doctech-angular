@@ -21,6 +21,8 @@ export class AppComponent implements OnInit, OnDestroy {
   isAuthenticated = false;
   userType: string | null = null;
   currentRoute = '';
+  isAuthInitialized = false; // Track if auth state has been initialized
+  viewMode: 'login' | 'main' = 'login'; // Explicit property instead of getter
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -31,30 +33,52 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Check authentication state synchronously first
-    this.isAuthenticated = this.authService.isAuthenticated();
-    // Get initial route - handle both absolute and relative paths
-    // Only access window if in browser (not during SSR)
+    // Get initial route
     const initialUrl = this.router.url || (isPlatformBrowser(this.platformId) ? window.location.pathname : '/');
     this.currentRoute = initialUrl;
     
+    // Check storage directly to avoid timing issues with state initialization
+    // This prevents the login flash on page refresh
+    const token = this.authService.getStoredToken();
+    const user = this.authService.getStoredUser();
+    const hasStoredAuth = !!(token && user);
+    this.isAuthenticated = hasStoredAuth;
+    
     if (this.isAuthenticated) {
-      const user = this.authService.getCurrentUser();
       this.userType = user?.userType || null;
     }
 
+    // Set initial view mode synchronously to prevent both views showing
+    const isLoginRoute = initialUrl === '/login' || initialUrl.startsWith('/login');
+    if (isLoginRoute && !hasStoredAuth) {
+      this.viewMode = 'login';
+    } else {
+      this.viewMode = 'main';
+    }
+    
+    // Update view mode after initial setup (will be called again when state initializes)
+    this.updateViewMode();
+
     // Subscribe to auth state changes
-    this.authService.currentUser$.pipe(
+    this.authService.authState$.pipe(
       takeUntil(this.destroy$)
-    ).subscribe(user => {
-      const wasAuthenticated = this.isAuthenticated;
-      this.isAuthenticated = !!user;
-      this.userType = user?.userType || null;
+    ).subscribe(state => {
+      // Mark as initialized after first state update
+      if (!this.isAuthInitialized) {
+        this.isAuthInitialized = true;
+      }
       
-      // Update current route in case it changed
+      const wasAuthenticated = this.isAuthenticated;
+      this.isAuthenticated = state.isAuthenticated;
+      this.userType = state.currentUser?.user?.userType || null;
+      
+      // Update current route
       this.currentRoute = this.router.url || (isPlatformBrowser(this.platformId) ? window.location.pathname : '/');
       
-      // Force change detection to update viewMode
+      // Update view mode when auth state changes
+      this.updateViewMode();
+      
+      // Force change detection
       this.cdr.detectChanges();
       
       // If authentication state changed, handle navigation
@@ -69,19 +93,24 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Listen to route changes to prevent showing login when authenticated
+    // Listen to route changes
     this.router.events.pipe(
       filter((event): event is NavigationEnd => event instanceof NavigationEnd),
       takeUntil(this.destroy$)
     ).subscribe((event) => {
       this.currentRoute = event.url;
       
-      // Force change detection to update viewMode
-      this.cdr.detectChanges();
+      // Check authentication from storage to avoid timing issues
+      const token = this.authService.getStoredToken();
+      const user = this.authService.getStoredUser();
+      const hasStoredAuth = !!(token && user);
+      
+      // Use stored auth during initialization, state after
+      const isAuth = this.isAuthInitialized ? this.isAuthenticated : hasStoredAuth;
       
       // If user is authenticated and tries to access login, redirect to dashboard
-      if ((event.url === '/login' || event.url.startsWith('/login')) && this.authService.isAuthenticated()) {
-        const userType = this.authService.getUserType();
+      if ((event.url === '/login' || event.url.startsWith('/login')) && isAuth) {
+        const userType = user?.userType || this.authService.getUserType();
         if (userType === 'HOSPITAL') {
           this.router.navigate(['/admin-dashboard']);
         } else if (userType === 'DOCTOR') {
@@ -89,37 +118,47 @@ export class AppComponent implements OnInit, OnDestroy {
         } else {
           this.router.navigate(['/dashboard']);
         }
+        return; // Don't update viewMode yet, wait for navigation
       }
       
-      // If user is not authenticated and on a protected route, let guards handle redirect
-      // But ensure we're showing the correct view
-      if (!this.isAuthenticated && event.url !== '/login' && !event.url.startsWith('/login')) {
-        // Guards will redirect, but ensure viewMode is correct
-        this.cdr.detectChanges();
-      }
+      // Update view mode when route changes
+      this.updateViewMode();
+      
+      // Force change detection
+      this.cdr.detectChanges();
     });
   }
 
   /**
-   * Get the current view mode
-   * Returns 'login' or 'main' to ensure only one view is rendered
+   * Update the view mode based on current route and authentication state
+   * This ensures only one view is rendered at a time
    */
-  get viewMode(): 'login' | 'main' {
+  private updateViewMode(): void {
     // Explicitly check route first
     const isLoginRoute = this.currentRoute === '/login' || this.currentRoute.startsWith('/login');
     
-    // ONLY show login view if we're actually on the login route
-    // This ensures the router-outlet renders the correct component
-    if (isLoginRoute) {
-      // If authenticated and on login route, guards will redirect, but show main layout
-      // If not authenticated and on login route, show login
-      return this.isAuthenticated ? 'main' : 'login';
-    }
+    // Check storage directly to avoid timing issues during initialization
+    const token = this.authService.getStoredToken();
+    const user = this.authService.getStoredUser();
+    const hasStoredAuth = !!(token && user);
     
-    // For all other routes (including protected routes), show main layout
-    // Route guards will handle authentication checks and redirects
-    // This prevents showing login view with wrong component during hot reload
-    return 'main';
+    // Determine authentication status
+    // During initialization, use stored auth data
+    // After initialization, use the state (which may have been updated by token refresh)
+    const isAuth = this.isAuthInitialized 
+      ? this.isAuthenticated 
+      : hasStoredAuth;
+    
+    // ONLY show login view if we're actually on the login route AND not authenticated
+    if (isLoginRoute) {
+      // If authenticated and on login route, show main layout (guards will redirect)
+      // If not authenticated and on login route, show login
+      this.viewMode = isAuth ? 'main' : 'login';
+    } else {
+      // For all other routes, always show main layout
+      // Route guards will handle authentication checks and redirects
+      this.viewMode = 'main';
+    }
   }
 
   ngOnDestroy() {

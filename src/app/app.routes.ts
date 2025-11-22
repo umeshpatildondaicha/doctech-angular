@@ -43,11 +43,11 @@ import { MyScheduleComponent } from './pages/my-schedule/my-schedule.component';
 import { PatientBillingDashboardComponent } from './pages/billing/patient-billing-dashboard.component';
 import { InvoiceDetailComponent } from './pages/billing/invoice-detail.component';
 import { AuthGuard } from './guards/auth.guard';
-import { LoginGuard } from './guards/login.guard';
 import { DoctorPermissionsComponent } from './pages/admin/doctor-permissions/doctor-permissions.component';
 
 export const routes: Routes = [
-  { path: 'login', component: LoginComponent, canActivate: [LoginGuard] },
+  { path: 'login', component: LoginComponent },
+  
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'appointment', component: AppointmentComponent, canActivate: [AuthGuard] },
